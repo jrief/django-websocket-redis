@@ -15,6 +15,7 @@ CLASSIFIERS = [
     'Development Status :: 4 - Beta',
 ]
 
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
@@ -28,10 +29,17 @@ setup(
     long_description=read('README.rst'),
     url='https://github.com/jrief/django-websocket-redis',
     license='MIT',
-    keywords = ['django', 'websocket', 'redis'],
+    keywords=['django', 'websocket', 'redis'],
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
     install_requires=['Django>=1.5'],
     packages=find_packages(exclude=['examples', 'docs']),
     include_package_data=True,
+    install_requires=[
+        'setuptools',
+        'redis',
+        'gevent',
+        'greenlet',
+        # optional 'wsaccel'
+    ],
 )
