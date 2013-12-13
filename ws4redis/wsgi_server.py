@@ -1,13 +1,14 @@
 #-*- coding: utf-8 -*-
 import sys
 import redis
-from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
 from django.conf import settings
+from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseBadRequest
 from django.utils.encoding import force_str
 from django.utils.importlib import import_module
 from django.utils.functional import SimpleLazyObject
-from djangular.ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
+from ws4redis import settings as redis_settings
+from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
 
 class RedisContext(object):
@@ -15,7 +16,7 @@ class RedisContext(object):
     publish_protocols = ['publish-session', 'publish-user', 'publish-broadcast']
 
     def __init__(self):
-        self._connection = redis.StrictRedis(host='localhost', port=6379, db=0)
+        self._connection = redis.StrictRedis(host=redis_settings.REDIS_HOST, port=redis_settings.REDIS_PORT, db=0)
         self._subscription = None
 
     def subscribe_channels(self, request, agreed_protocols):
