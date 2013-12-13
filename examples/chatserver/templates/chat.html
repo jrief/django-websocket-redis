@@ -1,0 +1,34 @@
+<html>
+<head>
+	<script language="Javascript">
+		var ws = new WebSocket('{{ ws_url }}', ['Subscribe-User', 'Publish-User']);
+		ws.onopen = function() {
+			console.log("connected !!!");
+			ws.send("Hello Websocket");
+		};
+		ws.onmessage = function(e) {
+			var bb = document.getElementById('blackboard')
+			var html = bb.innerHTML;
+			bb.innerHTML = html + '<br/>' + e.data;
+		};
+		ws.onerror = function(e) {
+			console.error(e);
+		};
+		ws.onclose = function(e) {
+			console.log("connection closed");
+		}
+		function send_message() {
+			var value = document.getElementById('text_message').value;
+			ws.send(value);
+		}
+	</script>
+</head>
+<body>
+	<h1>Simple chat using django-websocket-redis</h1>
+	<input type="text" id="text_message" />
+	<input type="button" value="Send message" onClick="send_message();" />
+	<div id="blackboard"
+		style="width: 640px; height: 480px; background-color: black; color: white; border: solid 2px red; overflow: auto">
+	</div>
+</body>
+</html>
