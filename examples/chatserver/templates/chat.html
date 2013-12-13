@@ -1,13 +1,35 @@
 <html>
 <head>
+	<style>
+		body, input {
+			font-size: 18px;
+			line-height: 25px;
+		}
+		#text_message {
+			margin: 10px;
+			width: 400px;
+			height: 30px;
+			padding: 5px;
+		}
+		#billboard {
+			margin: 10px;
+			padding: 5px;
+			width: 600px;
+			height: 400px;
+			background-color: black;
+			color: white;
+			border: solid 2px green;
+			overflow: auto"
+		}
+	</style>
 	<script language="Javascript">
 		var ws = new WebSocket('{{ ws_url }}', ['Subscribe-User', 'Publish-User']);
 		ws.onopen = function() {
-			console.log("connected !!!");
+			console.log("websocket connected");
 			ws.send("Hello Websocket");
 		};
 		ws.onmessage = function(e) {
-			var bb = document.getElementById('blackboard')
+			var bb = document.getElementById('billboard')
 			var html = bb.innerHTML;
 			bb.innerHTML = html + '<br/>' + e.data;
 		};
@@ -27,8 +49,6 @@
 	<h1>Simple chat using django-websocket-redis</h1>
 	<input type="text" id="text_message" />
 	<input type="button" value="Send message" onClick="send_message();" />
-	<div id="blackboard"
-		style="width: 640px; height: 480px; background-color: black; color: white; border: solid 2px red; overflow: auto">
-	</div>
+	<div id="billboard"></div>
 </body>
 </html>
