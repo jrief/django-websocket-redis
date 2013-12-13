@@ -32,10 +32,10 @@ setup(
     keywords=['django', 'websocket', 'redis'],
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
-    install_requires=['Django>=1.5'],
     packages=find_packages(exclude=['examples', 'docs']),
     include_package_data=True,
     install_requires=[
+        'Django>=1.5',
         'setuptools',
         'redis',
         'gevent',
