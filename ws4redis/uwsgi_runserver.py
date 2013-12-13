@@ -6,8 +6,8 @@
 # uwsgi --virtualenv ~/Workspace/virtualenvs/awesto --http :9090 --http-websockets --gevent 100 --module websocket
 import uwsgi
 import gevent.select
-from djangular.ws4redis.exceptions import WebSocketError
-from djangular.ws4redis.wsgi_server import WebsocketWSGIServer
+from ws4redis.exceptions import WebSocketError
+from ws4redis.wsgi_server import WebsocketWSGIServer
 
 
 class uWSGIWebsocket(object):

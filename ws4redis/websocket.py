@@ -5,7 +5,7 @@ import struct
 from socket import error as socket_error
 from utf8validator import Utf8Validator
 from django.core.handlers.wsgi import logger
-from djangular.ws4redis.exceptions import WebSocketError, FrameTooLargeException
+from ws4redis.exceptions import WebSocketError, FrameTooLargeException
 
 
 class WebSocket(object):
