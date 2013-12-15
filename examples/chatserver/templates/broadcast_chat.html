@@ -19,11 +19,11 @@
 			background-color: black;
 			color: white;
 			border: solid 2px green;
-			overflow: auto"
+			overflow-y: auto;
 		}
 	</style>
 	<script language="Javascript">
-		var ws = new WebSocket('{{ ws_url }}', ['Subscribe-User', 'Publish-User']);
+		var ws = new WebSocket('{{ ws_url }}', ['Subscribe-Broadcast', 'Publish-Broadcast']);
 		ws.onopen = function() {
 			console.log("websocket connected");
 			ws.send("Hello Websocket");

@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import url, patterns
-from django.shortcuts import render
+from django.conf.urls import url, patterns, include
+from django.contrib import admin
+from views import BroadcastChatView, UserChatView
+admin.autodiscover()
 
 
 urlpatterns = patterns('',
-     url(r'^chat/$', lambda request: render(request, 'chat.html',
-         { 'ws_url': 'ws://localhost:{SERVER_PORT}/ws/foobar'.format(**request.META) })),
+    url(r'^chat/$', BroadcastChatView.as_view(), ),
+    url(r'^userchat/$', UserChatView.as_view()),
+    url(r'^admin/', include(admin.site.urls)),
 )
