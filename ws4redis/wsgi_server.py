@@ -33,16 +33,16 @@ class RedisContext(object):
         self._publishers = set()
 
         # subscribe to these Redis channels for outgoing messages
-        if 'subscribe-session' in agreed_protocols:
-            subscribe('{0}:'.format(request.COOKIES.get(settings.SESSION_COOKIE_NAME)))
+        if 'subscribe-session' in agreed_protocols and request.session:
+            subscribe('{0}:'.format(request.session.session_key))
         if 'subscribe-user' in agreed_protocols and request.user:
             subscribe('{0}:'.format(request.user))
         if 'subscribe-broadcast' in agreed_protocols:
             subscribe('broadcast:')
 
         # publish incoming messages on these Redis channels
-        if 'publish-session' in agreed_protocols:
-            publish_on('{0}:'.format(request.COOKIES.get(settings.SESSION_COOKIE_NAME)))
+        if 'publish-session' in agreed_protocols and request.session:
+            publish_on('{0}:'.format(request.session.session_key))
         if 'publish-user' in agreed_protocols and request.user:
             publish_on('{0}:'.format(request.user))
         if 'publish-broadcast' in agreed_protocols:
@@ -81,15 +81,16 @@ class WebsocketWSGIServer(object):
             raise HandshakeError('Missing Subprotocol, must be one of {0}'.format(', '.join(self.allowed_subprotocols)))
 
     def process_request(self, request):
-        if 'django.contrib.sessions.middleware.SessionMiddleware' and 'django.contrib.auth.middleware.AuthenticationMiddleware' in settings.MIDDLEWARE_CLASSES:
-            from django.contrib.auth import get_user
+        request.session = None
+        request.user = None
+        if 'django.contrib.sessions.middleware.SessionMiddleware' in settings.MIDDLEWARE_CLASSES:
             engine = import_module(settings.SESSION_ENGINE)
             session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
-            request.session = engine.SessionStore(session_key)
-            request.user = SimpleLazyObject(lambda: get_user(request))
-        else:
-            request.session = None
-            request.user = None
+            if session_key:
+                request.session = engine.SessionStore(session_key)
+                if 'django.contrib.auth.middleware.AuthenticationMiddleware' in settings.MIDDLEWARE_CLASSES:
+                    from django.contrib.auth import get_user
+                    request.user = SimpleLazyObject(lambda: get_user(request))
 
     def __call__(self, environ, start_response):
         """ Hijack the main loop from the original thread and listen on events on Redis and Websockets"""
@@ -100,6 +101,7 @@ class WebsocketWSGIServer(object):
             request = WSGIRequest(environ)
             self.process_request(request)
             websocket = self.upgrade_websocket(environ, start_response)
+            print 'agreed_protocols: ', self.agreed_protocols
             redis_context.subscribe_channels(request, self.agreed_protocols)
             websocket_fd = websocket.get_file_descriptor()
             redis_fd = redis_context.get_file_descriptor()
@@ -132,7 +134,7 @@ class WebsocketWSGIServer(object):
             response = HttpResponse()
         if websocket:
             websocket.close(code=1001, message='Websocket Closed')
-        if not start_response.im_self.headers_sent:
+        if hasattr(start_response, 'im_self') and not start_response.im_self.headers_sent:
             status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
             status = '{0} {1}'.format(response.status_code, status_text)
             start_response(force_str(status), response._headers.values())
