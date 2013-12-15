@@ -42,13 +42,14 @@ class uWSGIWebsocket(object):
             self.close()
             raise WebSocketError(e)
 
-    def close(self):
+    def close(self, code=1000, message=''):
         self._closed = True
 
 
 class uWSGIWebsocketServer(WebsocketWSGIServer):
     def upgrade_websocket(self, environ, start_response):
-        uwsgi.websocket_handshake(environ['HTTP_SEC_WEBSOCKET_KEY'], environ.get('HTTP_ORIGIN', ''))
+        print 'agreed on: ', self.agreed_protocols[0]
+        uwsgi.websocket_handshake(environ['HTTP_SEC_WEBSOCKET_KEY'], environ.get('HTTP_ORIGIN', ''), self.agreed_protocols[0])
         return uWSGIWebsocket()
 
     def select(self, rlist, wlist, xlist, timeout=None):
