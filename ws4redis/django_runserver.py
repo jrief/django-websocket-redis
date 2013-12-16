@@ -30,7 +30,7 @@ class WebsocketRunServer(WebsocketWSGIServer):
         elif websocket_version not in self.WS_VERSIONS:
             raise HandshakeError('Unsupported WebSocket Version: {0}'.format(websocket_version))
 
-        key = environ.get("HTTP_SEC_WEBSOCKET_KEY", '').strip()
+        key = environ.get('HTTP_SEC_WEBSOCKET_KEY', '').strip()
         if not key:
             raise HandshakeError('Sec-WebSocket-Key header is missing/empty')
         try:

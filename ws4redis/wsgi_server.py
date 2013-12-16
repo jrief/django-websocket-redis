@@ -101,7 +101,7 @@ class WebsocketWSGIServer(object):
             request = WSGIRequest(environ)
             self.process_request(request)
             websocket = self.upgrade_websocket(environ, start_response)
-            print 'agreed_protocols: ', self.agreed_protocols
+            logger.debug('Agreed on protocols: {0}'.format(', '.join(self.agreed_protocols)))
             redis_context.subscribe_channels(request, self.agreed_protocols)
             websocket_fd = websocket.get_file_descriptor()
             redis_fd = redis_context.get_file_descriptor()
