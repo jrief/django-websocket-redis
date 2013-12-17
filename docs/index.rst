@@ -1,12 +1,13 @@
 .. django-websocket-redis documentation master file
 
-Welcome to django-websocket-redis documentation
-===============================================
+Websockets for Django applications using Redis as message queue
+===============================================================
 
 Contents:
 
 .. toctree::
 
+  introduction
   installation
 
 

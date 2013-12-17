@@ -13,7 +13,7 @@ Features
   to control all open websockets.
 * Full control over the main loop during development, so Django can be started as usual with
   ``./manage.py runserver``.
-* No dependencies to any other micro-framework, such as Tornado, Flask, Bottle or Node.js.
+* No dependencies to any other micro-framework, such as Tornado, Flask or Node.js.
 * The only additional requirement is a running instance of Redis.
 
 Build status
