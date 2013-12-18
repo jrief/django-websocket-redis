@@ -26,6 +26,10 @@ Build status
 Currently, unit tests require a running Redis datastore, therefore they hav to run locally and can't
 be deployed on Travis-CI.
 
+Questions
+---------
+Please use the issue tracker to ask questions.
+
 License
 -------
 Copyright (c) 2013 Jacob Rief  
