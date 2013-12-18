@@ -12,3 +12,5 @@ To run unit tests, some additional packages have to be installed::
 Run the test::
 
   cd examples && ./manage.py test chatserver
+
+Currently it is only one test, but it covers more than 60% of the code.
