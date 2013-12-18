@@ -110,7 +110,7 @@ and another, say ``wsgi_websocket.py``::
 Start two separate uWSGI instances::
 
   uwsgi --virtualenv /path/to/virtualenv --socket /path/to/django.socket --buffer-size=32768 --workers=5 --master --module wsgi_django
-  uwsgi --virtualenv /path/to/virtualenv --http-socket /path/to/web.socket --gevent 1000 --http-websockets --module wsgi_websocket
+  uwsgi --virtualenv /path/to/virtualenv --http-socket /path/to/web.socket --gevent 1000 --gevent-monkey-patch --http-websockets --module wsgi_websocket
 
 Your NGiNX server is now configured as a scalable application server which can handle a thousand
 websockets connections concurrently.
