@@ -17,7 +17,8 @@ Features
   to control **all** open websockets.
 * Full control over the main loop during development, so **Django** can be started as usual with
   ``./manage.py runserver``.
-* No dependencies to any other asynchronous event driven framework, such as Tornado, Flask or Node.js.
+* No dependencies to any other asynchronous event driven framework, such as Tornado, Twisted or
+  Node.js.
 * The only additional requirement is a running instance of **Redis**, which by the way is a good
   replacement for memcached.
 
