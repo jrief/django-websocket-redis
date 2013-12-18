@@ -9,7 +9,8 @@ Contents:
 
   introduction
   installation
-
+  running
+  usage
 
 Indices and tables
 ==================

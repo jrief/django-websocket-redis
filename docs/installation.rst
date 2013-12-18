@@ -10,11 +10,11 @@ If not already done, install **Redis**, using your operation systems tools such 
 
 Start the Redis service on your host. It normally listens on port 6379.
 
-The latest stable release as found on PyPI::
+Install **Django Websocket for Redis**. The latest stable release can be found on PyPI::
 
   pip install django-websocket-redis
 
-or the newest development from github::
+or the newest development version from github::
 
   pip install -e git+https://github.com/jrief/django-websocket-redis#egg=django-websocket-redis
 
@@ -51,19 +51,29 @@ internal main loop and adds a URL dispatcher in front of the request handler::
 
   WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
-Testing
--------
+Check your Installation
+-----------------------
 With **Websockets for Redis** your Django application has immediate access to code written for
-websockets. Make sure, that Redis is running, then start your development server::
+websockets. Make sure, that Redis is running, then change into the ``examples`` directory and 
+start a sample chat server::
 
+  ./manage.py syncdb
+  ... database tables are created
+  ... answer the questions
   ./manage.py runserver
+
+Point your browser onto http://localhost:8000/chat/ , you should see a simple chat server. Enter
+a message and send it to the server. It should be echoed immediately into the billboard.
+
+Point a second browser onto the same URL. Now each browser should echo the message entered into
+input field.
 
 In the examples directory, there are two chat server implementations, which run out of the box and
 can be used as a starting point.
 
 Unit Testing
 ------------
-To run unit test, some additional dependencies must be resolved:
+To run unit tests, some additional dependencies must be resolved:
 
 * nose
 * django-nose

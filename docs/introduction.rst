@@ -35,18 +35,19 @@ A typical implementation proposal is to use socket.io_ running inside a NodeJS_ 
 
 |websocket-nodejs|
 
-Django then communicates with this service using a RESTful API. In alternative proposals, other
-Python based async event frameworks such as Tornado_ or Flask_ are used. But they all look like
-makeshift solutions, since one has to pull in a second framework, which makes the project dependent
-on another service. Having to run two concurrent frameworks can be quite embarrassing during
-application development and specially while in debug mode.
+Here, Django communicates with Node.JS using a RESTful API, which is ugly because it pulls in two
+completely technologies. In alternative proposals, other Python based asynchronous event frameworks
+such as Tornado_ or Flask_ are used. But they all look like makeshift solutions, since one has to
+run a second framework side by side with Django. This makes the project dependent on another
+infrastructure and having to run two concurrent frameworks can be quite embarrassing during
+application development, specially while debugging code.
 
 While searching for a simpler solution, I found out that `uWSGI offers websockets`_ right out of
 the box. With Redis_ as message queue, and a few lines of Python code, one can bidirectionally
-communicate with any WSGI based framework, such as Django. Of course, here it also would be
+communicate with any WSGI based framework, for instance **Django**. Of course, here it also is
 prohibitive to create a new thread for each open websocket connection. Therefore that part of the
 code runs in one single thread/process for all open connections in a cooperative concurrency mode
-using the gevent_ and greenlet_ library.
+using the excellent gevent_ and greenlet_ libraries.
 
 This approach has some advantages:
 
