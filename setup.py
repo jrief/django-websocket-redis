@@ -36,6 +36,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'Django>=1.5',
+        'uWSGI>=1.9.20',
         'setuptools',
         'redis',
         'gevent',
