@@ -18,6 +18,7 @@ or the newest development version from github::
 
   pip install -e git+https://github.com/jrief/django-websocket-redis#egg=django-websocket-redis
 
+
 Dependencies
 ------------
 * Django_ >=1.5
@@ -71,23 +72,17 @@ input field.
 In the examples directory, there are two chat server implementations, which run out of the box and
 can be used as a starting point.
 
-Unit Testing
-------------
-To run unit tests, some additional dependencies must be resolved:
-
-* nose
-* django-nose
-* mock
-* websocket-client
-* mockredispy (currently not used)
-
-Run the test::
-
-  cd examples && ./manage.py test chatserver
+Replace memcached with Redis
+----------------------------
+Since you had to add Redis as an additional service running on your infrastructure, at least you
+can get rid of another one, which typically is required for Django installations, memcached.
+Its beyond the scope of this documentation to explain how to set up a caching and/or session store
+using Redis, but there is plenty of documentation on the Internet.
 
 .. _Redis from source: http://redis.io/download
 .. _github: https://github.com/jrief/django-websocket-redis
 .. _Django: http://djangoproject.com/
 .. _Python client for Redis: https://pypi.python.org/pypi/redis/
+.. _uWSGI: http://projects.unbit.it/uwsgi/
 .. _gevent: https://pypi.python.org/pypi/gevent
 .. _greenlet: https://pypi.python.org/pypi/greenlet

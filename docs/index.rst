@@ -11,6 +11,7 @@ Contents:
   installation
   running
   usage
+  testing
 
 Indices and tables
 ==================
