@@ -10,11 +10,11 @@ and vice versa. Each websocket is identified by the part of the URL which follow
 .. note:: The prefix ``/ws/`` is specified using the configuration setting ``WEBSOCKET_URL``.
 
 The idea is to let a client subscribe for different channels, so that he only gets notified, when
-a certain event happens on that channel. Currently there are three such events, broadcast
-notification, user notification and session notification. Additionally a client may declare on
-initialization, on which channels he wishes to publish a message. The latter is not that important
-for a websocket implementation, because this can be achieved using the well known XMLHttpRequest
-(Ajax) protocols.
+a certain event happens on a channel he is interested. Currently there are three such events,
+*broadcast notification*, *user notification* and *session notification*. Additionally, a client may
+declare on initialization, on which channels he wishes to publish a message. The latter is not that
+important for a websocket implementation, because it can be achieved otherwise, using the well
+known XMLHttpRequest (Ajax) protocols.
 
 Typical client JavaScript code may look like::
 
@@ -73,7 +73,8 @@ then the message “Hello World” is sent to all clients using the Session-Id
 
 Publish for Broadcast, User and Session
 ---------------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar&publish-broadcast``, will
-publish a message sent through the websocket on the named Redis channels ``_broadcast_:foobar``,
+A websocket initialized with the URL ``ws://www.example.com/ws/foobar&publish-broadcast``, 
+``ws://www.example.com/ws/foobar&publish-user`` or ``ws://www.example.com/ws/foobar&publish-session``
+will publish a message sent through the websocket on the named Redis channels ``_broadcast_:foobar``,
 ``johndoe:foobar`` and ``wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x:foobar`` respectively. Every listener
 subscribed to any of those named channels, then will be notified.

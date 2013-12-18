@@ -10,14 +10,19 @@ from **Redis** to the configured websockets and vice versa.
 Running Django with websockets for Redis in development mode
 ------------------------------------------------------------
 With **Websockets for Redis** your Django application has immediate access to code written for
-websockets. Make sure, that Redis is running, then start your development server::
+websockets. Make sure, that Redis is up and accepting connections::
+
+  $ redis-cli ping
+  PONG
+
+Then start the Django development server::
 
   ./manage.py runserver
 
-As in normal Django, this command shall only be used for development.
+As usual, this command shall only be used for development.
 
-This ``runserver`` command is a monkey patched version of the original Django main loop and works
-similar to it. If an incoming request is normal HTTP, everything works as usual. Howver, if
+The ``runserver`` command is a monkey patched version of the original Django main loop and works
+similar to it. If an incoming request is normal HTTP, everything works as usual. However, if
 **ws4redis** detects, that the incoming request wants to open a websocket, the Django main loop is
 hijacked by **ws4redis**. Then this loop then waits until ``select`` notifies that some data is
 available for further processing, or be the websocket itself, or by the Redis message queue. This
@@ -69,16 +74,16 @@ one to handle websocket requests. Look at this diagram:
 Here the webserver undertakes the task of dispatching normal and websocket requests. A configuration
 for NGiNX may look like::
 
+  location / {
+      include /etc/nginx/uwsgi_params;
+      uwsgi_pass unix:/path/to/django.socket;
+  }
+  
   location /ws/ {
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection "upgrade";
-      proxy_pass unix:/path/to/web.socket;
-  }
-  
-  location / {
-      include /etc/nginx/uwsgi_params;
-      uwsgi_pass unix:/path/to/django.socket;
+      proxy_pass http://unix:/path/to/web.socket;
   }
 
 Since both uWSGI handlers create their own main loop, they also require their own application and
@@ -89,15 +94,15 @@ say, ``wsgi_django.py``::
   import os
   from django.core.wsgi import get_wsgi_application
   
-  os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myapp.settings')
+  os.environ.update(DJANGO_SETTINGS_MODULE='myapp.settings')
   application = get_wsgi_application()
 
 and ``wsgi_websocket.py``::
 
   import os
+  os.environ.update(DJANGO_SETTINGS_MODULE='myapp.settings')
   from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
   
-  os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myapp.settings')
   _app = uWSGIWebsocketServer()
   
   def application(environ, start_response):

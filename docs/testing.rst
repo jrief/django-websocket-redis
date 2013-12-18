@@ -7,13 +7,7 @@ Additional dependencies
 -----------------------
 To run unit tests, some additional packages have to be installed::
 
-  pip install nose django-nose mock websocket-client
-  
-And in future test::
-
-  mockredispy
-
-The current API does not work yet.
+  pip install -r examples/chatserver/tests/requirements.txt
 
 Run the test::
 
