@@ -3,8 +3,6 @@
 Running Websocket for Redis
 ===========================
 
-|websocket4redis|
-
 **Websocket for Redis** is a library which runs side by side with Django. It has its own separate
 main loop, which does nothing other than keeping the websocket alive and dispatching requests
 from **Redis** to the configured websockets and vice versa.
@@ -18,13 +16,19 @@ websockets. Make sure, that Redis is running, then start your development server
 
 As in normal Django, this command shall only be used for development.
 
-It works like this: If an incoming request is normal HTTP, everything works as usual. If
+This ``runserver`` command is a monkey patched version of the original Django main loop and works
+similar to it. If an incoming request is normal HTTP, everything works as usual. Howver, if
 **ws4redis** detects, that the incoming request wants to open a websocket, the Django main loop is
 hijacked by **ws4redis**. Then this loop then waits until ``select`` notifies that some data is
 available for further processing, or be the websocket itself, or by the Redis message queue. This
 hijacked main loop finishes when the websocket is closed or when an error occurs.
 
 .. note:: In development, one thread is created for each open websocket.
+
+Open websocket connections exchange so called Ping/Pong messages. This keeps the connections open,
+even if there is no payload to be sent. The development main loop in **ws4redis** does not send
+these stay alive packages, because during development normally there is no proxy or firewall
+dropping the connection.
 
 Running Django with websockets for Redis as a stand alone uWSGI server
 ----------------------------------------------------------------------
@@ -66,10 +70,10 @@ Here the webserver undertakes the task of dispatching normal and websocket reque
 for NGiNX may look like::
 
   location /ws/ {
-      proxy_pass unix:/path/to/web.socket;
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection "upgrade";
+      proxy_pass unix:/path/to/web.socket;
   }
   
   location / {
