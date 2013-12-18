@@ -12,14 +12,14 @@ from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredE
 
 
 class RedisContext(object):
-    subscription_protocols = ['subscribe-session', 'subscribe-user', 'subscribe-broadcast']
-    publish_protocols = ['publish-session', 'publish-user', 'publish-broadcast']
+    subscription_channels = ['subscribe-session', 'subscribe-user', 'subscribe-broadcast']
+    publish_channels = ['publish-session', 'publish-user', 'publish-broadcast']
 
     def __init__(self):
-        self._connection = redis.StrictRedis(host=redis_settings.REDIS_HOST, port=redis_settings.REDIS_PORT, db=0)
+        self._connection = redis.StrictRedis(host=redis_settings.REDIS_HOST, port=redis_settings.REDIS_PORT)
         self._subscription = None
 
-    def subscribe_channels(self, request, agreed_protocols):
+    def subscribe_channels(self, request, channels):
         def subscribe(prefix):
             key = request.path_info.replace(settings.WEBSOCKET_URL, prefix, 1)
             self._subscription.subscribe(key)
@@ -28,25 +28,24 @@ class RedisContext(object):
             key = request.path_info.replace(settings.WEBSOCKET_URL, prefix, 1)
             self._publishers.add(key)
 
-        agreed_protocols = [p.lower() for p in agreed_protocols]
         self._subscription = self._connection.pubsub()
         self._publishers = set()
 
         # subscribe to these Redis channels for outgoing messages
-        if 'subscribe-session' in agreed_protocols and request.session:
+        if 'subscribe-session' in channels and request.session:
             subscribe('{0}:'.format(request.session.session_key))
-        if 'subscribe-user' in agreed_protocols and request.user:
+        if 'subscribe-user' in channels and request.user:
             subscribe('{0}:'.format(request.user))
-        if 'subscribe-broadcast' in agreed_protocols:
-            subscribe('broadcast:')
+        if 'subscribe-broadcast' in channels:
+            subscribe('_broadcast_:')
 
         # publish incoming messages on these Redis channels
-        if 'publish-session' in agreed_protocols and request.session:
+        if 'publish-session' in channels and request.session:
             publish_on('{0}:'.format(request.session.session_key))
-        if 'publish-user' in agreed_protocols and request.user:
+        if 'publish-user' in channels and request.user:
             publish_on('{0}:'.format(request.user))
-        if 'publish-broadcast' in agreed_protocols:
-            publish_on('broadcast:')
+        if 'publish-broadcast' in channels:
+            publish_on('_broadcast_:')
 
     def publish_message(self, message):
         """Publish a message on the subscribed channels in the Redis database"""
@@ -63,7 +62,7 @@ class RedisContext(object):
 
 
 class WebsocketWSGIServer(object):
-    allowed_subprotocols = RedisContext.subscription_protocols + RedisContext.publish_protocols
+    allowed_channels = RedisContext.subscription_channels + RedisContext.publish_channels
 
     def assure_protocol_requirements(self, environ):
         if environ.get('REQUEST_METHOD') != 'GET':
@@ -74,11 +73,6 @@ class WebsocketWSGIServer(object):
 
         if environ.get('HTTP_UPGRADE', '').lower() != 'websocket':
             raise HandshakeError('Client does not wish to upgrade to a websocket')
-
-        requested_protocols = [p.strip() for p in environ.get('HTTP_SEC_WEBSOCKET_PROTOCOL', '').split(',')]
-        self.agreed_protocols = [p for p in requested_protocols if p.lower() in self.allowed_subprotocols]
-        if not self.agreed_protocols:
-            raise HandshakeError('Missing Subprotocol, must be one of {0}'.format(', '.join(self.allowed_subprotocols)))
 
     def process_request(self, request):
         request.session = None
@@ -92,6 +86,11 @@ class WebsocketWSGIServer(object):
                     from django.contrib.auth import get_user
                     request.user = SimpleLazyObject(lambda: get_user(request))
 
+    def process_subscriptions(self, request):
+        requested_channels = [p.strip().lower() for p in request.GET]
+        agreed_channels = [p for p in requested_channels if p in self.allowed_channels]
+        return agreed_channels
+
     def __call__(self, environ, start_response):
         """ Hijack the main loop from the original thread and listen on events on Redis and Websockets"""
         websocket = None
@@ -100,9 +99,10 @@ class WebsocketWSGIServer(object):
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
             self.process_request(request)
+            channels = self.process_subscriptions(request)
             websocket = self.upgrade_websocket(environ, start_response)
-            logger.debug('Agreed on protocols: {0}'.format(', '.join(self.agreed_protocols)))
-            redis_context.subscribe_channels(request, self.agreed_protocols)
+            logger.debug('Subscribed to channels: {0}'.format(', '.join(channels)))
+            redis_context.subscribe_channels(request, channels)
             websocket_fd = websocket.get_file_descriptor()
             redis_fd = redis_context.get_file_descriptor()
             while websocket and not websocket.closed:

@@ -23,7 +23,7 @@
 		}
 	</style>
 	<script language="Javascript">
-		var ws = new WebSocket('{{ ws_url }}', ['Subscribe-Broadcast', 'Publish-Broadcast']);
+		var ws = new WebSocket('{{ ws_url }}?subscribe-broadcast&publish-broadcast');
 		ws.onopen = function() {
 			console.log("websocket connected");
 			ws.send("Hello Websocket");

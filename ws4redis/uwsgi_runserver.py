@@ -48,8 +48,7 @@ class uWSGIWebsocket(object):
 
 class uWSGIWebsocketServer(WebsocketWSGIServer):
     def upgrade_websocket(self, environ, start_response):
-        print 'agreed on: ', self.agreed_protocols[0]
-        uwsgi.websocket_handshake(environ['HTTP_SEC_WEBSOCKET_KEY'], environ.get('HTTP_ORIGIN', ''), self.agreed_protocols[0])
+        uwsgi.websocket_handshake(environ['HTTP_SEC_WEBSOCKET_KEY'], environ.get('HTTP_ORIGIN', ''))
         return uWSGIWebsocket()
 
     def select(self, rlist, wlist, xlist, timeout=None):

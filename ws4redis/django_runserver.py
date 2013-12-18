@@ -46,7 +46,6 @@ class WebsocketRunServer(WebsocketWSGIServer):
             ('Connection', 'Upgrade'),
             ('Sec-WebSocket-Accept', base64.b64encode(sha1(key + self.WS_GUID).digest())),
             ('Sec-WebSocket-Version', str(websocket_version)),
-            ('Sec-WebSocket-Protocol', self.agreed_protocols[0])
         ]
 
         logger.debug('WebSocket request accepted, switching protocols')
