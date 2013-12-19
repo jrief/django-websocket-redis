@@ -1,0 +1,3 @@
+Instead of using geven-monkeypatch, implement the Redis part using gevent so that connections work
+in a non-blocking manner. Here ist how it works:
+http://gehrcke.de/2013/01/highly-concurrent-connections-to-redis-with-gevent-and-redis-py/
