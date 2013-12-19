@@ -69,11 +69,11 @@ must run side by side with Django. Well, websockets are bidirectional but their 
 to trigger events, send from the server to the client. Remember, the other direction, can be handled 
 much easier using Ajax – adding an additional TCP/IP handshake tough.
 
-Here, the only “stay in touch with the client” is the websocket. And since we speak about hundreds
-or even thousands of open connections, the footprint in terms of memory and CPU resources must be
-brought down to a minimum. With this implementation, only two file descriptors are required for
-each open connection, one which stays in touch with the client and one which wait for events
-delivered by the message queue.
+Here, the only “stay in touch with the client” is the file handle attached to the websocket.
+And since we speak about hundreds or even thousands of open connections, the footprint in terms
+of memory and CPU resources must be brought down to a minimum. With this implementation, only
+two file descriptors are required for each open connection, one which stays in touch with the
+client and one which wait for events delivered by the message queue.
 
 Productive webservers require a some kind of session store anyway. This can be a memcached_ or a
 Redis data server. Therefore, such a service must run anyway and if we can choose between one
