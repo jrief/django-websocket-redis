@@ -5,12 +5,12 @@ Installation and Configuration
 
 Installation
 ------------
-If not already done, install **Redis**, using your operation systems tools such as ``aptitude``,
-``yum``, ``port`` or install `Redis from source`_.
+If not already done, install the **Redis server**, using an installation tool such as ``aptitude``,
+``yum``, ``port`` as offered by the operating system or install `Redis from source`_.
 
 Start the Redis service on your host::
 
-  $ sudo service redis-server restart
+  $ sudo service redis-server start
 
 Check if Redis is up and accepting connections::
 
@@ -63,32 +63,31 @@ internal main loop and adds a URL dispatcher in front of the request handler::
 Check your Installation
 -----------------------
 With **Websockets for Redis** your Django application has immediate access to code written for
-websockets. Make sure, that Redis is running, then change into the ``examples`` directory and 
-start a sample chat server::
+websockets. Change into the ``examples`` directory and start a sample chat server::
 
   ./manage.py syncdb
   ... database tables are created
   ... answer the questions
   ./manage.py runserver
 
-Point your browser onto http://localhost:8000/chat/ , you should see a simple chat server. Enter
+Point a browser onto http://localhost:8000/chat/, you should see a simple chat server. Enter
 a message and send it to the server. It should be echoed immediately on the billboard.
 
 Point a second browser onto the same URL. Now each browser should echo the message entered into
 input field.
 
-In the examples directory, there are two chat server implementations, which run out of the box and
-can be used as a starting point.
+In the examples directory, there are two chat server implementations, which run out of the box.
+They can be used as a starting point.
 
 Replace memcached with Redis
 ----------------------------
-Since you had to add Redis as an additional service, running on your infrastructure, at least now 
-you can get rid of another one, which typically is required for Django installations, memcached.
-Its beyond the scope of this documentation to explain how to set up a caching and/or session store
-using Redis, but there is plenty of documentation on the Internet.
+Since you had to add Redis as an additional service on your infrastructure, at least you can get
+rid of another one: memcached, which typically is required for Django installations can safely
+be replaced by Redis. Its beyond the scope of this documentation to explain how to set up a caching
+and/or session store using Redis, but there is plenty of documentation on the Internet.
 
-Check django-redis-sessions_ and django-redis-cache_ for details. Here is a description on how to use
-`Redis as Django session store and cache backend`_.
+Check django-redis-sessions_ and django-redis-cache_ for details. Here is a description on how to
+use `Redis as Django session store and cache backend`_.
 
 .. _Redis from source: http://redis.io/download
 .. _github: https://github.com/jrief/django-websocket-redis

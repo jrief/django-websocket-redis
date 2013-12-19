@@ -10,36 +10,35 @@ and vice versa. Each websocket is identified by the part of the URL which follow
 .. note:: The prefix ``/ws/`` is specified using the configuration setting ``WEBSOCKET_URL``.
 
 The idea is to let a client subscribe for different channels, so that he only gets notified, when
-a certain event happens on a channel he is interested. Currently there are three such events,
+a certain event happens on a channel he is interested in. Currently there are three such events,
 *broadcast notification*, *user notification* and *session notification*. Additionally, a client may
 declare on initialization, on which channels he wishes to publish a message. The latter is not that
 important for a websocket implementation, because it can be achieved otherwise, using the well
-known XMLHttpRequest (Ajax) protocols.
+known XMLHttpRequest (Ajax) methods.
 
 Typical client JavaScript code may look like::
 
 	var ws = new WebSocket('ws://www.example.com/ws/foobar?subscribe-broadcast&publish-broadcast');
 	ws.onopen = function() {
-		console.log("websocket connected");
+	    console.log("websocket connected");
 	};
 	ws.onmessage = function(e) {
-		console.log("Received: " + e.data);
+	    console.log("Received: " + e.data);
 	};
 	ws.onerror = function(e) {
-		console.error(e);
+	    console.error(e);
 	};
 	ws.onclose = function(e) {
-		console.log("connection closed");
+	    console.log("connection closed");
 	}
 	function send_message(msg) {
-		ws.send(msg);
+	    ws.send(msg);
 	}
-
 
 Subscribe to Broadcast Notification
 -----------------------------------
 This is the simplest form of notification. Every websocket subscribed to a broadcast channel is
-notified, when a notification is sent to that named Redis channel. Say, the websocket URL is
+notified, when a message is sent to that named Redis channel. Say, the websocket URL is
 ``ws://www.example.com/ws/foobar&subscribe-broadcast`` and in Django someone publishes a message
 to Redis using::
 
