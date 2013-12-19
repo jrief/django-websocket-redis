@@ -1,6 +1,8 @@
 #-*- coding: utf-8 -*-
 import sys
 import redis
+import redis.connection
+import gevent
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseBadRequest
@@ -9,6 +11,8 @@ from django.utils.importlib import import_module
 from django.utils.functional import SimpleLazyObject
 from ws4redis import settings as redis_settings
 from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
+
+redis.connection.socket = gevent.socket
 
 
 class RedisContext(object):
