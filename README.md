@@ -13,7 +13,8 @@ You can find detailed documentation on [ReadTheDocs](http://django-websocket-red
 Features
 --------
 * Largely scalable for Django applications with hundreds of open websocket connections.
-* Runs in a cooperative concurrency model, thus only one thread/process is simultaneously required
+* Runs in a cooperative concurrency model using [greenlet](https://pypi.python.org/pypi/greenlet)
+  and [gevent](http://www.gevent.org/), thus only one thread/process is simultaneously required
   to control **all** open websockets.
 * Full control over the main loop during development, so **Django** can be started as usual with
   ``./manage.py runserver``.
