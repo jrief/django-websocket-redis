@@ -24,7 +24,7 @@
 	</style>
 	<script type="text/javascript" src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 	<script type="text/javascript">
-		var ws = new WebSocket('{{ ws_url }}', ['Subscribe-User']);
+		var ws = new WebSocket('{{ ws_url }}?subscribe-user');
 		ws.onopen = function() {
 			console.log("websocket connected");
 		};
