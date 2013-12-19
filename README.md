@@ -13,12 +13,11 @@ You can find detailed documentation on [ReadTheDocs](http://django-websocket-red
 Features
 --------
 * Largely scalable for Django applications with hundreds of open websocket connections.
-* Runs in a cooperative concurrency model using [greenlet](https://pypi.python.org/pypi/greenlet)
-  and [gevent](http://www.gevent.org/), thus only one thread/process is simultaneously required
-  to control **all** open websockets.
+* Runs in a cooperative concurrency model using [gevent](http://www.gevent.org/), thus only one
+  thread/process is simultaneously required to control **all** open websockets.
 * Full control over the main loop during development, so **Django** can be started as usual with
   ``./manage.py runserver``.
-* No dependencies to any other asynchronous event driven framework, such as Tornado, Twisted or
+* No dependency to any other asynchronous event driven framework, such as Tornado, Twisted or
   Node.js.
 * The only additional requirement is a running instance of **Redis**, which by the way is a good
   replacement for memcached.
