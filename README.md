@@ -24,8 +24,7 @@ Features
 
 Build status
 ------------
-Currently, unit tests require a running Redis datastore, therefore they hav to run locally and can't
-be deployed on Travis-CI.
+[![Build Status](https://travis-ci.org/jrief/django-websocket-redis.png?branch=master)](https://travis-ci.org/jrief/django-websocket-redis)
 
 Questions
 ---------
