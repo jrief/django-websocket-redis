@@ -58,11 +58,15 @@ Run uWSGI as stand alone server with::
 
   uwsgi --virtualenv /path/to/virtualenv --http :80 --gevent 100 --http-websockets --module wsgi
 
-It will answer, both Django and websocket requests on port 80 using HTTP. Here the modified
+This will answer, both Django and websocket requests on port 80 using HTTP. Here the modified
 ``application`` dispatches incoming requests depending on the URL on either a Django handler or
 into the websocket's main loop.
 
-This configuration works for low traffic sites, where static files are handled by another webserver.
+This configuration works for testing uWSGI and low traffic sites. Since uWSGI then runs in one
+thread/process, blocking calls such as accessing the database, would also block all other HTTP
+requests. Adding ``--gevent-monkey-patch`` to the command line may help here, but Postgres for
+instance requires to monkey patch its blocking calls with **gevent** using the psycogreen_ library.
+Moreover, only one CPU core is then used and static files must be handled by another webserver.
 
 Running Django with websockets for Redis behind NGiNX using uWSGI
 -----------------------------------------------------------------
@@ -117,3 +121,4 @@ websockets connections concurrently.
 
 
 .. |websocket4redis| image:: _static/websocket4redis.png
+.. _psycogreen: https://bitbucket.org/dvarrazzo/psycogreen/
