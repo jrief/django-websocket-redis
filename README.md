@@ -31,8 +31,6 @@ Questions
 ---------
 Please use the issue tracker to ask questions.
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/jrief/django-websocket-redis/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
 License
 -------
 Copyright (c) 2013 Jacob Rief  
@@ -42,3 +40,5 @@ Release History
 ---------------
 * 0.1.1 - instead of CLI monkey patching, explicitly patch the redis.connection.socket using gevent.socket
 * 0.1.0 - initial revision
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/jrief/django-websocket-redis/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
