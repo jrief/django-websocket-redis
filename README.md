@@ -1,8 +1,8 @@
 django-websocket-redis
 ======================
 
-Websockets for Django applications using Redis as message queue
----------------------------------------------------------------
+Websockets for Django using Redis as message queue
+--------------------------------------------------
 
 This module implements websockets on top of Django without requiring any additional framework. For
 messaging it uses the [Redis](http://redis.io/) datastore and in a production environment, it is
