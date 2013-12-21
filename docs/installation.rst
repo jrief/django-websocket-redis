@@ -60,6 +60,9 @@ internal main loop and adds a URL dispatcher in front of the request handler::
 
   WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
+.. note:: **django-websocket-redis** does not define any database models. It can therefore be
+          installed without any database synchronization.
+
 Check your Installation
 -----------------------
 With **Websockets for Redis** your Django application has immediate access to code written for
