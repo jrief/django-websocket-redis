@@ -1,7 +1,8 @@
-Instead of using geven-monkeypatch, implement the Redis part using gevent so that connections work
-in a non-blocking manner. Here ist how it works:
-http://gehrcke.de/2013/01/highly-concurrent-connections-to-redis-with-gevent-and-redis-py/
-- fixed in 0.1.1
+* Instead of using geven-monkeypatch, implement the Redis part using gevent so that connections work
+  in a non-blocking manner. Here ist how it works:
+  http://gehrcke.de/2013/01/highly-concurrent-connections-to-redis-with-gevent-and-redis-py/
+  - fixed in 0.1.1
 
-Use >100 greenlets when running the unit test. This shall take no longer than 1 second.
+* Use >100 greenlets when running the unit test. This shall take no longer than 1 second.
 
+* Add prototype methods such as select() to base class, which raise a NonImplementedError.
