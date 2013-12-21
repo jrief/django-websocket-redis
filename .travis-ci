@@ -13,8 +13,11 @@ branches:
 
 install:
   - pip install -q Django==$DJANGO --use-mirrors
-  - pip install pyquery --use-mirrors
+  - pip install -r examples/chatserver/tests/requirements.txt  --use-mirrors
   - python setup.py -q install
+
+services:
+  - redis-server
 
 before_script:
   - export DISPLAY=:99.0
