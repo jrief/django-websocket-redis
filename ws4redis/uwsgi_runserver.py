@@ -1,9 +1,4 @@
 #-*- coding: utf-8 -*-
-#!/Users/jrief/Workspace/virtualenvs/awesto/bin/uwsgi --virtualenv ~/Workspace/virtualenvs/awesto --http-socket :9090 --gevent 100 --module chat --http-websockets
-#!./uwsgi --http-socket :9090 --gevent 100 --module tests.websocket_chat --gevent-monkey-patch
-# uwsgi --virtualenv ~/Workspace/virtualenvs/awesto --http :9090 --http-raw-body --gevent 100 --module chat (läuft in ein timeout)
-# uwsgi --virtualenv ~/Workspace/virtualenvs/awesto --http-socket :9090  --gevent 100 --module websocket --http-websockets (de-facto das gleiche wie --http)
-# uwsgi --virtualenv ~/Workspace/virtualenvs/awesto --http :9090 --http-websockets --gevent 100 --module websocket
 import uwsgi
 import gevent.select
 from ws4redis.exceptions import WebSocketError
