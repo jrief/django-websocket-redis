@@ -1,6 +1,8 @@
-#! /usr/bin/env uwsgi --virtualenv path/to/virtualenv --http :9090 --gevent 100 --http-websockets --module wsgi
+# test uWSGI with low traffic:
+# uwsgi --virtualenv /path/to/virtualenv --http :9090 --gevent 100 --http-websockets --module wsgi
 import os
-
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chatserver.settings')
 
 from django.core.wsgi import get_wsgi_application
