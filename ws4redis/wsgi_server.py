@@ -20,7 +20,9 @@ class RedisContext(object):
     publish_channels = ['publish-session', 'publish-user', 'publish-broadcast']
 
     def __init__(self):
-        self._connection = redis.StrictRedis(host=redis_settings.REDIS_HOST, port=redis_settings.REDIS_PORT)
+        self._connection = redis.StrictRedis(host=redis_settings.WS4REDIS_HOST,
+            port=redis_settings.WS4REDIS_PORT, db=redis_settings.WS4REDIS_DB,
+            password=redis_settings.WS4REDIS_PASSWORD)
         self._subscription = None
 
     def subscribe_channels(self, request, channels):

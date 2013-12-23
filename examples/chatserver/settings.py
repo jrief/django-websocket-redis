@@ -61,3 +61,6 @@ WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 # URL that distinguishes websocket connections from normal requests
 WEBSOCKET_URL = '/ws/'
+
+# Set the number of seconds each message shall persited
+WS4REDIS_EXPIRE = 3600

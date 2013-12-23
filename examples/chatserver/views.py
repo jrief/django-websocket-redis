@@ -8,6 +8,11 @@ from ws4redis import settings as redis_settings
 
 
 class BaseTemplateView(TemplateView):
+    def __init__(self):
+        self._connection = redis.StrictRedis(host=redis_settings.WS4REDIS_HOST,
+            port=redis_settings.WS4REDIS_PORT, db=redis_settings.WS4REDIS_DB,
+            password=redis_settings.WS4REDIS_PASSWORD)
+
     def get_context_data(self, **kwargs):
         context = super(BaseTemplateView, self).get_context_data(**kwargs)
         context.update(ws_url='ws://localhost:{SERVER_PORT}/ws/foobar'.format(**self.request.META))
@@ -17,12 +22,14 @@ class BaseTemplateView(TemplateView):
 class BroadcastChatView(BaseTemplateView):
     template_name = 'broadcast_chat.html'
 
+    def __init__(self):
+        super(BroadcastChatView, self).__init__()
+        self._connection.set('_broadcast_:foobar', 'Hello Websockets',
+                             ex=redis_settings.WS4REDIS_EXPIRE, nx=True)
+
 
 class UserChatView(BaseTemplateView):
     template_name = 'user_chat.html'
-
-    def __init__(self):
-        self._connection = redis.StrictRedis(host=redis_settings.REDIS_HOST, port=redis_settings.REDIS_PORT, db=0)
 
     def get_context_data(self, **kwargs):
         users = User.objects.all()

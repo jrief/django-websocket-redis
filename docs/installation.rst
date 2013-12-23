@@ -49,11 +49,26 @@ Specify the URL that distinguishes websocket connections from normal requests::
 
   WEBSOCKET_URL = '/ws/'
 
-If Redis runs on a host other than localhost or a port other than 6379, override the default
-settings::
+If Redis runs on a host other than localhost override the default::
 
-  REDIS_HOST = 'redis.example.com'
-  REDIS_PORT = 6379
+  WS4REDIS_HOST = 'redis.example.com'
+
+If Redis runs on another port than 6379, override the default::
+
+  WS4REDIS_PORT = 16379
+
+If Redis shall use another database number than 0, override the default::
+
+  WS4REDIS_DB = 1
+
+If password authentication is enforced for the Redis database::
+
+  WS4REDIS_PASSWORD = 'verysecret'
+
+Set the number in seconds, each received message shall be persisted by Redis. This allows to
+reconnect a websocket, while still being able to access the last message for that key::
+
+  WS4REDIS_EXPIRE = 7200
 
 This setting is required during development and ignored in production. It overrides Django's
 internal main loop and adds a URL dispatcher in front of the request handler::
