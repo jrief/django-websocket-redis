@@ -6,7 +6,6 @@ import gevent
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseBadRequest
-from django.utils.encoding import force_str
 from django.utils.importlib import import_module
 from django.utils.functional import SimpleLazyObject
 from ws4redis import settings as redis_settings
@@ -143,5 +142,5 @@ class WebsocketWSGIServer(object):
         if hasattr(start_response, 'im_self') and not start_response.im_self.headers_sent:
             status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
             status = '{0} {1}'.format(response.status_code, status_text)
-            start_response(force_str(status), response._headers.values())
+            start_response(unicode(status), response._headers.values())
         return response

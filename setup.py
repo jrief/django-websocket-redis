@@ -35,7 +35,7 @@ setup(
     packages=find_packages(exclude=['examples', 'docs']),
     include_package_data=True,
     install_requires=[
-        'Django>=1.5',
+        'Django',
         'uWSGI>=1.9.20',
         'setuptools',
         'redis',
