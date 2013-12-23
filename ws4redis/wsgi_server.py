@@ -67,7 +67,8 @@ class RedisContext(object):
 
 class WebsocketWSGIServer(object):
     allowed_channels = RedisContext.subscription_channels + RedisContext.publish_channels
-
+    redis_context = RedisContext
+    
     def assure_protocol_requirements(self, environ):
         if environ.get('REQUEST_METHOD') != 'GET':
             raise HandshakeError('HTTP method must be a GET')
@@ -95,10 +96,11 @@ class WebsocketWSGIServer(object):
         agreed_channels = [p for p in requested_channels if p in self.allowed_channels]
         return agreed_channels
 
+
     def __call__(self, environ, start_response):
         """ Hijack the main loop from the original thread and listen on events on Redis and Websockets"""
         websocket = None
-        redis_context = RedisContext()
+        redis_context = self.redis_context()
         try:
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
