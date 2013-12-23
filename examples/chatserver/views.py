@@ -10,7 +10,7 @@ from ws4redis import settings as redis_settings
 class BaseTemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(BaseTemplateView, self).get_context_data(**kwargs)
-        context.update(ws_url='ws://localhost:{SERVER_PORT}/ws/foobar'.format(**self.request.META))
+        context.update(ws_url='ws://{SERVER_NAME}:{SERVER_PORT}/ws/foobar'.format(**self.request.META))
         return context
 
 
