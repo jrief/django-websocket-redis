@@ -24,7 +24,7 @@ class RedisContext(object):
         self._subscription = None
 
     def subscribe_channels(self, request, channels):
-        def subscribe(prefix):
+        def subscribe_for(prefix):
             key = request.path_info.replace(settings.WEBSOCKET_URL, prefix, 1)
             self._subscription.subscribe(key)
 
@@ -37,11 +37,11 @@ class RedisContext(object):
 
         # subscribe to these Redis channels for outgoing messages
         if 'subscribe-session' in channels and request.session:
-            subscribe('{0}:'.format(request.session.session_key))
+            subscribe_for('{0}:'.format(request.session.session_key))
         if 'subscribe-user' in channels and request.user:
-            subscribe('{0}:'.format(request.user))
+            subscribe_for('{0}:'.format(request.user))
         if 'subscribe-broadcast' in channels:
-            subscribe('_broadcast_:')
+            subscribe_for('_broadcast_:')
 
         # publish incoming messages on these Redis channels
         if 'publish-session' in channels and request.session:
@@ -62,7 +62,7 @@ class RedisContext(object):
         return self._subscription.parse_response()
 
     def get_file_descriptor(self):
-        return self._subscription.connection._sock.fileno()
+        return self._subscription.connection and self._subscription.connection._sock.fileno()
 
 
 class WebsocketWSGIServer(object):
@@ -108,9 +108,12 @@ class WebsocketWSGIServer(object):
             logger.debug('Subscribed to channels: {0}'.format(', '.join(channels)))
             redis_context.subscribe_channels(request, channels)
             websocket_fd = websocket.get_file_descriptor()
+            listening_fds = [websocket_fd]
             redis_fd = redis_context.get_file_descriptor()
+            if redis_fd:
+                listening_fds.append(redis_fd)
             while websocket and not websocket.closed:
-                ready = self.select([websocket_fd, redis_fd], [], [])[0]
+                ready = self.select(listening_fds, [], [])[0]
                 for fd in ready:
                     if fd == websocket_fd:
                         message = websocket.receive()
