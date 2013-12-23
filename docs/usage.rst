@@ -77,3 +77,14 @@ A websocket initialized with the URL ``ws://www.example.com/ws/foobar&publish-br
 will publish a message sent through the websocket on the named Redis channels ``_broadcast_:foobar``,
 ``johndoe:foobar`` and ``wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x:foobar`` respectively. Every listener
 subscribed to any of those named channels, then will be notified.
+
+Persisting messages
+-------------------
+If a client connects to a Redis channel for the first time, or if he reconnects after a page reload,
+he might be interested in the current message, previously published on that channel. If the
+configuration settings ``WS4REDIS_EXPIRE`` is set to a positive value, **Websocket for Redis**
+persists the current message in its key-value store. This message then is retrieved and sent to
+the client, immediately after he connects to the server.
+
+.. note:: By using client code which automatically reconnects after the websocket closes, one can
+          create a setup which is immune against server and client reboots.

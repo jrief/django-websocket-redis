@@ -58,6 +58,14 @@ class RedisContext(object):
         if message:
             for channel in self._publishers:
                 self._connection.publish(channel, message)
+                if redis_settings.WS4REDIS_EXPIRE > 0:
+                    self._connection.set(channel, message, ex=redis_settings.WS4REDIS_EXPIRE)
+
+    def send_persited_messages(self, websocket):
+        for channel in self._subscription.channels:
+            message = self._connection.get(channel)
+            if message:
+                websocket.send(message)
 
     def parse_response(self):
         """Parse a message response sent by the Redis database on a subscribed channels"""
@@ -114,6 +122,7 @@ class WebsocketWSGIServer(object):
             redis_fd = redis_context.get_file_descriptor()
             if redis_fd:
                 listening_fds.append(redis_fd)
+            redis_context.send_persited_messages(websocket)
             while websocket and not websocket.closed:
                 ready = self.select(listening_fds, [], [])[0]
                 for fd in ready:

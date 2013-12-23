@@ -23,22 +23,47 @@
 		}
 	</style>
 	<script language="Javascript">
-		var ws = new WebSocket('{{ ws_url }}?subscribe-broadcast&publish-broadcast');
-		ws.onopen = function() {
-			console.log("websocket connected");
-			ws.send("Hello Websocket");
-		};
-		ws.onmessage = function(e) {
+		var ws, timeout = null;
+		connect();
+
+		function connect() {
+			try {
+				ws = new WebSocket('{{ ws_url }}?subscribe-broadcast&publish-broadcast');
+				ws.onopen = ws_onopen;
+				ws.onmessage = ws_onmessage;
+				ws.onerror = ws_onerror;
+				ws.onclose = ws_onclose;
+				timeout = null;
+			} catch(err) {
+				console.log(err + "\nReconnecting ...");
+				timeout = setTimeout(connect, 10000);
+			}
+		}
+
+		function ws_onopen() {
+			console.log("connected to "+ws.url);
+		}
+
+		function ws_onmessage(e) {
 			var bb = document.getElementById('billboard')
 			var html = bb.innerHTML;
 			bb.innerHTML = html + '<br/>' + e.data;
-		};
-		ws.onerror = function(e) {
-			console.error(e);
-		};
-		ws.onclose = function(e) {
-			console.log("connection closed");
 		}
+
+		function ws_onerror(err) {
+			console.warn("connection broken");
+			if (!timeout) {
+				timeout = setTimeout(connect, 1000);
+			}
+		}
+
+		function ws_onclose(e) {
+			console.log("connection closed");
+			if (!timeout) {
+				timeout = setTimeout(connect, 1000);
+			}
+		}
+
 		function send_message() {
 			var value = document.getElementById('text_message').value;
 			ws.send(value);
