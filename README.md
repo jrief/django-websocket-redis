@@ -37,6 +37,7 @@ Licensed under the MIT license.
 
 Release History
 ---------------
+* 0.1.2 - fixed: Can use publish to websocket without subscribing
 * 0.1.1 - instead of CLI monkey patching, explicitly patch the redis.connection.socket using gevent.socket
 * 0.1.0 - initial revision
 
