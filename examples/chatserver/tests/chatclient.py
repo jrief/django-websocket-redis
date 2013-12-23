@@ -14,14 +14,15 @@ class WebsocketTests(LiveServerTestCase):
         cls.server_thread.httpd.set_app(application)
 
     def setUp(self):
-        self.websocket_url = self.live_server_url.replace('http:', 'ws:', 1) + u'/ws/foobar?subscribe-broadcast&publish-broadcast'
+        self.websocket_base_url = self.live_server_url.replace('http:', 'ws:', 1)
 
     @classmethod
     def tearDownClass(cls):
         time.sleep(1)
 
-    def test_echo_broadcast(self):
-        ws = create_connection(self.websocket_url)
+    def test_unified_broadcast(self):
+        websocket_url = self.websocket_base_url + u'/ws/foobar?subscribe-broadcast&publish-broadcast'
+        ws = create_connection(websocket_url)
         self.assertTrue(ws.connected)
         ws.send('Hello, World')
         result = ws.recv()
