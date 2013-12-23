@@ -9,7 +9,6 @@ from django.core.handlers.wsgi import logger
 from django.conf import settings
 from django.core.management.commands import runserver
 from django.utils.six.moves import socketserver
-from django.utils.encoding import force_str
 from ws4redis.websocket import WebSocket
 from ws4redis.wsgi_server import WebsocketWSGIServer, HandshakeError, UpgradeRequiredError
 
@@ -49,7 +48,7 @@ class WebsocketRunServer(WebsocketWSGIServer):
         ]
 
         logger.debug('WebSocket request accepted, switching protocols')
-        start_response(force_str('101 Switching Protocols'), headers)
+        start_response('101 Switching Protocols', headers)
         start_response.im_self.finish_content()
         return WebSocket(environ['wsgi.input'])
 
@@ -65,7 +64,7 @@ def run(addr, port, wsgi_handler, ipv6=False, threading=False):
     server_address = (addr, port)
     if not threading:
         raise Exception('Django\'s Websocket server must run with threading enabled')
-    httpd_cls = type(str('WSGIServer'), (socketserver.ThreadingMixIn, WSGIServer), { 'daemon_threads': True })
+    httpd_cls = type('WSGIServer', (socketserver.ThreadingMixIn, WSGIServer), { 'daemon_threads': True })
     httpd = httpd_cls(server_address, WSGIRequestHandler, ipv6=ipv6)
     httpd.set_app(wsgi_handler)
     httpd.serve_forever()

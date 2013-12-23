@@ -6,7 +6,6 @@ import gevent
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseBadRequest
-from django.utils.encoding import force_str
 from django.utils.importlib import import_module
 from django.utils.functional import SimpleLazyObject
 from ws4redis import settings as redis_settings
@@ -67,7 +66,8 @@ class RedisContext(object):
 
 class WebsocketWSGIServer(object):
     allowed_channels = RedisContext.subscription_channels + RedisContext.publish_channels
-
+    redis_context = RedisContext
+    
     def assure_protocol_requirements(self, environ):
         if environ.get('REQUEST_METHOD') != 'GET':
             raise HandshakeError('HTTP method must be a GET')
@@ -95,10 +95,11 @@ class WebsocketWSGIServer(object):
         agreed_channels = [p for p in requested_channels if p in self.allowed_channels]
         return agreed_channels
 
+
     def __call__(self, environ, start_response):
         """ Hijack the main loop from the original thread and listen on events on Redis and Websockets"""
         websocket = None
-        redis_context = RedisContext()
+        redis_context = self.redis_context()
         try:
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
@@ -141,5 +142,5 @@ class WebsocketWSGIServer(object):
         if hasattr(start_response, 'im_self') and not start_response.im_self.headers_sent:
             status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
             status = '{0} {1}'.format(response.status_code, status_text)
-            start_response(force_str(status), response._headers.values())
+            start_response(unicode(status), response._headers.values())
         return response
