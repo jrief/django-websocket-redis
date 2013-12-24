@@ -14,19 +14,17 @@ from ws4redis import settings as redis_settings
 from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
 
-def load_class(fqn):
-    comps = fqn.split('.')
-    module = import_module('.'.join(comps[:-1]))
-    return getattr(module, comps[-1])
-
-
 class WebsocketWSGIServer(object):
-    RedisStore = load_class(redis_settings.WS4REDIS_STORE)
-
-    def __init__(self, store=RedisStore):
-        self.allowed_channels = store.subscription_channels + store.publish_channels
-        self._redis_connection = StrictRedis(**redis_settings.WS4REDIS_CONNECTION)
-        self.RedisStore = store
+    def __init__(self, redis_connection=None):
+        """
+        redis_connection can be overriden by a mock object.
+        """
+        comps = str(redis_settings.WS4REDIS_STORE).split('.')
+        module = import_module('.'.join(comps[:-1]))
+        RedisStore = getattr(module, comps[-1])
+        self.allowed_channels = RedisStore.subscription_channels + RedisStore.publish_channels
+        self._redis_connection = redis_connection and redis_connection or StrictRedis(**redis_settings.WS4REDIS_CONNECTION)
+        self.RedisStore = RedisStore
 
     def assure_protocol_requirements(self, environ):
         if environ.get('REQUEST_METHOD') != 'GET':
