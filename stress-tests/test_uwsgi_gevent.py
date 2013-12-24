@@ -13,21 +13,21 @@ def test_simple():
         assert ws.connected
         result = ws.recv()
         print '+',
-        tools.eq_(result, 'Hello World')
+        tools.eq_(result, 'Hello, World')
         ws.close()
         tools.eq_(ws.connected, False)
         closure['counter'] -= 1
 
     closure = {
         'websocket_url': 'ws://localhost:8000/ws/foobar?subscribe-broadcast',
-        'counter': 500,
+        'counter': 1000,
     }
     clients = [gevent.spawn(listen_on_websocket, closure) for _ in range(0, closure['counter'])]
     websocket_url = 'ws://localhost:8000/ws/foobar?publish-broadcast'
     ws = create_connection(websocket_url)
     assert ws.connected
     gevent.sleep(1)
-    ws.send('Hello World')
+    ws.send('Hello, World')
     gevent.joinall(clients, timeout=3)
     ws.close()
     tools.eq_(ws.connected, False)

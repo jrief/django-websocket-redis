@@ -15,19 +15,19 @@ class WebsocketClient(threading.Thread):
         ws = create_connection(self.websocket_url)
         assert ws.connected
         result = ws.recv()
-        tools.eq_(result, 'Hello World')
+        tools.eq_(result, 'Hello, World')
         ws.close()
         tools.eq_(ws.connected, False)
 
 
 def test_subscribe_publish_broadcast():
     websocket_url = 'ws://localhost:8000/ws/foobar?subscribe-broadcast'
-    clients = [WebsocketClient(websocket_url) for _ in range(0, 500)]
+    clients = [WebsocketClient(websocket_url) for _ in range(0, 1000)]
     for client in clients:
         client.start()
     websocket_url = 'ws://localhost:8000/ws/foobar?publish-broadcast'
     ws = create_connection(websocket_url)
-    ws.send('Hello World')
+    ws.send('Hello, World')
     for client in clients:
         client.join(3)
     ws.close()
