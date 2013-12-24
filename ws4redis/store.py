@@ -1,8 +1,4 @@
 #-*- coding: utf-8 -*-
-import gevent
-import redis
-import redis.connection
-redis.connection.socket = gevent.socket
 from django.conf import settings
 from ws4redis import settings as redis_settings
 
