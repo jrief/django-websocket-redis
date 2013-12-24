@@ -1,8 +1,9 @@
 #-*- coding: utf-8 -*-
 import sys
-import redis
-import redis.connection
 import gevent
+import redis.connection
+redis.connection.socket = gevent.socket
+from redis import StrictRedis
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseBadRequest
@@ -12,71 +13,20 @@ from django.utils.functional import SimpleLazyObject
 from ws4redis import settings as redis_settings
 from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
-redis.connection.socket = gevent.socket
 
-
-class RedisContext(object):
-    subscription_channels = ['subscribe-session', 'subscribe-user', 'subscribe-broadcast']
-    publish_channels = ['publish-session', 'publish-user', 'publish-broadcast']
-
-    def __init__(self):
-        self._connection = redis.StrictRedis(host=redis_settings.WS4REDIS_HOST,
-            port=redis_settings.WS4REDIS_PORT, db=redis_settings.WS4REDIS_DB,
-            password=redis_settings.WS4REDIS_PASSWORD)
-        self._subscription = None
-
-    def subscribe_channels(self, request, channels):
-        def subscribe_for(prefix):
-            key = request.path_info.replace(settings.WEBSOCKET_URL, prefix, 1)
-            self._subscription.subscribe(key)
-
-        def publish_on(prefix):
-            key = request.path_info.replace(settings.WEBSOCKET_URL, prefix, 1)
-            self._publishers.add(key)
-
-        self._subscription = self._connection.pubsub()
-        self._publishers = set()
-
-        # subscribe to these Redis channels for outgoing messages
-        if 'subscribe-session' in channels and request.session:
-            subscribe_for('{0}:'.format(request.session.session_key))
-        if 'subscribe-user' in channels and request.user:
-            subscribe_for('{0}:'.format(request.user))
-        if 'subscribe-broadcast' in channels:
-            subscribe_for('_broadcast_:')
-
-        # publish incoming messages on these Redis channels
-        if 'publish-session' in channels and request.session:
-            publish_on('{0}:'.format(request.session.session_key))
-        if 'publish-user' in channels and request.user:
-            publish_on('{0}:'.format(request.user))
-        if 'publish-broadcast' in channels:
-            publish_on('_broadcast_:')
-
-    def publish_message(self, message):
-        """Publish a message on the subscribed channels in the Redis database"""
-        if message:
-            for channel in self._publishers:
-                self._connection.publish(channel, message)
-                if redis_settings.WS4REDIS_EXPIRE > 0:
-                    self._connection.set(channel, message, ex=redis_settings.WS4REDIS_EXPIRE)
-
-    def send_persited_messages(self, websocket):
-        for channel in self._subscription.channels:
-            message = self._connection.get(channel)
-            if message:
-                websocket.send(message)
-
-    def parse_response(self):
-        """Parse a message response sent by the Redis database on a subscribed channels"""
-        return self._subscription.parse_response()
-
-    def get_file_descriptor(self):
-        return self._subscription.connection and self._subscription.connection._sock.fileno()
+def load_class(fqn):
+    comps = fqn.split('.')
+    module = import_module('.'.join(comps[:-1]))
+    return getattr(module, comps[-1])
 
 
 class WebsocketWSGIServer(object):
-    allowed_channels = RedisContext.subscription_channels + RedisContext.publish_channels
+    RedisStore = load_class(redis_settings.WS4REDIS_STORE)
+
+    def __init__(self, store=RedisStore):
+        self.allowed_channels = store.subscription_channels + store.publish_channels
+        self._redis_connection = StrictRedis(**redis_settings.WS4REDIS_CONNECTION)
+        self.RedisStore = store
 
     def assure_protocol_requirements(self, environ):
         if environ.get('REQUEST_METHOD') != 'GET':
@@ -108,7 +58,7 @@ class WebsocketWSGIServer(object):
     def __call__(self, environ, start_response):
         """ Hijack the main loop from the original thread and listen on events on Redis and Websockets"""
         websocket = None
-        redis_context = RedisContext()
+        redis_context = self.RedisStore(self._redis_connection)
         try:
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
