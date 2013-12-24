@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 
-WS4REDIS_HOST = getattr(settings, 'WS4REDIS_HOST', 'localhost')
+WS4REDIS_CONNECTION = getattr(settings, 'WS4REDIS_CONNECTION', {
+    'host': 'localhost',
+    'port': 6379,
+    'db': 0,
+    'password': None,
+})
 
-WS4REDIS_PORT = getattr(settings, 'WS4REDIS_PORT', 6379)
+WS4REDIS_EXPIRE = getattr(settings, 'WS4REDIS_EXPIRE', 3600)
 
-WS4REDIS_DB = getattr(settings, 'WS4REDIS_DB', 0)
-
-WS4REDIS_PASSWORD = getattr(settings, 'WS4REDIS_PASSWORD', None)
-
-WS4REDIS_EXPIRE = getattr(settings, 'WS4REDIS_EXPIRE', 0)
+WS4REDIS_STORE = getattr(settings, 'WS4REDIS_STORE', 'ws4redis.store.RedisStore')
