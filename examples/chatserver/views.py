@@ -22,7 +22,7 @@ class BroadcastChatView(BaseTemplateView):
 
     def __init__(self):
         super(BroadcastChatView, self).__init__()
-        self._connection.set('_broadcast_:foobar', 'Hello, Websockets', nx=True)
+        self._connection.set('_broadcast_:foobar', 'Hello, Websockets')
 
 
 class UserChatView(BaseTemplateView):
