@@ -5,8 +5,8 @@ Installation and Configuration
 
 Installation
 ------------
-If not already done, install the **Redis server**, using an installation tool such as ``aptitude``,
-``yum``, ``port`` as offered by the operating system or install `Redis from source`_.
+If not already done, install the **Redis server**, using the installation tool offered by the
+operating system, such as ``aptitude``, ``yum``, ``port`` as  or install `Redis from source`_.
 
 Start the Redis service on your host::
 
@@ -25,6 +25,9 @@ or the newest development version from github::
 
   pip install -e git+https://github.com/jrief/django-websocket-redis#egg=django-websocket-redis
 
+**Websocket for Redis** does not define any database models. It can therefore be installed without
+any database synchronization.
+
 
 Dependencies
 ------------
@@ -34,6 +37,7 @@ Dependencies
 * gevent_ >=1.0
 * greenlet_ >=0.4.1
 * optional, but recommended: wsaccel_ >=0.6
+
 
 Configuration
 -------------
@@ -49,7 +53,8 @@ Specify the URL that distinguishes websocket connections from normal requests::
 
   WEBSOCKET_URL = '/ws/'
 
-A dictionary with values to override the default settings used to connect to the Redis datastore::
+If the Redis datastore uses connection settings other than the defaults, use this dictionary to
+override these values::
 
   WS4REDIS_CONNECTION = {
       'host': 'redis.example.com',
@@ -58,25 +63,28 @@ A dictionary with values to override the default settings used to connect to the
       'password': 'verysecret',
   }
 
-.. note:: You only have to specify the values, which deviate from the defaults.
+.. note:: Specify only the values, which deviate from the default.
 
-Set the number in seconds, each received message shall be persisted by Redis. This allows to
-reconnect a websocket, while still being able to access the last message for that key::
+**Websocket for Redis** can be configured with ``WS4REDIS_EXPIRE``, to additionally persist messages
+published on the message queue. This is advantageous in situations, where clients shall be able
+to access the published information after reconnecting the websocket, for instance after a page
+is reloaded.
+
+This directive sets the number in seconds, each received message is persisted by Redis, additionally
+of being published on the message queue::
 
   WS4REDIS_EXPIRE = 7200
 
 Override ``ws4redis.store.RedisStore`` with a customized class, in case you need an alternative
-functionality::
+implementation of that class::
 
   WS4REDIS_STORE = 'myapp.redis_store.RedisStore'
 
-This setting is required during development and ignored in production. It overrides Django's
-internal main loop and adds a URL dispatcher in front of the request handler::
+This directive is required during development and ignored in production environments. It overrides
+Django's internal main loop and adds a URL dispatcher in front of the request handler::
 
   WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
-.. note:: **django-websocket-redis** does not define any database models. It can therefore be
-          installed without any database synchronization.
 
 Check your Installation
 -----------------------
@@ -84,7 +92,7 @@ With **Websockets for Redis** your Django application has immediate access to co
 websockets. Change into the ``examples`` directory and start a sample chat server::
 
   ./manage.py syncdb
-  ... database tables are created
+  ... create database tables
   ... answer the questions
   ./manage.py runserver
 
@@ -95,17 +103,19 @@ Point a second browser onto the same URL. Now each browser should echo the messa
 input field.
 
 In the examples directory, there are two chat server implementations, which run out of the box.
-They can be used as a starting point.
+One simply broadcasts messages to every client listening on that same websocket URL. The other
+chat server can be used to send messages to specific users logged into the system. Use these
+demos as a starting point for your application.
 
 Replace memcached with Redis
 ----------------------------
-Since you had to add Redis as an additional service on your infrastructure, at least you can get
-rid of another one: memcached, which typically is required for Django installations can safely
-be replaced by Redis. Its beyond the scope of this documentation to explain how to set up a caching
-and/or session store using Redis, but there is plenty of documentation on the Internet.
+Since Redis has to be added as an additional service into the current infrastructure, at least
+another service typically required by Django installations, can be safely removed: memcached,
+which is typically used for caching and session storage.
 
-Check django-redis-sessions_ and django-redis-cache_ for details. Here is a description on how to
-use `Redis as Django session store and cache backend`_.
+Its beyond the scope of this documentation to explain how to set up a caching and/or session store
+using Redis, but check django-redis-sessions_ and django-redis-cache_ for details. Here is a
+description on how to use `Redis as Django session store and cache backend`_.
 
 .. _Redis from source: http://redis.io/download
 .. _github: https://github.com/jrief/django-websocket-redis

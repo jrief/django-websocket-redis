@@ -50,17 +50,17 @@ Run the tests::
 
   cd examples && ./manage.py test chatserver --settings=chatserver.test_settings
 
-Currently there is only one test, using a bidirectional websocket for receiving and sending. More
-sophisticated tests would require two websockets, but Django's built in LiveServerTestCase_ can not
-handle more than one simultaneous open connection. At least this test covers the most common issues
-and more than 60% of the code.
+Currently it is not possible to simulate more than one client at a time. Django's built in
+LiveServerTestCase_ can not handle more than one simultaneous open connection, and thus more
+sophisticated tests with more than one active websockets are not possible.
+
 
 Running Stress Tests
 --------------------
 To run stress tests, change into directory ``stress-tests``. Since stress tests shall check the
 performance in a real environment, the server and the testing client must be started independently.
 
-First start the server, as you would in a productive environment::
+First start the server, as you would in productive environments::
 
   uwsgi --virtualenv /path/to/virtualenvs --http :8000 --gevent 1000 --http-websockets --master --workers 2 --module wsgi_websocket
 
@@ -72,7 +72,7 @@ or::
 
   nosetests test_uwsgi_threads.py
 
-Both clients subscribe to 500 concurrent websockets. Then a message is published from another
+Both clients subscribe to 1000 concurrent websockets. Then a message is published from another
 websocket. If all the clients receive that message, the test is considered as successful. Both
 perform the same test, but ``test_uwsgi_gevent.py`` uses greenlet_'s for each client to simulate,
 while ``test_uwsgi_threads.py`` uses `Python thread`_'s.
