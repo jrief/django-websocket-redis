@@ -21,13 +21,16 @@ class WebsocketClient(threading.Thread):
 
 
 def test_subscribe_publish_broadcast():
+    # the sender
+    websocket_url = 'ws://localhost:8000/ws/foobar?publish-broadcast'
+    ws = create_connection(websocket_url)
+    ws.send('Hello, World')
+
+    # the receivers
     websocket_url = 'ws://localhost:8000/ws/foobar?subscribe-broadcast'
     clients = [WebsocketClient(websocket_url) for _ in range(0, 1000)]
     for client in clients:
         client.start()
-    websocket_url = 'ws://localhost:8000/ws/foobar?publish-broadcast'
-    ws = create_connection(websocket_url)
-    ws.send('Hello, World')
     for client in clients:
-        client.join(3)
+        client.join(5)
     ws.close()
