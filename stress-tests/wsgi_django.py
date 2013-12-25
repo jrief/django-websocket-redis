@@ -4,7 +4,6 @@ import os
 import sys
 sys.path[0:0] = [os.path.abspath('..'), os.path.abspath('../examples')]
 os.environ.update(DJANGO_SETTINGS_MODULE='chatserver.settings')
-
 from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application()
 
+application = get_wsgi_application()

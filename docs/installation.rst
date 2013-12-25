@@ -110,8 +110,8 @@ demos as a starting point for your application.
 Replace memcached with Redis
 ----------------------------
 Since Redis has to be added as an additional service into the current infrastructure, at least
-another service typically required by Django installations, can be safely removed: memcached,
-which is typically used for caching and session storage.
+another service, can be safely removed: memcached is required by typical Django installations and
+is used for caching and session storage.
 
 Its beyond the scope of this documentation to explain how to set up a caching and/or session store
 using Redis, but check django-redis-sessions_ and django-redis-cache_ for details. Here is a

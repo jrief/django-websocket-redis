@@ -37,8 +37,8 @@ client which could drop the connection. This could be easily implemented, though
 
 Running Django with websockets for Redis as a stand alone uWSGI server
 ----------------------------------------------------------------------
-In this configuration the uWSGI server owns the main loop. To distinguish websockets from normals
-requests, modify the Python starter module ``wsgi.py`` to::
+In this configuration the **uWSGI** server owns the main loop. To distinguish websockets from
+normals requests, modify the Python starter module ``wsgi.py`` to::
 
   import os
   os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myapp.settings')
@@ -95,8 +95,7 @@ Since both uWSGI handlers create their own main loop, they also require their ow
 different UNIX sockets. Create two adopter files, one say ``wsgi_django.py``::
 
   import os
-  from django.core.wsgi import get_wsgi_application
-  
+  from django.core.wsgi import get_wsgi_application  
   os.environ.update(DJANGO_SETTINGS_MODULE='myapp.settings')
   application = get_wsgi_application()
 
@@ -105,16 +104,12 @@ and another, say ``wsgi_websocket.py``::
   import os
   os.environ.update(DJANGO_SETTINGS_MODULE='myapp.settings')
   from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
-  
-  _app = uWSGIWebsocketServer()
-  
-  def application(environ, start_response):
-      return _app(environ, start_response)
+  application = uWSGIWebsocketServer()
 
 Start two separate uWSGI instances::
 
   uwsgi --virtualenv /path/to/virtualenv --socket /path/to/django.socket --buffer-size=32768 --workers=5 --master --module wsgi_django
-  uwsgi --virtualenv /path/to/virtualenv --http-socket /path/to/web.socket --gevent 1000 --http-websockets --module wsgi_websocket
+  uwsgi --virtualenv /path/to/virtualenv --http-socket /path/to/web.socket --gevent 1000 --http-websockets --workers=2 --master --module wsgi_websocket
 
 Your NGiNX server is now configured as a scalable application server which can handle a thousand
 websockets connections concurrently.

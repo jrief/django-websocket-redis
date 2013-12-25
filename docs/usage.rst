@@ -7,7 +7,8 @@ Using Websockets for Redis
 and vice versa. Each websocket is identified by the part of the URL which follows the prefix
 ``/ws/``. Use different uniform locators to distinguish between unrelated communication channels.
 
-.. note:: The prefix ``/ws/`` is specified using the configuration setting ``WEBSOCKET_URL``.
+.. note:: The prefix ``/ws/`` is specified using the configuration setting ``WEBSOCKET_URL`` and
+          can be changed to whatever is appropriate.
 
 The idea is to let a client subscribe for different channels, so that he only gets notified, when
 a certain event happens on a channel he is interested in. Currently there are three such events,

@@ -6,8 +6,4 @@ sys.path[0:0] = [os.path.abspath('..'), os.path.abspath('../examples')]
 os.environ.update(DJANGO_SETTINGS_MODULE='chatserver.settings')
 from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
 
-_app = uWSGIWebsocketServer()
-
-
-def application(environ, start_response):
-    return _app(environ, start_response)
+application = uWSGIWebsocketServer()
