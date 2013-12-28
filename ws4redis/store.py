@@ -4,6 +4,9 @@ from ws4redis import settings as redis_settings
 
 
 class RedisStore(object):
+    """
+    Control the messaging from and to the Redis datastore.
+    """
     subscription_channels = ['subscribe-session', 'subscribe-user', 'subscribe-broadcast']
     publish_channels = ['publish-session', 'publish-user', 'publish-broadcast']
 
@@ -44,7 +47,7 @@ class RedisStore(object):
             publish_on('_broadcast_:')
 
     def publish_message(self, message):
-        """Publish a message on the subscribed channels in the Redis database"""
+        """Publish a message on the subscribed channel on the Redis datastore."""
         if message:
             for channel in self._publishers:
                 self._connection.publish(channel, message)
@@ -53,8 +56,8 @@ class RedisStore(object):
 
     def send_persited_messages(self, websocket):
         """
-        This method is called immediately after a websocket connects, so that persisted messages
-        are send to the client
+        This method is called immediately after a websocket is openend by the client, so that
+        persisted messages can be sent back to the client upon connection.
         """
         for channel in self._subscription.channels:
             message = self._connection.get(channel)
@@ -62,7 +65,9 @@ class RedisStore(object):
                 websocket.send(message)
 
     def parse_response(self):
-        """Parse a message response sent by the Redis database on a subscribed channels"""
+        """
+        Parse a message response sent by the Redis datastore on a subscribed channel.
+        """
         return self._subscription.parse_response()
 
     def get_file_descriptor(self):
