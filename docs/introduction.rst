@@ -39,9 +39,9 @@ A typical implementation proposal is to use socket.io_ running inside a NodeJS_ 
 
 |websocket-nodejs|
 
-Here, **Django** communicates with **Node.JS** using a RESTful API. This is hard to maintain because
-it pulls in two completely different technologies. In alternative proposals, other Python based
-asynchronous event frameworks such as Tornado_ or Twisted_ are used. But they all look like
+Here, **Django** communicates with **Node.JS** using a RESTful API. This however is hard to maintain
+because it pulls in two completely different technologies. In alternative proposals, other Python
+based asynchronous event frameworks such as Tornado_ or Twisted_ are used. But they all look like
 makeshift solutions, since one has to run a second framework side by side with **Django**. This
 makes the project dependent on another infrastructure and thus harder to maintain. Moreover, having
 to run two concurrent frameworks can be quite embarrassing during application development,

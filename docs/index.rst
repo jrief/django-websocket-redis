@@ -15,8 +15,9 @@ Contents:
   installation
   running
   usage
+  api
   testing
-  motivation
+  credits
 
 Indices and tables
 ==================
