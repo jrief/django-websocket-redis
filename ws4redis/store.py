@@ -13,6 +13,9 @@ class RedisStore(object):
         self._expire = expire
 
     def subscribe_channels(self, request, channels):
+        """
+        Initialize the channels used for subscribing and sending messages.
+        """
         def subscribe_for(prefix):
             key = request.path_info.replace(settings.WEBSOCKET_URL, prefix, 1)
             self._subscription.subscribe(key)
@@ -49,6 +52,10 @@ class RedisStore(object):
                     self._connection.set(channel, message, ex=self._expire)
 
     def send_persited_messages(self, websocket):
+        """
+        This method is called immediately after a websocket connects, so that persisted messages
+        are send to the client
+        """
         for channel in self._subscription.channels:
             message = self._connection.get(channel)
             if message:
@@ -59,4 +66,8 @@ class RedisStore(object):
         return self._subscription.parse_response()
 
     def get_file_descriptor(self):
+        """
+        Returns the file descriptor used for passing to the select call when listening
+        on the message queue.
+        """
         return self._subscription.connection and self._subscription.connection._sock.fileno()
