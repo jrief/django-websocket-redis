@@ -39,6 +39,7 @@ Licensed under the MIT license.
 
 Release History
 ---------------
+* 0.2.1 - Reverted issue #1 and dropped compatibility with Django-1.4 since the response status must use force_str.
 * 0.2.0 - Major API change
  * Use WS4REDIS_... in Django settings
  * Persist messages, allowing server reboots and reconnecting the client
