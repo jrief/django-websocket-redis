@@ -1,4 +1,4 @@
 nose
 django-nose
 websocket-client
-request
+requests

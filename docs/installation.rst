@@ -33,7 +33,7 @@ Dependencies
 ------------
 * Django_ >=1.5
 * `Python client for Redis`_
-* uWSGI_ >= 1.9.22
+* uWSGI_ >= 1.9.20
 * gevent_ >=1.0
 * greenlet_ >=0.4.1
 * optional, but recommended: wsaccel_ >=0.6

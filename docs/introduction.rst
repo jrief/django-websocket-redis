@@ -78,7 +78,7 @@ And since we speak about hundreds or even thousands of open connections, the foo
 of memory and CPU resources must be brought down to a minimum. In this implementation, only
 one file descriptor is required for each open websocket connection.
 
-Productive webservers require a some kind of session store anyway. This can be a memcached_ or a
+Productive webservers require some kind of session store anyway. This can be a memcached_ or a
 Redis data server. Therefore, such a service must run anyway and if we can choose between one
 of them, we shall use one with integrated message queuing support. When using Redis for caching and
 as a session store, we practically get the message queue for free.
