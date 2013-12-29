@@ -9,6 +9,7 @@ from django.core.handlers.wsgi import logger
 from django.conf import settings
 from django.core.management.commands import runserver
 from django.utils.six.moves import socketserver
+from django.utils.encoding import force_str
 from ws4redis.websocket import WebSocket
 from ws4redis.wsgi_server import WebsocketWSGIServer, HandshakeError, UpgradeRequiredError
 
@@ -48,7 +49,7 @@ class WebsocketRunServer(WebsocketWSGIServer):
         ]
 
         logger.debug('WebSocket request accepted, switching protocols')
-        start_response('101 Switching Protocols', headers)
+        start_response(force_str('101 Switching Protocols'), headers)
         start_response.im_self.finish_content()
         return WebSocket(environ['wsgi.input'])
 
