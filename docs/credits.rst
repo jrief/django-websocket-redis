@@ -9,7 +9,7 @@ on YouTube: http://www.youtube.com/watch?v=UKAkKXFMQP8#t=1174
 Personally, I share his opinion about this forecast. The point for both of us however is, that we
 don't see JavaScript as *the* server side language yet. Probably I am wrong on this, but for the
 moment I prefer server side frameworks in a language with real classes, and which can be adopted to
-devices able to render only static content such as the Kindle.
+devices able to render static content, such as the Kindle.
 
 Therefore my way to go, is for a pure client side framework such as AngularJS_, which in my humble
 opinion is by far the best JavaScript framework ever written.
