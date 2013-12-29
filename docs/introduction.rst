@@ -58,9 +58,10 @@ This approach has some advantages:
 
 * It is simpler to implement.
 * The asynchronous I/O loop handling websockets can run
-  * inside Django with ``./manage.py runserver``, giving full debugging control.
-  * as a stand alone HTTP server, using uWSGI.
-  * using NGiNX as proxy in two decoupled loops, one for WSGI and one for websocket HTTP in front of two separate uWSGI workers.
+	* inside Django with ``./manage.py runserver``, giving full debugging control.
+	* as a stand alone HTTP server, using uWSGI.
+	* using NGiNX as proxy in two decoupled loops, one for WSGI and one for websocket HTTP in front
+	  of two separate uWSGI workers.
 * The whole Django API, such as configuration settings, is available in this loop, provided that no
   blocking calls are made.
 
