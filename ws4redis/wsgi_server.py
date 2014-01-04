@@ -69,7 +69,10 @@ class WebsocketWSGIServer(object):
                 listening_fds.append(redis_fd)
             redis_store.send_persited_messages(websocket)
             while websocket and not websocket.closed:
-                ready = self.select(listening_fds, [], [])[0]
+                ready = self.select(listening_fds, [], [], 4.0)[0]
+                if not ready:
+                    # flush empty socket
+                    websocket.receive()
                 for fd in ready:
                     if fd == websocket_fd:
                         message = websocket.receive()
