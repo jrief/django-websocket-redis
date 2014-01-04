@@ -102,6 +102,9 @@ different UNIX sockets. Create two adopter files, one say ``wsgi_django.py``::
 and another, say ``wsgi_websocket.py``::
 
   import os
+  import gevent
+  import redis.connection
+  redis.connection.socket = gevent.socket
   os.environ.update(DJANGO_SETTINGS_MODULE='myapp.settings')
   from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
   application = uWSGIWebsocketServer()
@@ -114,6 +117,9 @@ Start two separate uWSGI instances::
 Your NGiNX server is now configured as a scalable application server which can handle a thousand
 websockets connections concurrently.
 
+If you feel uncomfortable with separating websocket from normal requests on NGiNX, consider
+that you already separate static and media requests on the webserver. Thus, websockets are just
+another extra routing to configure.
 
 .. |websocket4redis| image:: _static/websocket4redis.png
 .. _psycogreen: https://bitbucket.org/dvarrazzo/psycogreen/

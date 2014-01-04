@@ -1,8 +1,5 @@
 #-*- coding: utf-8 -*-
 import sys
-import gevent
-import redis.connection
-redis.connection.socket = gevent.socket
 from redis import StrictRedis
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
