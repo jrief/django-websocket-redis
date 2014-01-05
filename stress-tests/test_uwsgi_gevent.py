@@ -2,7 +2,6 @@
 # run this test against an instance of uwsgi for websockets
 from nose import tools
 import gevent
-from redis import StrictRedis
 from gevent import monkey
 monkey.patch_socket()
 from websocket import create_connection
