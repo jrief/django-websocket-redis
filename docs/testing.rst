@@ -68,14 +68,18 @@ then start one of the testing clients, using the nose_ framework::
 
   nosetests test_uwsgi_gevent.py
 
-or::
+(this test, on my MacBook, requires about 1.5 seconds)
+
+or start a similar test using real threads instead of greenlets::
 
   nosetests test_uwsgi_threads.py
+
+(this test, on my MacBook, requires about 2.5 seconds)
 
 Both clients subscribe to 1000 concurrent websockets. Then a message is published from another
 websocket. If all the clients receive that message, the test is considered as successful. Both
 perform the same test, but ``test_uwsgi_gevent.py`` uses greenlet_'s for each client to simulate,
-while ``test_uwsgi_threads.py`` uses `Python thread`_'s.
+whereas ``test_uwsgi_threads.py`` uses `Python thread`_'s.
 
 If these tests do not work in your environment, check your file descriptors limitations. Use the
 shell command ``ulimit -n`` and adopt it to these requirements. Alternatively reduce the number of
