@@ -198,11 +198,14 @@ class WebSocket(object):
         try:
             return self.read_message()
         except UnicodeError:
+            logger.info('websocket.receive: UnicodeError')
             self.close(1007)
         except WebSocketError:
+            logger.info('websocket.receive: WebSocketError')
             self.close(1002)
-#        except socket_error:
-#            raise
+        except Exception, e:
+            logger.info('websocket.receive: Unknown error %s', e)
+            raise e
 
     def send_frame(self, message, opcode):
         """
