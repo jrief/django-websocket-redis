@@ -90,9 +90,11 @@ class WebsocketTests(LiveServerTestCase):
         self.assertEqual(result, self.message)
 
     def test_subscribe_session(self):
-        response = self.client.get(reverse('admin:index'))
-        self.assertIsInstance(response.client.session, SessionStore, 'Did not receive a sessionid')
-        session_key = response.client.session.session_key
+        logged_in = self.client.login(username='admin', password='secret')
+        self.assertTrue(logged_in, 'User is not logged in')
+        settings.WS4REDIS_EXPIRE = 10
+        self.assertIsInstance(self.client.session, (dict, SessionStore), 'Did not receive a sessionid')
+        session_key = self.client.session.session_key
         self.assertGreater(len(session_key), 30, 'Session key is too short')
         settings.WS4REDIS_EXPIRE = 10
         self.connection.set('{0}:foobar'.format(session_key), self.message)
@@ -106,11 +108,12 @@ class WebsocketTests(LiveServerTestCase):
         self.assertFalse(ws.connected)
 
     def test_publish_session(self):
-        response = self.client.get(reverse('admin:index'))
-        self.assertIsInstance(response.client.session, SessionStore, 'Did not receive a sessionid')
-        session_key = response.client.session.session_key
-        self.assertGreater(len(session_key), 30, 'Session key is too short')
+        logged_in = self.client.login(username='admin', password='secret')
+        self.assertTrue(logged_in, 'User is not logged in')
         settings.WS4REDIS_EXPIRE = 10
+        self.assertIsInstance(self.client.session, (dict, SessionStore), 'Did not receive a sessionid')
+        session_key = self.client.session.session_key
+        self.assertGreater(len(session_key), 30, 'Session key is too short')
         websocket_url = self.websocket_base_url + u'/ws/foobar?publish-session'
         header = ['Cookie: sessionid={0}'.format(session_key)]
         ws = create_connection(websocket_url, header=header)
