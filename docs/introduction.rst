@@ -62,21 +62,22 @@ This approach has some advantages:
 	* as a stand alone HTTP server, using uWSGI.
 	* using NGiNX as proxy in two decoupled loops, one for WSGI and one for websocket HTTP in front
 	  of two separate uWSGI workers.
-* The whole Django API, such as configuration settings, is available in this loop, provided that no
-  blocking calls are made.
+* The whole Django API is available in this loop, provided that no blocking calls are made.
+  Therefore the websocket code can access the Django configuration, the user and the session cache,
+  etc.
 
 
 Using Redis as a message queue
 ------------------------------
 One might argue that all this is not as simple, since an additional service – the Redis data server
-must run side by side with Django. Well, websockets are bidirectional but their normal use case is
-to trigger events, send from the server to the client. Remember, the other direction, can be handled 
-much easier using Ajax – adding an additional TCP/IP handshake tough.
+– must run side by side with Django. Websockets are bidirectional but their normal use case is to
+trigger server initiated events on the client. Although the other direction is possible, it can
+be handled much easier using Ajax – adding an additional TCP/IP handshake.
 
 Here, the only “stay in touch with the client” is the file handle attached to the websocket.
-And since we speak about hundreds or even thousands of open connections, the footprint in terms
-of memory and CPU resources must be brought down to a minimum. In this implementation, only
-one file descriptor is required for each open websocket connection.
+And since we speak about thousands of open connections, the footprint in terms of memory and CPU
+resources must be brought down to a minimum. In this implementation, only one single file descriptor
+is required for each open websocket connection.
 
 Productive webservers require some kind of session store anyway. This can be a memcached_ or a
 Redis data server. Therefore, such a service must run anyway and if we can choose between one
