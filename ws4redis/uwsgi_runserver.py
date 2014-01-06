@@ -30,6 +30,9 @@ class uWSGIWebsocket(object):
             self.close()
             raise WebSocketError(e)
 
+    def flush(self):
+        self.receive()
+
     def send(self, message, binary=None):
         try:
             uwsgi.websocket_send(message)

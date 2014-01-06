@@ -207,6 +207,12 @@ class WebSocket(object):
             logger.info('websocket.receive: Unknown error %s', e)
             raise e
 
+    def flush(self):
+        """
+        Flush a websocket. In this implementation intentionally it does nothing.
+        """
+        pass
+
     def send_frame(self, message, opcode):
         """
         Send a frame over the websocket with message as its payload

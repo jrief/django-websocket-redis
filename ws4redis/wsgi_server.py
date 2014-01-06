@@ -72,7 +72,7 @@ class WebsocketWSGIServer(object):
                 ready = self.select(listening_fds, [], [], 4.0)[0]
                 if not ready:
                     # flush empty socket
-                    websocket.receive()
+                    websocket.flush()
                 for fd in ready:
                     if fd == websocket_fd:
                         message = websocket.receive()
