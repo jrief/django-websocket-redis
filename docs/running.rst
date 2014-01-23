@@ -94,20 +94,20 @@ like::
 Since both uWSGI handlers create their own main loop, they also require their own application and
 different UNIX sockets. Create two adopter files, one say ``wsgi_django.py``::
 
-  import os
-  from django.core.wsgi import get_wsgi_application  
-  os.environ.update(DJANGO_SETTINGS_MODULE='myapp.settings')
-  application = get_wsgi_application()
+	import os
+	os.environ.update(DJANGO_SETTINGS_MODULE='my_app.settings')
+	from django.core.wsgi import get_wsgi_application
+	application = get_wsgi_application()
 
 and another, say ``wsgi_websocket.py``::
 
-  import os
-  import gevent
-  import redis.connection
-  redis.connection.socket = gevent.socket
-  os.environ.update(DJANGO_SETTINGS_MODULE='myapp.settings')
-  from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
-  application = uWSGIWebsocketServer()
+	import os
+	import gevent.monkey
+	import redis.connection
+	redis.connection.socket = gevent.socket
+	os.environ.update(DJANGO_SETTINGS_MODULE='my_app.settings')
+	from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
+	application = uWSGIWebsocketServer()
 
 Start two separate uWSGI instances::
 

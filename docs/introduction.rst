@@ -48,7 +48,7 @@ to run two concurrent frameworks can be quite embarrassing during application de
 specially while debugging code.
 
 uWSGI
-=====
+-----
 While searching for a simpler solution, I found out that `uWSGI offers websockets`_ right out of
 the box. With Redis_ as a message queue, and a few lines of Python code, one can bidirectionally
 communicate with any WSGI based framework, for instance **Django**. Of course, here it also is
