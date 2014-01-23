@@ -19,7 +19,7 @@ support non-blocking requests.
 In Django, the web server accepts an incoming request, sets up a WSGI dictionary which then is
 passed to the application server. There the HTTP headers and the payload is created and immediately
 afterwards the request is finished and flushed to the client. This processing typically requires
-only a few hundred milliseconds. The throughput, such a server can handle, is the average response
+a few dozen milliseconds. The throughput, such a server can handle, is the average response
 time multiplied by the number of concurrent workers. Each worker requires its own thread/process
 and a good rule of thumb is to configure not more than twice as many workers as the number of cores
 available on that host. Otherwise you will see a decrease in overall performance, caused by too
@@ -47,6 +47,8 @@ makes the project dependent on another infrastructure and thus harder to maintai
 to run two concurrent frameworks can be quite embarrassing during application development,
 specially while debugging code.
 
+uWSGI
+=====
 While searching for a simpler solution, I found out that `uWSGI offers websockets`_ right out of
 the box. With Redis_ as a message queue, and a few lines of Python code, one can bidirectionally
 communicate with any WSGI based framework, for instance **Django**. Of course, here it also is

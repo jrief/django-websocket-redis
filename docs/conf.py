@@ -13,6 +13,7 @@
 
 import sys
 import os
+import datetime
 from django.conf import settings
 from django.core.management import setup_environ
 
@@ -49,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'django-websocket-redis'
-copyright = u'2013, Jacob Rief'
+copyright = datetime.date.today().strftime(u'Copyright %Y, Jacob Rief')
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
