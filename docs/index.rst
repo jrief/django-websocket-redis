@@ -7,8 +7,14 @@ This module implements websockets on top of Django without requiring any additio
 messaging it uses the `Redis datastore`_. In a production environment, it is intended to work under
 uWSGI_ and behind NGiNX_. In a development environment, it can be used with ``manage runserver``.
 
-Contents:
+Project's home
+--------------
+Check for the latest release of this project on `Github`_.
 
+Please report bugs or ask questions using the `Issue Tracker`_.
+
+Contents
+--------
 .. toctree::
 
   introduction
@@ -29,3 +35,5 @@ Indices and tables
 .. _NGiNX: http://nginx.com/
 .. _uWSGI: http://uwsgi-docs.readthedocs.org/en/latest/WebSockets.html
 .. _Redis datastore: http://redis.io/
+.. _Github: https://github.com/jrief/django-websocket-redis
+.. _Issue Tracker: https://github.com/jrief/django-websocket-redis/issues
