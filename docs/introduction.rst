@@ -12,7 +12,7 @@ it is not a viable solution for real time events such as chat applications or br
 multiplayer games.
 
 Web application written in Python usually use WSGI as the communication protocol between the
-webserver and themselves. WSGI is s stateless protocol which defines how to handle requests and
+webserver and themselves. WSGI is a stateless protocol which defines how to handle requests and
 making responses in a simple way abstracted from the HTTP protocol, but by design it does not
 support non-blocking requests.
 
