@@ -40,7 +40,7 @@ Subscribe to Broadcast Notification
 -----------------------------------
 This is the simplest form of notification. Every websocket subscribed to a broadcast channel is
 notified, when a message is sent to that named Redis channel. Say, the websocket URL is
-``ws://www.example.com/ws/foobar&subscribe-broadcast`` and in Django someone publishes a message
+``ws://www.example.com/ws/foobar?subscribe-broadcast`` and in Django someone publishes a message
 to Redis using::
 
   conn = redis.StrictRedis()
@@ -51,7 +51,7 @@ notification.
 
 Subscribe to User Notification
 ------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar&subscribe-user``, will be
+A websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-user``, will be
 notified if someone publishes a message on a named Redis channel using::
 
   conn = redis.StrictRedis()
@@ -62,7 +62,7 @@ that user notification.
 
 Subscribe to Session Notification
 ---------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar&subscribe-session``, will be
+A websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-session``, will be
 notified if someone publishes a message on a named Redis channel using::
 
   conn = redis.StrictRedis()
@@ -73,8 +73,8 @@ then the message “Hello World” is sent to all clients using the Session-Id
 
 Publish for Broadcast, User and Session
 ---------------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar&publish-broadcast``, 
-``ws://www.example.com/ws/foobar&publish-user`` or ``ws://www.example.com/ws/foobar&publish-session``
+A websocket initialized with the URL ``ws://www.example.com/ws/foobar?publish-broadcast``, 
+``ws://www.example.com/ws/foobar?publish-user`` or ``ws://www.example.com/ws/foobar?publish-session``
 will publish a message sent through the websocket on the named Redis channels ``_broadcast_:foobar``,
 ``johndoe:foobar`` and ``wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x:foobar`` respectively. Every listener
 subscribed to any of those named channels, then will be notified.
