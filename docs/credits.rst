@@ -2,17 +2,20 @@
 
 Credits to Others
 =================
-When Jacob Kaplan-Moss gave his keynote on PyCon 2013 Canada, he mentioned the MeteorJS_ framework
-as the next big thing. In his opinion, web development will go into that direction. Watch his talk
-on YouTube: http://www.youtube.com/watch?v=UKAkKXFMQP8#t=1174
+When Jacob Kaplan-Moss gave his keynote talk on PyCon 2013 Canada, he mentioned the MeteorJS_ framework
+as the next big step. In his opinion, web development will go into that direction. Please also watch
+his `talk on YouTube`_.
 
-Personally, I share his opinion about this forecast. The point for both of us however is, that we
-don't see JavaScript as *the* server side language yet. Probably I am wrong on this, but for the
+Personally, I share his opinion about this forecast. The point for both of us is, that we don't
+see JavaScript as *the* server side language yet. Probably I am wrong on this, but for the
 moment I prefer server side frameworks in a language with real classes, and which can be adopted to
-devices able to render static content, such as the Kindle.
+devices able to only render static content, such as the Kindle. Additionally, I love a clear
+separation of concerns, where I can deliberately exchange software components specialized for the
+running platform. Eventually a web server is very different from a browser, so why should I be forced
+to run components from the same framework on both of them?
 
-Therefore my way to go, is for a pure client side framework such as AngularJS_, which in my humble
-opinion is by far the best JavaScript framework ever written.
+Therefore my way to go, is for a pure server- and a pure client-side framework. As the latter, I prefer
+AngularJS_, which in my humble opinion is by far the best JavaScript framework ever written.
 
 AngularJS
 ---------
@@ -43,8 +46,7 @@ another framework running side by side with Django, during development.
 
 uWSGI
 -----
-Then I stumbled across this talk on EuroPython 2013. Watch Roberto De Ioris on YouTube:
-http://www.youtube.com/watch?v=qmdk5mVLsHM#t=580
+Then I stumbled across this talk on EuroPython 2013. Please watch `Roberto De Ioris talk on YouTube`_.
 
 Here he pointed out, that the WSGI protocol will never be able to support a technology such as
 websockets. But, since websockets override HTTP, the solution is to let them override WSGI too.
@@ -62,5 +64,7 @@ coolest feature MeteorJS can offer right now.
 
 .. _MeteorJS: https://www.meteor.com/
 .. _AngularJS: http://angularjs.org/
+.. _talk on YouTube: http://www.youtube.com/watch?v=UKAkKXFMQP8#t=1174
+.. _Roberto De Ioris talk on YouTube: http://www.youtube.com/watch?v=qmdk5mVLsHM#t=580
 .. _django-angular: https://github.com/jrief/django-angular
 .. _websocket handshake: https://bitbucket.org/Jeffrey/gevent-websocket
