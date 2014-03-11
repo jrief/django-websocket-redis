@@ -10,4 +10,4 @@ WS4REDIS_CONNECTION = getattr(settings, 'WS4REDIS_CONNECTION', {
 
 WS4REDIS_EXPIRE = getattr(settings, 'WS4REDIS_EXPIRE', 3600)
 
-WS4REDIS_STORE = getattr(settings, 'WS4REDIS_STORE', 'ws4redis.store.RedisStore')
+WS4REDIS_SUBSCRIBER = getattr(settings, 'WS4REDIS_SUBSCRIBER', 'ws4redis.subscriber.RedisSubscriber')

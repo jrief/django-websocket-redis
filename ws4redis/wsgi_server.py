@@ -16,12 +16,12 @@ class WebsocketWSGIServer(object):
         """
         redis_connection can be overriden by a mock object.
         """
-        comps = str(redis_settings.WS4REDIS_STORE).split('.')
+        comps = str(redis_settings.WS4REDIS_SUBSCRIBER).split('.')
         module = import_module('.'.join(comps[:-1]))
-        RedisStore = getattr(module, comps[-1])
-        self.allowed_channels = RedisStore.subscription_channels + RedisStore.publish_channels
+        Subscriber = getattr(module, comps[-1])
+        self.allowed_channels = Subscriber.subscription_channels + Subscriber.publish_channels
         self._redis_connection = redis_connection and redis_connection or StrictRedis(**redis_settings.WS4REDIS_CONNECTION)
-        self.RedisStore = RedisStore
+        self.Subscriber = Subscriber
 
     def assure_protocol_requirements(self, environ):
         if environ.get('REQUEST_METHOD') != 'GET':
@@ -53,7 +53,7 @@ class WebsocketWSGIServer(object):
     def __call__(self, environ, start_response):
         """ Hijack the main loop from the original thread and listen on events on Redis and Websockets"""
         websocket = None
-        redis_store = self.RedisStore(self._redis_connection)
+        subscriber = self.Subscriber(self._redis_connection)
         try:
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
@@ -61,13 +61,13 @@ class WebsocketWSGIServer(object):
             channels = self.process_subscriptions(request)
             websocket = self.upgrade_websocket(environ, start_response)
             logger.debug('Subscribed to channels: {0}'.format(', '.join(channels)))
-            redis_store.subscribe_channels(request, channels)
+            subscriber.set_pubsub_channels(request, channels)
             websocket_fd = websocket.get_file_descriptor()
             listening_fds = [websocket_fd]
-            redis_fd = redis_store.get_file_descriptor()
+            redis_fd = subscriber.get_file_descriptor()
             if redis_fd:
                 listening_fds.append(redis_fd)
-            redis_store.send_persited_messages(websocket)
+            subscriber.send_persited_messages(websocket)
             while websocket and not websocket.closed:
                 ready = self.select(listening_fds, [], [], 4.0)[0]
                 if not ready:
@@ -76,9 +76,9 @@ class WebsocketWSGIServer(object):
                 for fd in ready:
                     if fd == websocket_fd:
                         message = websocket.receive()
-                        redis_store.publish_message(message)
+                        subscriber.publish_message(message)
                     elif fd == redis_fd:
-                        response = redis_store.parse_response()
+                        response = subscriber.parse_response()
                         if response[0] == 'message':
                             message = response[2]
                             websocket.send(message)
