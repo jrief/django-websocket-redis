@@ -30,7 +30,7 @@ class WebsocketTests(LiveServerTestCase):
 
     def test_subscribe_broadcast(self):
         settings.WS4REDIS_EXPIRE = 10
-        self.connection.set('_broadcast_:foobar', self.message)
+        self.connection.set('broadcast:foobar', self.message)
         websocket_url = self.websocket_base_url + u'/ws/foobar?subscribe-broadcast'
         ws = create_connection(websocket_url)
         self.assertTrue(ws.connected)
@@ -58,7 +58,7 @@ class WebsocketTests(LiveServerTestCase):
         ws.send(self.message)
         ws.close()
         self.assertFalse(ws.connected)
-        result = self.connection.get('_broadcast_:foobar')
+        result = self.connection.get('broadcast:foobar')
         self.assertEqual(result, self.message)
 
     def test_subscribe_user(self):

@@ -5,7 +5,7 @@ python:
 
 env:
   - DJANGO=1.5.5 TEST=chatserver
-  - DJANGO=1.6.1 TEST=chatserver.tests
+  - DJANGO=1.6.2 TEST=chatserver.tests
 
 branches:
   except:
