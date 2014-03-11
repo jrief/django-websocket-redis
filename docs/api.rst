@@ -32,10 +32,12 @@ Example view:
 	    message = 'A message passed to all browsers listening on the named facility'
 	    self.redis_publisher.publish_message(message)
 
-For further options, refer to:
+For further options, refer to the reference:
 
 .. autoclass:: ws4redis.publisher.RedisPublisher
    :members:
+
+.. automethod:: ws4redis.redis_store.RedisStore.publish_message
 
 
 Replace ``RedisSubscriber`` for the Websocket loop

@@ -18,12 +18,13 @@ class RedisPublisher(RedisStore):
 
     def fetch_message(self, request, facility, audience='any'):
         """
-        Fetch the first message available for the given `facility` and `audience`, if it has been
-        persisted in the Redis datastore.
-        @param request: The current HTTP request used to determine to whom the message belongs.
-        @param facility: A unique string to identify the bucket.
-        @param audience: Determines the audience to check for the message. Can be of `broadcast`,
-            `group`, `user`, `session` or `any`. `any` means to check for all audiences.
+        Fetch the first message available for the given ``facility`` and ``audience``, if it has
+        been persisted in the Redis datastore.
+        The current HTTP ``request`` is used to determine to whom the message belongs.
+        A unique string to identify the bucket's ``facility``.
+        Determines the ``audience`` to check for the message. Must be one of ``broadcast``,
+        ``group``, ``user``, ``session`` or ``any``. The default is ``any``, which means to check
+        for all possible audiences.
         """
         channels = []
         if audience in ('session', 'any',):

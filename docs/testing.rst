@@ -8,7 +8,7 @@ Simple Chat servers
 In the ``examples`` directory, there are two demo chat servers. To start them, first initialize
 the SQLite database
 
-.. code-block:: shell
+.. code-block:: bash
 
 	./manage.py syncdb
 	Creating tables ...
@@ -19,7 +19,7 @@ the SQLite database
 
 and then start the server
 
-.. code-block:: shell
+.. code-block:: bash
 
 	./manage.py runserver
 
@@ -40,7 +40,7 @@ Before configuring NGiNX to run in front of two instances of uWSGI, it is recomm
 uWSGI as a stand alone server for testing purpose. The entry point of this server makes the
 distinction between normal HTTP and websocket requests. In directory ``examples``, start uwsgi as
 
-.. code-block:: shell
+.. code-block:: bash
 
 	uwsgi --virtualenv /path/to/virtualenvs --http :9090 --gevent 100 --http-websockets --module wsgi
 
@@ -50,13 +50,13 @@ Running Unit Tests
 ------------------
 To run the unit tests, a few additional packages have to be installed
 
-.. code-block:: shell
+.. code-block:: bash
 
 	pip install -r examples/chatserver/tests/requirements.txt
 
 Run the tests
 
-.. code-block:: shell
+.. code-block:: bash
 
 	cd examples && ./manage.py test chatserver --settings=chatserver.test_settings
 
@@ -72,13 +72,13 @@ performance in a real environment, the server and the testing client must be sta
 
 First start the server, as you would in productive environments
 
-.. code-block:: shell
+.. code-block:: bash
 
 	uwsgi --virtualenv /path/to/virtualenvs --http :8000 --gevent 1000 --http-websockets --master --workers 2 --module wsgi_websocket
 
 then start one of the testing clients, using the nose_ framework
 
-.. code-block:: shell
+.. code-block:: bash
 
 	nosetests test_uwsgi_gevent.py
 
@@ -86,7 +86,7 @@ then start one of the testing clients, using the nose_ framework
 
 or start a similar test using real threads instead of greenlets
 
-.. code-block:: shell
+.. code-block:: bash
 
 	nosetests test_uwsgi_threads.py
 

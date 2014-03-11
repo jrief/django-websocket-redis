@@ -7,21 +7,19 @@ Running Websocket for Redis
 main loop, which does nothing else than keeping the websocket alive and dispatching requests
 from **Redis** to the configured websockets and vice versa.
 
-In the 
-
 Running Django with Websockets for Redis in development mode
 ------------------------------------------------------------
 With **Websockets for Redis**, a Django application has immediate access to code written for
-websockets. Make sure, that Redis is up and accepting connections:
+websockets. Make sure, that Redis is up and accepts connections.
 
-.. code-block:: shell
+.. code-block:: bash
 
 	$ redis-cli ping
 	PONG
 
-Then start the Django development server:
+Then start the Django development server.
 
-.. code-block:: shell
+.. code-block:: bash
 
 	./manage.py runserver
 
@@ -64,7 +62,7 @@ normals requests, modify the Python starter module ``wsgi.py`` to
 
 Run uWSGI as stand alone server with
 
-.. code-block:: shell
+.. code-block:: bash
 
 	uwsgi --virtualenv /path/to/virtualenv --http :80 --gevent 100 --http-websockets --module wsgi
 
@@ -89,7 +87,7 @@ The webserver undertakes the task of dispatching normal requests to one uWSGI in
 requests to another one. The responsible configuration section for an NGiNX webserver shall look
 like
 
-.. code-block::
+.. code-block:: nginx
 
 	location / {
 	    include /etc/nginx/uwsgi_params;
@@ -127,7 +125,7 @@ and another, say ``wsgi_websocket.py``
 
 Start two separate uWSGI instances
 
-.. code-block:: shell
+.. code-block:: bash
 
 	uwsgi --virtualenv /path/to/virtualenv --socket /path/to/django.socket --buffer-size=32768 --workers=5 --master --module wsgi_django
 	uwsgi --virtualenv /path/to/virtualenv --http-socket /path/to/web.socket --gevent 1000 --http-websockets --workers=2 --master --module wsgi_websocket

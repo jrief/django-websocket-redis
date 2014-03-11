@@ -14,9 +14,10 @@ class RedisStore(object):
 
     def publish_message(self, message, expire=None):
         """
-        Publish a message on the subscribed channel on the Redis datastore.
-        @param message: The raw message to publish in the Redis datastore.
-        @param expire: How many seconds shall the message be persisted in the Redis datastore.
+        Publish a ``message`` on the subscribed channel on the Redis datastore.
+        ``expire`` sets the time in seconds, on how long the message shall additionally of being
+        published, also be persisted in the Redis datastore. If unset, it defaults to the
+        configuration settings ``WS4REDIS_EXPIRE``.
         """
         expire = expire is None and self._expire or expire
         if message:
