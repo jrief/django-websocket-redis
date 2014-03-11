@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 import time
-import redis
 import requests
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.test import LiveServerTestCase
-from django.core.urlresolvers import reverse
+from django.test.client import RequestFactory
 from django.contrib.sessions.backends.db import SessionStore
 from websocket import create_connection
-from ws4redis import settings as redis_settings
 from ws4redis.django_runserver import application
+from ws4redis.publisher import RedisPublisher
 
 
 class WebsocketTests(LiveServerTestCase):
@@ -22,15 +22,18 @@ class WebsocketTests(LiveServerTestCase):
     def setUp(self):
         self.websocket_base_url = self.live_server_url.replace('http:', 'ws:', 1)
         self.message = ''.join(unichr(c) for c in range(33, 128))
-        self.connection = redis.StrictRedis(**redis_settings.WS4REDIS_CONNECTION)
+        self.adminuser = User.objects.get(username='admin')
+        self.factory = RequestFactory()
+        self.facility = 'foobar'
 
     @classmethod
     def tearDownClass(cls):
         time.sleep(1)
 
     def test_subscribe_broadcast(self):
-        settings.WS4REDIS_EXPIRE = 10
-        self.connection.set('broadcast:foobar', self.message)
+        audience = {'broadcast': True}
+        publisher = RedisPublisher(facility=self.facility, **audience)
+        publisher.publish_message(self.message, 10)
         websocket_url = self.websocket_base_url + u'/ws/foobar?subscribe-broadcast'
         ws = create_connection(websocket_url)
         self.assertTrue(ws.connected)
@@ -58,14 +61,19 @@ class WebsocketTests(LiveServerTestCase):
         ws.send(self.message)
         ws.close()
         self.assertFalse(ws.connected)
-        result = self.connection.get('broadcast:foobar')
+        publisher = RedisPublisher()
+        request = self.factory.get('/chat/')
+        result = publisher.fetch_message(request, self.facility, 'broadcast')
         self.assertEqual(result, self.message)
 
     def test_subscribe_user(self):
         logged_in = self.client.login(username='admin', password='secret')
         self.assertTrue(logged_in, 'User is not logged in')
-        settings.WS4REDIS_EXPIRE = 10
-        self.connection.set('admin:foobar', self.message)
+        request = self.factory.get('/chat/')
+        request.user = self.adminuser
+        audience = {'users': True}
+        publisher = RedisPublisher(request=request, facility=self.facility, **audience)
+        publisher.publish_message(self.message, 10)
         websocket_url = self.websocket_base_url + u'/ws/foobar?subscribe-user'
         header = ['Cookie: sessionid={0}'.format(self.client.cookies['sessionid'].coded_value)]
         ws = create_connection(websocket_url, header=header)
@@ -78,7 +86,6 @@ class WebsocketTests(LiveServerTestCase):
     def test_publish_user(self):
         logged_in = self.client.login(username='admin', password='secret')
         self.assertTrue(logged_in, 'User is not logged in')
-        settings.WS4REDIS_EXPIRE = 10
         websocket_url = self.websocket_base_url + u'/ws/foobar?publish-user'
         header = ['Cookie: sessionid={0}'.format(self.client.cookies['sessionid'].coded_value)]
         ws = create_connection(websocket_url, header=header)
@@ -86,18 +93,23 @@ class WebsocketTests(LiveServerTestCase):
         ws.send(self.message)
         ws.close()
         self.assertFalse(ws.connected)
-        result = self.connection.get('admin:foobar')
+        publisher = RedisPublisher()
+        request = self.factory.get('/chat/')
+        request.user = self.adminuser
+        result = publisher.fetch_message(request, self.facility, 'user')
         self.assertEqual(result, self.message)
 
     def test_subscribe_session(self):
         logged_in = self.client.login(username='admin', password='secret')
         self.assertTrue(logged_in, 'User is not logged in')
-        settings.WS4REDIS_EXPIRE = 10
         self.assertIsInstance(self.client.session, (dict, SessionStore), 'Did not receive a sessionid')
         session_key = self.client.session.session_key
         self.assertGreater(len(session_key), 30, 'Session key is too short')
-        settings.WS4REDIS_EXPIRE = 10
-        self.connection.set('session:{0}:foobar'.format(session_key), self.message)
+        request = self.factory.get('/chat/')
+        request.session = self.client.session
+        audience = {'sessions': True}
+        publisher = RedisPublisher(request=request, facility=self.facility, **audience)
+        publisher.publish_message(self.message, 10)
         websocket_url = self.websocket_base_url + u'/ws/foobar?subscribe-session'
         header = ['Cookie: sessionid={0}'.format(session_key)]
         ws = create_connection(websocket_url, header=header)
@@ -121,7 +133,10 @@ class WebsocketTests(LiveServerTestCase):
         ws.send(self.message)
         ws.close()
         self.assertFalse(ws.connected)
-        result = self.connection.get('session:{0}:foobar'.format(session_key))
+        publisher = RedisPublisher()
+        request = self.factory.get('/chat/')
+        request.session = self.client.session
+        result = publisher.fetch_message(request, self.facility, 'session')
         self.assertEqual(result, self.message)
 
     def test_invalid_request(self):
