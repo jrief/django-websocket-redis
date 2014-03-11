@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 
+WEBSOCKET_URL = getattr(settings, 'WEBSOCKET_URL', '/ws/')
+
 WS4REDIS_CONNECTION = getattr(settings, 'WS4REDIS_CONNECTION', {
     'host': 'localhost',
     'port': 6379,
