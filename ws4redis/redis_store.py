@@ -13,7 +13,11 @@ class RedisStore(object):
         self._connection = connection
 
     def publish_message(self, message, expire=None):
-        """Publish a message on the subscribed channel on the Redis datastore."""
+        """
+        Publish a message on the subscribed channel on the Redis datastore.
+        @param message: The raw message to publish in the Redis datastore.
+        @param expire: How many seconds shall the message be persisted in the Redis datastore.
+        """
         expire = expire is None and self._expire or expire
         if message:
             for channel in self._publishers:

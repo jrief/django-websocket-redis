@@ -78,7 +78,7 @@ of being published on the message queue::
 Override ``ws4redis.store.RedisStore`` with a customized class, in case you need an alternative
 implementation of that class::
 
-  WS4REDIS_STORE = 'myapp.redis_store.RedisStore'
+  WS4REDIS_SUBSCRIBER = 'myapp.redis_store.RedisSubscriber'
 
 This directive is required during development and ignored in production environments. It overrides
 Django's internal main loop and adds a URL dispatcher in front of the request handler::

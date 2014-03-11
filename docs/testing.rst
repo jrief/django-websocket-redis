@@ -6,18 +6,22 @@ Testing Websockets for Redis
 Simple Chat servers
 -------------------
 In the ``examples`` directory, there are two demo chat servers. To start them, first initialize
-the SQLite database::
+the SQLite database
 
-  ./manage.py syncdb
-  Creating tables ...
-  ...
-  Would you like to create one now? (yes/no): yes
-  Username (leave blank to use 'johndoe'):
-  ...
+.. code-block:: shell
 
-and then start the server::
+	./manage.py syncdb
+	Creating tables ...
+	...
+	Would you like to create one now? (yes/no): yes
+	Username (leave blank to use 'johndoe'):
+	...
 
-  ./manage.py runserver
+and then start the server
+
+.. code-block:: shell
+
+	./manage.py runserver
 
 Point a browser onto http://localhost:8000/admin/, login and add additional users. Enable their
 staff status, so that they can use the admin interface to log into the testing application.
@@ -34,21 +38,27 @@ Testing uWSGI
 .............
 Before configuring NGiNX to run in front of two instances of uWSGI, it is recommended to run
 uWSGI as a stand alone server for testing purpose. The entry point of this server makes the
-distinction between normal HTTP and websocket requests. In directory ``examples``, start uwsgi as::
+distinction between normal HTTP and websocket requests. In directory ``examples``, start uwsgi as
 
-  uwsgi --virtualenv /path/to/virtualenvs --http :9090 --gevent 100 --http-websockets --module wsgi
+.. code-block:: shell
+
+	uwsgi --virtualenv /path/to/virtualenvs --http :9090 --gevent 100 --http-websockets --module wsgi
 
 Both chat server tests from above should run in this configuration.
 
 Running Unit Tests
 ------------------
-To run the unit tests, a few additional packages have to be installed::
+To run the unit tests, a few additional packages have to be installed
 
-  pip install -r examples/chatserver/tests/requirements.txt
+.. code-block:: shell
 
-Run the tests::
+	pip install -r examples/chatserver/tests/requirements.txt
 
-  cd examples && ./manage.py test chatserver --settings=chatserver.test_settings
+Run the tests
+
+.. code-block:: shell
+
+	cd examples && ./manage.py test chatserver --settings=chatserver.test_settings
 
 Currently it is not possible to simulate more than one client at a time. Django's built in
 LiveServerTestCase_ can not handle more than one simultaneous open connection, and thus more
@@ -60,19 +70,25 @@ Running Stress Tests
 To run stress tests, change into directory ``stress-tests``. Since stress tests shall check the
 performance in a real environment, the server and the testing client must be started independently.
 
-First start the server, as you would in productive environments::
+First start the server, as you would in productive environments
 
-  uwsgi --virtualenv /path/to/virtualenvs --http :8000 --gevent 1000 --http-websockets --master --workers 2 --module wsgi_websocket
+.. code-block:: shell
 
-then start one of the testing clients, using the nose_ framework::
+	uwsgi --virtualenv /path/to/virtualenvs --http :8000 --gevent 1000 --http-websockets --master --workers 2 --module wsgi_websocket
 
-  nosetests test_uwsgi_gevent.py
+then start one of the testing clients, using the nose_ framework
+
+.. code-block:: shell
+
+	nosetests test_uwsgi_gevent.py
 
 (this test, on my MacBook, requires about 1.5 seconds)
 
-or start a similar test using real threads instead of greenlets::
+or start a similar test using real threads instead of greenlets
 
-  nosetests test_uwsgi_threads.py
+.. code-block:: shell
+
+	nosetests test_uwsgi_threads.py
 
 (this test, on my MacBook, requires about 2.5 seconds)
 
