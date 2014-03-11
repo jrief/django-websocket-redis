@@ -97,7 +97,7 @@ class WebsocketTests(LiveServerTestCase):
         session_key = self.client.session.session_key
         self.assertGreater(len(session_key), 30, 'Session key is too short')
         settings.WS4REDIS_EXPIRE = 10
-        self.connection.set('{0}:foobar'.format(session_key), self.message)
+        self.connection.set('session:{0}:foobar'.format(session_key), self.message)
         websocket_url = self.websocket_base_url + u'/ws/foobar?subscribe-session'
         header = ['Cookie: sessionid={0}'.format(session_key)]
         ws = create_connection(websocket_url, header=header)
@@ -121,7 +121,7 @@ class WebsocketTests(LiveServerTestCase):
         ws.send(self.message)
         ws.close()
         self.assertFalse(ws.connected)
-        result = self.connection.get('{0}:foobar'.format(session_key))
+        result = self.connection.get('session:{0}:foobar'.format(session_key))
         self.assertEqual(result, self.message)
 
     def test_invalid_request(self):
