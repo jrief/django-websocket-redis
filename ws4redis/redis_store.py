@@ -1,78 +1,63 @@
 #-*- coding: utf-8 -*-
-from django.conf import settings
-from ws4redis import settings as redis_settings
+from ws4redis import settings
 
 
 class RedisStore(object):
     """
-    Control the messaging from and to the Redis datastore.
+    Abstract base class to control publishing  and subscription for messages to and from the Redis datastore.
     """
-    subscription_channels = ['subscribe-session', 'subscribe-user', 'subscribe-broadcast']
-    publish_channels = ['publish-session', 'publish-user', 'publish-broadcast']
+    _expire = settings.WS4REDIS_EXPIRE
+    _publishers = set()
 
-    def __init__(self, connection, expire=redis_settings.WS4REDIS_EXPIRE):
+    def __init__(self, connection):
         self._connection = connection
-        self._subscription = None
-        self._expire = expire
 
-    def subscribe_channels(self, request, channels):
-        """
-        Initialize the channels used for subscribing and sending messages.
-        """
-        def subscribe_for(prefix):
-            key = request.path_info.replace(settings.WEBSOCKET_URL, prefix, 1)
-            self._subscription.subscribe(key)
-
-        def publish_on(prefix):
-            key = request.path_info.replace(settings.WEBSOCKET_URL, prefix, 1)
-            self._publishers.add(key)
-
-        self._subscription = self._connection.pubsub()
-        self._publishers = set()
-
-        # subscribe to these Redis channels for outgoing messages
-        if 'subscribe-session' in channels and request.session:
-            subscribe_for('{0}:'.format(request.session.session_key))
-        if 'subscribe-user' in channels and request.user:
-            subscribe_for('{0}:'.format(request.user))
-        if 'subscribe-broadcast' in channels:
-            subscribe_for('_broadcast_:')
-
-        # publish incoming messages on these Redis channels
-        if 'publish-session' in channels and request.session:
-            publish_on('{0}:'.format(request.session.session_key))
-        if 'publish-user' in channels and request.user:
-            publish_on('{0}:'.format(request.user))
-        if 'publish-broadcast' in channels:
-            publish_on('_broadcast_:')
-
-    def publish_message(self, message):
+    def publish_message(self, message, expire=None):
         """Publish a message on the subscribed channel on the Redis datastore."""
+        expire = expire is None and self._expire or expire
         if message:
             for channel in self._publishers:
                 self._connection.publish(channel, message)
-                if self._expire > 0:
-                    self._connection.set(channel, message, ex=self._expire)
+                if expire > 0:
+                    self._connection.set(channel, message, ex=expire)
 
-    def send_persited_messages(self, websocket):
-        """
-        This method is called immediately after a websocket is openend by the client, so that
-        persisted messages can be sent back to the client upon connection.
-        """
-        for channel in self._subscription.channels:
-            message = self._connection.get(channel)
-            if message:
-                websocket.send(message)
-
-    def parse_response(self):
-        """
-        Parse a message response sent by the Redis datastore on a subscribed channel.
-        """
-        return self._subscription.parse_response()
-
-    def get_file_descriptor(self):
-        """
-        Returns the file descriptor used for passing to the select call when listening
-        on the message queue.
-        """
-        return self._subscription.connection and self._subscription.connection._sock.fileno()
+    def _get_message_channels(self, request=None, facility='{facility}', broadcast=False,
+                              groups=False, users=False, sessions=False):
+        channels = []
+        if broadcast is True:
+            # broadcast message to each subscriber listening on the named facility
+            channels.append('broadcast:{facility}'.format(facility=facility))
+        if groups is True and request and request.user.is_authenticated():
+            # message is delivered to all groups the currently logged in user belongs to
+            channels.extend('group:{0}:{facility}'.format(g.name, facility=facility) for g in request.user.groups.all())
+        elif isinstance(groups, (list, tuple)):
+            # message is delivered to all listed groups
+            channels.extend('group:{0}:{facility}'.format(g, facility=facility) for g in groups)
+        elif isinstance(groups, basestring):
+            # message is delivered to the named group
+            channels.append('group:{0}:{facility}'.format(groups, facility=facility))
+        elif not isinstance(groups, bool):
+            raise ValueError('Argument `groups` must be a list, a string or a boolean')
+        if users is True and request and request.user.is_authenticated():
+            # message is delivered to browser instances of the currently logged in user
+            channels.append('user:{0}:{facility}'.format(request.user.username, facility=facility))
+        elif isinstance(users, (list, tuple)):
+            # message is delivered to all listed users
+            channels.extend('user:{0}:{facility}'.format(u, facility=facility) for u in users)
+        elif isinstance(users, basestring):
+            # message is delivered to the named user
+            channels.append('user:{0}:{facility}'.format(users, facility=facility))
+        elif not isinstance(users, bool):
+            raise ValueError('Argument `users` must be a list, a string or a boolean')
+        if sessions is True and request and request.session:
+            # message is delivered to browser instances owning the current session
+            channels.append('session:{0}:{facility}'.format(request.session.session_key, facility=facility))
+        elif isinstance(sessions, (list, tuple)):
+            # message is delivered to all browsers instances listed in sessions
+            channels.extend('session:{0}:{facility}'.format(s, facility=facility) for s in sessions)
+        elif isinstance(sessions, basestring):
+            # message is delivered to the named user
+            channels.append('session:{0}:{facility}'.format(sessions, facility=facility))
+        elif not isinstance(sessions, bool):
+            raise ValueError('Argument `sessions` must be a boolean')
+        return channels
