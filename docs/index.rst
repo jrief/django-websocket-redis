@@ -23,6 +23,7 @@ Contents
   usage
   api
   testing
+  changelog
   credits
 
 Indices and tables

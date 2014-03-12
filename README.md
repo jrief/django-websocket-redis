@@ -34,26 +34,5 @@ Please use the issue tracker to ask questions.
 
 License
 -------
-Copyright (c) 2013 Jacob Rief  
+Copyright (c) 2014 Jacob Rief
 Licensed under the MIT license.
-
-Release History
----------------
-* 0.2.2
- - Moved mokey patching for Redis socket into the runner. This sometimes caused errors when
-   running in development mode.
- - Added timeout to select call. This caused IOerrors when running under uWSGI and the websocket
-   was idle.
-* 0.2.1 - Reverted issue #1 and dropped compatibility with Django-1.4 since the response status must
-  use force_str.
-* 0.2.0 - Major API change
- * Use WS4REDIS_... in Django settings
- * Persist messages, allowing server reboots and reconnecting the client
- * Share the file descriptor for Redis for all open connections
- * Allow to override the subscribe/publish engine
-* 0.1.2 - fixed: Can use publish to websocket without subscribing
-* 0.1.1 - instead of CLI monkey patching, explicitly patch the redis.connection.socket using
-  gevent.socket
-* 0.1.0 - initial revision
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/jrief/django-websocket-redis/trend.png)](https://bitdeli.com/free "Bitdeli Badge")

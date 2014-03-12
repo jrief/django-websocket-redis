@@ -1,29 +1,38 @@
 .. _installation_and_configuration:
 
+==============================
 Installation and Configuration
 ==============================
 
 Installation
-------------
+============
 If not already done, install the **Redis server**, using the installation tool offered by the
-operating system, such as ``aptitude``, ``yum``, ``port`` as  or install `Redis from source`_.
+operating system, such as ``aptitude``, ``yum``, ``port`` or install `Redis from source`_.
 
-Start the Redis service on your host::
+Start the Redis service on your host
 
-  $ sudo service redis-server start
+.. code-block:: bash
 
-Check if Redis is up and accepting connections::
+	$ sudo service redis-server start
 
-  $ redis-cli ping
-  PONG
+Check if Redis is up and accepting connections
 
-Install **Django Websocket for Redis**. The latest stable release can be found on PyPI::
+.. code-block:: bash
 
-  pip install django-websocket-redis
+	$ redis-cli ping
+	PONG
 
-or the newest development version from github::
+Install **Django Websocket for Redis**. The latest stable release can be found on PyPI
 
-  pip install -e git+https://github.com/jrief/django-websocket-redis#egg=django-websocket-redis
+.. code-block:: bash
+
+	pip install django-websocket-redis
+
+or the newest development version from github
+
+.. code-block:: bash
+
+	pip install -e git+https://github.com/jrief/django-websocket-redis#egg=django-websocket-redis
 
 **Websocket for Redis** does not define any database models. It can therefore be installed without
 any database synchronization.
@@ -40,28 +49,34 @@ Dependencies
 
 
 Configuration
--------------
-Add ``"ws4redis"`` to your project's ``INSTALLED_APPS`` setting::
+=============
+Add ``"ws4redis"`` to your project's ``INSTALLED_APPS`` setting
 
-  INSTALLED_APPS = (
-      ...
-      'ws4redis',
-      ...
-  )
+.. code-block:: python
 
-Specify the URL that distinguishes websocket connections from normal requests::
+	INSTALLED_APPS = (
+	    ...
+	    'ws4redis',
+	    ...
+	)
 
-  WEBSOCKET_URL = '/ws/'
+Specify the URL that distinguishes websocket connections from normal requests
+
+.. code-block:: python
+
+	WEBSOCKET_URL = '/ws/'
 
 If the Redis datastore uses connection settings other than the defaults, use this dictionary to
-override these values::
+override these values
 
-  WS4REDIS_CONNECTION = {
-      'host': 'redis.example.com',
-      'port': 16379,
-      'db': 17,
-      'password': 'verysecret',
-  }
+.. code-block:: python
+
+	WS4REDIS_CONNECTION = {
+	    'host': 'redis.example.com',
+	    'port': 16379,
+	    'db': 17,
+	    'password': 'verysecret',
+	}
 
 .. note:: Specify only the values, which deviate from the default.
 
@@ -71,30 +86,38 @@ to access the published information after reconnecting the websocket, for instan
 is reloaded.
 
 This directive sets the number in seconds, each received message is persisted by Redis, additionally
-of being published on the message queue::
+of being published on the message queue
 
-  WS4REDIS_EXPIRE = 7200
+.. code-block:: python
+
+	WS4REDIS_EXPIRE = 7200
 
 Override ``ws4redis.store.RedisStore`` with a customized class, in case you need an alternative
-implementation of that class::
+implementation of that class
 
-  WS4REDIS_SUBSCRIBER = 'myapp.redis_store.RedisSubscriber'
+.. code-block:: python
+
+	WS4REDIS_SUBSCRIBER = 'myapp.redis_store.RedisSubscriber'
 
 This directive is required during development and ignored in production environments. It overrides
-Django's internal main loop and adds a URL dispatcher in front of the request handler::
+Django's internal main loop and adds a URL dispatcher in front of the request handler
 
-  WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+.. code-block:: python
+
+	WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 
 Check your Installation
 -----------------------
 With **Websockets for Redis** your Django application has immediate access to code written for
-websockets. Change into the ``examples`` directory and start a sample chat server::
+websockets. Change into the ``examples`` directory and start a sample chat server
 
-  ./manage.py syncdb
-  ... create database tables
-  ... answer the questions
-  ./manage.py runserver
+.. code-block:: bash
+
+	./manage.py syncdb
+	... create database tables
+	... answer the questions
+	./manage.py runserver
 
 Point a browser onto http://localhost:8000/chat/, you should see a simple chat server. Enter
 a message and send it to the server. It should be echoed immediately on the billboard.
