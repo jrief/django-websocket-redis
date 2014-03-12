@@ -31,7 +31,10 @@ class uWSGIWebsocket(object):
             raise WebSocketError(e)
 
     def flush(self):
-        self.receive()
+        try:
+            uwsgi.websocket_recv_nb()
+        except IOError, e:
+            pass
 
     def send(self, message, binary=None):
         try:
