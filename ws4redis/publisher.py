@@ -28,13 +28,13 @@ class RedisPublisher(RedisStore):
         """
         channels = []
         if audience in ('session', 'any',):
-            if request.session:
+            if request and request.session:
                 channels.append('session:{0}:{facility}'.format(request.session.session_key, facility=facility))
         if audience in ('user', 'any',):
-            if request.user.is_authenticated():
+            if request and request.user.is_authenticated():
                 channels.append('user:{0}:{facility}'.format(request.user.username, facility=facility))
         if audience in ('group', 'any',):
-            if request.user.is_authenticated():
+            if request and request.user.is_authenticated():
                 groups = request.user.groups.all()
                 channels.extend('group:{0}:{facility}'.format(g.name, facility=facility) for g in groups)
         if audience in ('broadcast', 'any',):
