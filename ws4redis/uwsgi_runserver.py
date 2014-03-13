@@ -33,7 +33,7 @@ class uWSGIWebsocket(object):
     def flush(self):
         try:
             uwsgi.websocket_recv_nb()
-        except IOError, e:
+        except IOError:
             pass
 
     def send(self, message, binary=None):
