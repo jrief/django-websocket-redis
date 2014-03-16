@@ -26,43 +26,53 @@ class RedisStore(object):
                 if expire > 0:
                     self._connection.set(channel, message, ex=expire)
 
+    def get_prefix(self):
+        """
+        Returns the string used to prefix entries in the Redis datastore.
+        """
+        return settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
+
     def _get_message_channels(self, request=None, facility='{facility}', broadcast=False,
                               groups=False, users=False, sessions=False):
+        prefix = self.get_prefix()
         channels = []
         if broadcast is True:
             # broadcast message to each subscriber listening on the named facility
-            channels.append('broadcast:{facility}'.format(facility=facility))
+            channels.append('{prefix}broadcast:{facility}'.format(prefix=prefix, facility=facility))
         if groups is True and request and request.user.is_authenticated():
             # message is delivered to all groups the currently logged in user belongs to
-            channels.extend('group:{0}:{facility}'.format(g.name, facility=facility) for g in request.user.groups.all())
+            channels.extend('{prefix}group:{0}:{facility}'.format(g.name, prefix=prefix, facility=facility)
+                            for g in request.user.groups.all())
         elif isinstance(groups, (list, tuple)):
             # message is delivered to all listed groups
-            channels.extend('group:{0}:{facility}'.format(g, facility=facility) for g in groups)
+            channels.extend('{prefix}group:{0}:{facility}'.format(g, prefix=prefix, facility=facility)
+                            for g in groups)
         elif isinstance(groups, basestring):
             # message is delivered to the named group
-            channels.append('group:{0}:{facility}'.format(groups, facility=facility))
+            channels.append('{prefix}group:{0}:{facility}'.format(groups, prefix=prefix, facility=facility))
         elif not isinstance(groups, bool):
             raise ValueError('Argument `groups` must be a list, a string or a boolean')
         if users is True and request and request.user.is_authenticated():
             # message is delivered to browser instances of the currently logged in user
-            channels.append('user:{0}:{facility}'.format(request.user.username, facility=facility))
+            channels.append('{prefix}user:{0}:{facility}'.format(request.user.username, prefix=prefix, facility=facility))
         elif isinstance(users, (list, tuple)):
             # message is delivered to all listed users
-            channels.extend('user:{0}:{facility}'.format(u, facility=facility) for u in users)
+            channels.extend('{prefix}user:{0}:{facility}'.format(u, prefix=prefix, facility=facility) for u in users)
         elif isinstance(users, basestring):
             # message is delivered to the named user
-            channels.append('user:{0}:{facility}'.format(users, facility=facility))
+            channels.append('{prefix}user:{0}:{facility}'.format(users, prefix=prefix, facility=facility))
         elif not isinstance(users, bool):
             raise ValueError('Argument `users` must be a list, a string or a boolean')
         if sessions is True and request and request.session:
             # message is delivered to browser instances owning the current session
-            channels.append('session:{0}:{facility}'.format(request.session.session_key, facility=facility))
+            channels.append('{prefix}session:{0}:{facility}'.format(request.session.session_key, prefix=prefix, facility=facility))
         elif isinstance(sessions, (list, tuple)):
             # message is delivered to all browsers instances listed in sessions
-            channels.extend('session:{0}:{facility}'.format(s, facility=facility) for s in sessions)
+            channels.extend('{prefix}session:{0}:{facility}'.format(s, prefix=prefix, facility=facility)
+                            for s in sessions)
         elif isinstance(sessions, basestring):
             # message is delivered to the named user
-            channels.append('session:{0}:{facility}'.format(sessions, facility=facility))
+            channels.append('{prefix}session:{0}:{facility}'.format(sessions, prefix=prefix, facility=facility))
         elif not isinstance(sessions, bool):
             raise ValueError('Argument `sessions` must be a boolean')
         return channels

@@ -92,6 +92,14 @@ of being published on the message queue
 
 	WS4REDIS_EXPIRE = 7200
 
+**Websocket for Redis** can prefix each entry in the datastore with a string. By default, this
+is empty. If the same Redis connection is used to store other kinds of data, in order to avoid name
+clashes you're encouraged to prefix these entries with a unique string, say
+
+.. code-block:: python
+
+WS4REDIS_PREFIX = 'ws'
+
 Override ``ws4redis.store.RedisStore`` with a customized class, in case you need an alternative
 implementation of that class
 
