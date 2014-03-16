@@ -1,5 +1,6 @@
 .. django-websocket-redis documentation master file
 
+===============================================================
 Websockets for Django applications using Redis as message queue
 ===============================================================
 
@@ -8,13 +9,13 @@ messaging it uses the `Redis datastore`_. In a production environment, it is int
 uWSGI_ and behind NGiNX_. In a development environment, it can be used with ``manage runserver``.
 
 Project's home
---------------
+==============
 Check for the latest release of this project on `Github`_.
 
 Please report bugs or ask questions using the `Issue Tracker`_.
 
 Contents
---------
+========
 .. toctree::
 
   introduction

@@ -1,10 +1,11 @@
 .. testing
 
+============================
 Testing Websockets for Redis
 ============================
 
-Simple Chat servers
--------------------
+A simple Chat server
+====================
 In the ``examples`` directory, there are two demo chat servers. To start them, first initialize
 the SQLite database
 
@@ -30,12 +31,12 @@ With http://localhost:8000/userchat/ you can send messages to specific users, pr
 logged in. To log in as another user, use Django's admin interface.
 
 Simple Broadcasting
-...................
+-------------------
 On http://localhost:8000/chat/ there is a chat server, which simply broadcasts messages to all
 browsers accessing this same URL.
 
 Testing uWSGI
-.............
+-------------
 Before configuring NGiNX to run in front of two instances of uWSGI, it is recommended to run
 uWSGI as a stand alone server for testing purpose. The entry point of this server makes the
 distinction between normal HTTP and websocket requests. In directory ``examples``, start uwsgi as
@@ -47,7 +48,7 @@ distinction between normal HTTP and websocket requests. In directory ``examples`
 Both chat server tests from above should run in this configuration.
 
 Running Unit Tests
-------------------
+==================
 To run the unit tests, a few additional packages have to be installed
 
 .. code-block:: bash
@@ -66,7 +67,7 @@ sophisticated tests with more than one active websockets are not possible.
 
 
 Running Stress Tests
---------------------
+====================
 To run stress tests, change into directory ``stress-tests``. Since stress tests shall check the
 performance in a real environment, the server and the testing client must be started independently.
 

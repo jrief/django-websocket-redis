@@ -1,5 +1,6 @@
 .. introduction
 
+============
 Introduction
 ============
 
@@ -16,6 +17,8 @@ webserver and themselves. WSGI is a stateless protocol which defines how to hand
 making responses in a simple way abstracted from the HTTP protocol, but by design it does not
 support non-blocking requests.
 
+The WSGI protocol can not support websockets
+--------------------------------------------
 In Django, the web server accepts an incoming request, sets up a WSGI dictionary which then is
 passed to the application server. There the HTTP headers and the payload is created and immediately
 afterwards the request is finished and flushed to the client. This processing typically requires
@@ -48,7 +51,7 @@ to run two concurrent frameworks can be quite embarrassing during application de
 specially while debugging code.
 
 uWSGI
------
+=====
 While searching for a simpler solution, I found out that `uWSGI offers websockets`_ right out of
 the box. With Redis_ as a message queue, and a few lines of Python code, one can bidirectionally
 communicate with any WSGI based framework, for instance **Django**. Of course, here it also is
@@ -70,7 +73,7 @@ This approach has some advantages:
 
 
 Using Redis as a message queue
-------------------------------
+==============================
 One might argue that all this is not as simple, since an additional service – the Redis data server
 – must run side by side with Django. Websockets are bidirectional but their normal use case is to
 trigger server initiated events on the client. Although the other direction is possible, it can

@@ -1,5 +1,6 @@
 .. credits
 
+=================
 Credits to Others
 =================
 When Jacob Kaplan-Moss gave his keynote talk on PyCon 2013 Canada, he mentioned the MeteorJS_ framework
@@ -21,7 +22,7 @@ Therefore my way to go, is for a pure server- and a pure client-side framework. 
 AngularJS_, which in my humble opinion is by far the best JavaScript framework ever written.
 
 AngularJS
----------
+=========
 is a MVC framework for the client with two-way data-binding. Two way data-binding is an automatic
 way of updating the view whenever the model changes, as well as updating the model whenever the view
 changes. Django users will immediately feel comfortable with AngularJS, since the concept of
@@ -37,7 +38,7 @@ Django's server side form validation to the client side validation functions, wi
 duplicate this code.
 
 Current solutions
------------------
+=================
 For rendering server side data using HTML, and receiving client data through POST or
 XMLHttpRequests, **django-angular** works fine, but in order to update data on the client upon
 events triggered by the server, communication using a technology such as websockets must be provided
@@ -48,7 +49,7 @@ they all looked like makeshift solutions. Something I found specially disturbing
 another framework running side by side with Django, during development.
 
 uWSGI
------
+=====
 Then I stumbled across this talk on EuroPython 2013. Please watch `Roberto De Ioris talk on YouTube`_.
 
 Here he pointed out, that the WSGI protocol will never be able to support a technology such as

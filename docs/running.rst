@@ -1,5 +1,6 @@
 .. running
 
+===========================
 Running Websocket for Redis
 ===========================
 
@@ -7,8 +8,8 @@ Running Websocket for Redis
 main loop, which does nothing else than keeping the websocket alive and dispatching requests
 from **Redis** to the configured websockets and vice versa.
 
-Running Django with Websockets for Redis in development mode
-------------------------------------------------------------
+Django with Websockets for Redis in development mode
+====================================================
 With **Websockets for Redis**, a Django application has immediate access to code written for
 websockets. Make sure, that Redis is up and accepts connections.
 
@@ -39,8 +40,8 @@ even if there is no payload to be sent. In development mode, the “Websocket”
 these stay alive packages, because normally there is no proxy or firewall between the server and the
 client which could drop the connection. This could be easily implemented, though.
 
-Running Django with websockets for Redis as a stand alone uWSGI server
-----------------------------------------------------------------------
+Django with websockets for Redis as a stand alone uWSGI server
+==============================================================
 In this configuration the **uWSGI** server owns the main loop. To distinguish websockets from
 normals requests, modify the Python starter module ``wsgi.py`` to
 
@@ -76,8 +77,8 @@ requests. Adding ``--gevent-monkey-patch`` to the command line may help here, bu
 instance requires to monkey patch its blocking calls with **gevent** using the psycogreen_ library.
 Moreover, only one CPU core is then used, and static files must be handled by another webserver.
 
-Running Django with websockets for Redis behind NGiNX using uWSGI
------------------------------------------------------------------
+Django with websockets for Redis behind NGiNX using uWSGI
+=========================================================
 This is the most scalable solution. Here two instances of a uWSGI server are spawned, one to handle
 normal HTTP requests for Django and one to handle websocket requests. Look at this diagram:
 

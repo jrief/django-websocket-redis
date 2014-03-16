@@ -1,5 +1,6 @@
 .. api
 
+=================================
 Application Programming Interface
 =================================
 
@@ -7,10 +8,10 @@ This document describes how to interact with **Websockets for Redis** from the D
 to adopt the Websocket loop for other purposes.
 
 Use ``RedisPublisher`` from inside Django views
------------------------------------------------
+===============================================
 For obvious architectural reasons, the code handling the websocket loop can not be accessed directly
 from within Django. Therefore, all communication from Django to the websocket loop, must be passed
-over to the Redis message queue and vice versa. To facility this, **ws4redis** offers the class
+over to the Redis message queue and vice versa. To facility this, **ws4redis** offers a class named
 ``RedisPublisher``. An instance of this class shall be used from inside Django views to push
 messages via a websocket to the client, or to fetch persisted messages sent through the websocket.
 
