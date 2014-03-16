@@ -15,3 +15,12 @@ WS4REDIS_PREFIX = getattr(settings, 'WS4REDIS_PREFIX', None)
 WS4REDIS_EXPIRE = getattr(settings, 'WS4REDIS_EXPIRE', 3600)
 
 WS4REDIS_SUBSCRIBER = getattr(settings, 'WS4REDIS_SUBSCRIBER', 'ws4redis.subscriber.RedisSubscriber')
+
+"""
+This set the magic string to recognize heartbeat messages. If set, this message string is ignored
+by the server and also shall be ignored on the client.
+
+If set, the server sends at least every 4 seconds a heartbeat message. It is then up to the client
+to decide, what to do with these messages.
+"""
+WS4REDIS_HEARTBEAT = getattr(settings, 'WS4REDIS_HEARTBEAT', None)

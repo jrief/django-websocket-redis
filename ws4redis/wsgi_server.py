@@ -76,7 +76,8 @@ class WebsocketWSGIServer(object):
                 for fd in ready:
                     if fd == websocket_fd:
                         message = websocket.receive()
-                        subscriber.publish_message(message)
+                        if message != redis_settings.WS4REDIS_HEARTBEAT:
+                            subscriber.publish_message(message)
                     elif fd == redis_fd:
                         response = subscriber.parse_response()
                         if response[0] == 'message':
@@ -84,6 +85,8 @@ class WebsocketWSGIServer(object):
                             websocket.send(message)
                     else:
                         logger.error('Invalid file descriptor: {0}'.format(fd))
+                if redis_settings.WS4REDIS_HEARTBEAT:
+                    websocket.send(redis_settings.WS4REDIS_HEARTBEAT)
         except WebSocketError, excpt:
             logger.warning('WebSocketError: ', exc_info=sys.exc_info())
             response = HttpResponse(status=1001, content='Websocket Closed')
