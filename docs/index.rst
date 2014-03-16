@@ -22,6 +22,7 @@ Contents
   installation
   running
   usage
+  heartbeats
   api
   testing
   changelog
