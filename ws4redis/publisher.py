@@ -21,7 +21,7 @@ class RedisPublisher(RedisStore):
         Fetch the first message available for the given ``facility`` and ``audience``, if it has
         been persisted in the Redis datastore.
         The current HTTP ``request`` is used to determine to whom the message belongs.
-        A unique string to identify the bucket's ``facility``.
+        A unique string is used to identify the bucket's ``facility``.
         Determines the ``audience`` to check for the message. Must be one of ``broadcast``,
         ``group``, ``user``, ``session`` or ``any``. The default is ``any``, which means to check
         for all possible audiences.
