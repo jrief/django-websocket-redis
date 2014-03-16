@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-from chatclient import *
+from .chatclient import *

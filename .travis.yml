@@ -4,8 +4,8 @@ python:
   - 2.7
 
 env:
-  - DJANGO=1.5.5 TEST=chatserver
-  - DJANGO=1.6.2 TEST=chatserver.tests
+  - DJANGO=1.5.5
+  - DJANGO=1.6.2
 
 branches:
   except:
@@ -24,4 +24,4 @@ before_script:
   - sh -e /etc/init.d/xvfb start
 
 script:
- - cd examples && ./manage.py test $TEST
+ - cd examples && ./manage.py test chatserver
