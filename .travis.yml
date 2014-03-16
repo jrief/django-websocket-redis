@@ -12,8 +12,8 @@ branches:
     - devel
 
 install:
-  - pip install -q Django==$DJANGO --use-mirrors
-  - pip install -r examples/chatserver/tests/requirements.txt  --use-mirrors
+  - pip install -q Django==$DJANGO
+  - pip install -r examples/chatserver/tests/requirements.txt
   - python setup.py -q install
 
 services:
