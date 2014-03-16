@@ -24,4 +24,4 @@ before_script:
   - sh -e /etc/init.d/xvfb start
 
 script:
- - cd examples && ./manage.py test chatserver
+ - cd examples && ./manage.py test chatserver --settings=chatserver.test_settings
