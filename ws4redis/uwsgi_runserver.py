@@ -34,7 +34,7 @@ class uWSGIWebsocket(object):
         try:
             uwsgi.websocket_recv_nb()
         except IOError:
-            pass
+            self.close()
 
     def send(self, message, binary=None):
         try:
