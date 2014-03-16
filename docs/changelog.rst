@@ -4,6 +4,11 @@
 Release History
 ===============
 
+0.3.1
+-----
+* Keys for entries in Redis datastore can be prefixed by an optional string. This may be required
+  to avoid namespace clashes.
+
 0.3.0
 ----- 
 * Added possibility to publish and subscribe for Django Groups, additionally to Users and Sesions.
