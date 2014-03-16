@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
 import requests
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import LiveServerTestCase
 from django.test.client import RequestFactory
@@ -43,7 +42,6 @@ class WebsocketTests(LiveServerTestCase):
         self.assertFalse(ws.connected)
 
     def test_pubsub_broadcast(self):
-        settings.WS4REDIS_EXPIRE = 0
         websocket_url = self.websocket_base_url + u'/ws/foobar?subscribe-broadcast&publish-broadcast'
         ws = create_connection(websocket_url)
         self.assertTrue(ws.connected)
@@ -54,7 +52,6 @@ class WebsocketTests(LiveServerTestCase):
         self.assertFalse(ws.connected)
 
     def test_publish_broadcast(self):
-        settings.WS4REDIS_EXPIRE = 10
         websocket_url = self.websocket_base_url + u'/ws/foobar?publish-broadcast'
         ws = create_connection(websocket_url)
         self.assertTrue(ws.connected)
@@ -65,6 +62,8 @@ class WebsocketTests(LiveServerTestCase):
         request = self.factory.get('/chat/')
         result = publisher.fetch_message(request, self.facility, 'broadcast')
         self.assertEqual(result, self.message)
+        # now access Redis store directly
+        self.assertEqual(publisher._connection.get('ws4redis:broadcast:foobar'), self.message)
 
     def test_subscribe_user(self):
         logged_in = self.client.login(username='admin', password='secret')
@@ -122,7 +121,6 @@ class WebsocketTests(LiveServerTestCase):
     def test_publish_session(self):
         logged_in = self.client.login(username='admin', password='secret')
         self.assertTrue(logged_in, 'User is not logged in')
-        settings.WS4REDIS_EXPIRE = 10
         self.assertIsInstance(self.client.session, (dict, SessionStore), 'Did not receive a sessionid')
         session_key = self.client.session.session_key
         self.assertGreater(len(session_key), 30, 'Session key is too short')

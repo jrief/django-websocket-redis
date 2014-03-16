@@ -64,3 +64,7 @@ WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 # URL that distinguishes websocket connections from normal requests
 WEBSOCKET_URL = '/ws/'
+
+WS4REDIS_EXPIRE = 10
+
+WS4REDIS_PREFIX = 'ws4redis'

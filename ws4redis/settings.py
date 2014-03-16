@@ -10,7 +10,7 @@ WS4REDIS_CONNECTION = getattr(settings, 'WS4REDIS_CONNECTION', {
     'password': None,
 })
 
-WS4REDIS_PREFIX = 'ws'
+WS4REDIS_PREFIX = getattr(settings, 'WS4REDIS_PREFIX', None)
 
 WS4REDIS_EXPIRE = getattr(settings, 'WS4REDIS_EXPIRE', 3600)
 
