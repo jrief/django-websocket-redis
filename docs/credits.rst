@@ -8,11 +8,14 @@ his `talk on YouTube`_.
 
 Personally, I share his opinion about this forecast. The point for both of us is, that we don't
 see JavaScript as *the* server side language yet. Probably I am wrong on this, but for the
-moment I prefer server side frameworks in a language with real classes, and which can be adopted to
-devices able to only render static content, such as the Kindle. Additionally, I love a clear
-separation of concerns, where I can deliberately exchange software components specialized for the
-running platform. Eventually a web server is very different from a browser, so why should I be forced
-to run components from the same framework on both of them?
+moment I prefer server side frameworks in a language with real classes and numeric types suitable
+for business applications. This all is missing in JavasSript. Moreover, if content has to be
+optimized for `E-book readers`_, static rendering on the server side becomes mandatory.
+
+Apart from these technical issues, I love clear separation of concerns, where I can deliberately
+exchange software components specialized for the running platform. Eventually a web server is very
+different from a browser, so why should I be forced to run components from the same framework on
+both of them?
 
 Therefore my way to go, is for a pure server- and a pure client-side framework. As the latter, I prefer
 AngularJS_, which in my humble opinion is by far the best JavaScript framework ever written.
@@ -68,3 +71,4 @@ coolest feature MeteorJS can offer right now.
 .. _Roberto De Ioris talk on YouTube: http://www.youtube.com/watch?v=qmdk5mVLsHM#t=580
 .. _django-angular: https://github.com/jrief/django-angular
 .. _websocket handshake: https://bitbucket.org/Jeffrey/gevent-websocket
+.. _E-book readers: http://en.wikipedia.org/wiki/E-book_reader
