@@ -37,11 +37,13 @@ setup(
     include_package_data=True,
     install_requires=[
         'Django>=1.5',
-        'uWSGI>=1.9.20',
         'setuptools',
         'redis',
         'gevent',
         'greenlet',
-        # optional 'wsaccel'
     ],
+    extras_require={
+        'uwsgi':  ['uWSGI>=1.9.20'],
+        'wsaccel': ['wsaccel>=0.6.2'],
+    },
 )
