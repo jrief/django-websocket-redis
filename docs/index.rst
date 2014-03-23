@@ -25,6 +25,7 @@ Contents
   heartbeats
   api
   testing
+  debugging
   changelog
   credits
 
