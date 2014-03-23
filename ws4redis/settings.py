@@ -14,6 +14,9 @@ WS4REDIS_PREFIX = getattr(settings, 'WS4REDIS_PREFIX', None)
 
 WS4REDIS_EXPIRE = getattr(settings, 'WS4REDIS_EXPIRE', 3600)
 
+"""
+Replace the subscriber class by a customized version.
+"""
 WS4REDIS_SUBSCRIBER = getattr(settings, 'WS4REDIS_SUBSCRIBER', 'ws4redis.subscriber.RedisSubscriber')
 
 """
