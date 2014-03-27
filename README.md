@@ -24,6 +24,8 @@ Features
 * The only additional requirement is a running instance of **Redis**, which by the way is a good
   replacement for memcached.
 
+If unsure, if this proposed architecture is the correct approach on how to integrate websockets with Django, then please read Roberto De Ioris article about [Offloading Websockets and Server-Sent Events AKA “Combine them with Django safely”](http://uwsgi-docs.readthedocs.org/en/latest/articles/OffloadingWebsocketsAndSSE.html).
+
 Build status
 ------------
 [![Build Status](https://travis-ci.org/jrief/django-websocket-redis.png?branch=master)](https://travis-ci.org/jrief/django-websocket-redis)
