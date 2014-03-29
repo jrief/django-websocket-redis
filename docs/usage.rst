@@ -83,7 +83,7 @@ Client code using jQuery, being able to reconnect on broken websockets:
 	    }
 	
 	    function on_message(evt) {
-	        console.log("Received: " + e.data);
+	        console.log("Received: " + evt.data);
 	    }
 	
 	    connect('ws://www.example.com/ws/foobar?subscribe-broadcast');
