@@ -3,7 +3,6 @@
 {% block script_panel %}
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-	ws4redis.heartbeat_msg = null; // temporarily
 	ws4redis.connect('ws://{{ request.get_host }}/ws/foobar?subscribe-broadcast&publish-broadcast');
 	$('#send_message').click(function() {
 		var value = $('#text_message').val();
