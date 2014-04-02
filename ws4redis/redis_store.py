@@ -52,7 +52,7 @@ class RedisStore(object):
             channels.append('{prefix}group:{0}:{facility}'.format(groups, prefix=prefix, facility=facility))
         elif not isinstance(groups, bool):
             raise ValueError('Argument `groups` must be a list, a string or a boolean')
-        if users is True and request and request.user.is_authenticated():
+        if users is True and request and request.user and request.user.is_authenticated():
             # message is delivered to browser instances of the currently logged in user
             channels.append('{prefix}user:{0}:{facility}'.format(request.user.username, prefix=prefix, facility=facility))
         elif isinstance(users, (list, tuple)):
