@@ -32,13 +32,16 @@ class RedisPublisher(RedisStore):
             if request and request.session:
                 channels.append('{prefix}session:{0}:{facility}'.format(request.session.session_key, prefix=prefix, facility=facility))
         if audience in ('user', 'any',):
-            if request and request.user.is_authenticated():
+            if request and request.user and request.user.is_authenticated():
                 channels.append('{prefix}user:{0}:{facility}'.format(request.user.username, prefix=prefix, facility=facility))
         if audience in ('group', 'any',):
-            if request and request.user.is_authenticated():
-                groups = request.user.groups.all()
-                channels.extend('{prefix}group:{0}:{facility}'.format(g.name, prefix=prefix, facility=facility)
+            try:
+                if request.user.is_authenticated():
+                    groups = request.session['ws4redis:memberof']
+                    channels.extend('{prefix}group:{0}:{facility}'.format(g.name, prefix=prefix, facility=facility)
                                 for g in groups)
+            except (KeyError, AttributeError):
+                pass
         if audience in ('broadcast', 'any',):
             channels.append('{prefix}broadcast:{facility}'.format(prefix=prefix, facility=facility))
         for channel in channels:
