@@ -151,3 +151,9 @@ class WebsocketTests(LiveServerTestCase):
         header = ['Sec-WebSocket-Version: 6']  # Version 6 is not supported
         ws = create_connection(websocket_url, header=header)
         self.assertFalse(ws.connected)
+
+    def test_defining_multiple_publishers(self):
+        pub1 = RedisPublisher(facility=self.facility, broadcast=True)
+        self.assertEqual(pub1._publishers, set(['ws4redis:broadcast:foobar']))
+        pub2 = RedisPublisher(facility=self.facility, users='admin')
+        self.assertEqual(pub2._publishers, set(['ws4redis:user:admin:foobar']))

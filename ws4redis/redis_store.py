@@ -7,9 +7,9 @@ class RedisStore(object):
     Abstract base class to control publishing  and subscription for messages to and from the Redis datastore.
     """
     _expire = settings.WS4REDIS_EXPIRE
-    _publishers = set()
 
     def __init__(self, connection):
+        self._publishers = set()
         self._connection = connection
 
     def publish_message(self, message, expire=None):
