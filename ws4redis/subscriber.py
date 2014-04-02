@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 from django.conf import settings
-from ws4redis.redis_store import RedisStore
+from ws4redis.redis_store import RedisStore, SELF
 
 
 class RedisSubscriber(RedisStore):
@@ -28,9 +28,9 @@ class RedisSubscriber(RedisStore):
 
         # initialize publishers
         audience = {
-            'users': 'publish-user' in channels,
-            'groups': 'publish-group' in channels,
-            'sessions': 'publish-session' in channels,
+            'users': 'publish-user' in channels and [SELF] or [],
+            'groups': 'publish-group' in channels and [SELF] or [],
+            'sessions': 'publish-session' in channels and [SELF] or [],
             'broadcast': 'publish-broadcast' in channels,
         }
         self._publishers = set()
@@ -39,9 +39,9 @@ class RedisSubscriber(RedisStore):
 
         # initialize subscribers
         audience = {
-            'users': 'subscribe-user' in channels,
-            'groups': 'subscribe-group' in channels,
-            'sessions': 'subscribe-session' in channels,
+            'users': 'subscribe-user' in channels and [SELF] or [],
+            'groups': 'subscribe-group' in channels and [SELF] or [],
+            'sessions': 'subscribe-session' in channels and [SELF] or [],
             'broadcast': 'subscribe-broadcast' in channels,
         }
         self._subscription = self._connection.pubsub()
