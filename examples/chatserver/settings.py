@@ -32,6 +32,16 @@ STATIC_ROOT = '/home/static/'
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
+SESSION_ENGINE = 'redis_sessions.session'
+
+SESSION_REDIS_PREFIX = 'session'
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.static',
+    'django.core.context_processors.request',
+)
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
@@ -66,3 +76,5 @@ WEBSOCKET_URL = '/ws/'
 
 # Set the number of seconds each message shall persited
 WS4REDIS_EXPIRE = 3600
+
+WS4REDIS_HEARTBEAT = '--heartbeat--'
