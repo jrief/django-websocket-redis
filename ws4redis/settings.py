@@ -10,8 +10,14 @@ WS4REDIS_CONNECTION = getattr(settings, 'WS4REDIS_CONNECTION', {
     'password': None,
 })
 
+"""
+A string to prefix elements in the Redis datastore, to avoid naming conflicts with other services.
+"""
 WS4REDIS_PREFIX = getattr(settings, 'WS4REDIS_PREFIX', None)
 
+"""
+The time in seconds, items shall be persisted by the Redis datastore.
+"""
 WS4REDIS_EXPIRE = getattr(settings, 'WS4REDIS_EXPIRE', 3600)
 
 """
