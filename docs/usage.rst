@@ -132,66 +132,76 @@ message to all clients listening on the named facility, referred here as ``fooba
 now, the message “Hello World” is received by all clients listening for that broadcast
 notification.
 
+
 Subscribe to User Notification
 ------------------------------
 A websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-user``, will be
-notified if someone publishes a message on a named Redis channel.
+notified if that connection belongs to a logged in user and someone publishes a message on for that
+user, using the ``RedisPublisher``.
 
 .. code-block:: python
 
-	redis_publisher = RedisPublisher(facility='foobar', users='johndoe')
+	redis_publisher = RedisPublisher(facility='foobar', users=['john', 'mary'])
 	
 	# and somewhere else
 	redis_publisher.publish_message('Hello World')
 
-now, the message “Hello World” is sent to all clients logged in as ``johndoe`` and listening for
-that notification.
+now, the message “Hello World” is sent to all clients logged in as ``john`` or ``mary`` and
+listening for that kind of notification.
 
-If the message shall be send to a list of users, replace the constructor by
+If the message shall be send to the currently logged in user, then you may use the magic item
+``SELF``.
+
+.. code-block:: python
+	from ws4redis.redis_store import SELF
+
+	redis_publisher = RedisPublisher(facility='foobar', users=[SELF])
+
+
+Subscribe to Group Notification
+-------------------------------
+A websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-group``, will be
+notified if that connection belongs to a logged in user and someone publishes a message for a
+group where this user is member of.
 
 .. code-block:: python
 
-	redis_publisher = RedisPublisher(facility='foobar', users=['johndoe', 'marybarn'])
+	redis_publisher = RedisPublisher(facility='foobar', groups=['chatters'])
+	
+	# and somewhere else
+	redis_publisher.publish_message('Hello World')
 
-If the message shall be send to the currently logged in user, replace the constructor by
+now, the message “Hello World” is sent to all clients logged in as users which are members of the
+group ``chatters`` and subscribing to that kind of notification.
 
-.. code-block:: python
+In this context the the magic item ``SELF`` refers to all the groups, the current logged in user
+belongs to.
 
-	redis_publisher = RedisPublisher(facility='foobar', users=True)
 
 Subscribe to Session Notification
 ---------------------------------
 A websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-session``, will be
-notified if someone publishes a message on a named Redis channel.
+notified if someone publishes a message for a client owning this session key.
 
 .. code-block:: python
 
-	redis_publisher = RedisPublisher(facility='foobar', sessions='wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x')
+	redis_publisher = RedisPublisher(facility='foobar', sessions=['wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x'])
 	
 	# and somewhere else
 	redis_publisher.publish_message('Hello World')
 
-now, the message “Hello World” is sent to all clients using the Session-Id
-``wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x`` and listening for that notification.
+now, the message “Hello World” is sent to all clients using the session key
+``wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x`` and subscribing to that kind of notification.
 
-If the message shall be send to a list of sessions, replace the constructor by
+In this context the the magic item ``SELF`` refers to all clients owning the same session key.
 
-.. code-block:: python
 
-	redis_publisher = RedisPublisher(facility='foobar', sessions=['wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x', ...])
-
-If the message shall be send to the browser owning the current session, replace the constructor by
-
-.. code-block:: python
-
-	redis_publisher = RedisPublisher(facility='foobar', sessions=True)
-
-Publish for Broadcast, User and Session
----------------------------------------
+Publish for Broadcast, User, Group and Session
+----------------------------------------------
 A websocket initialized with the URL ``ws://www.example.com/ws/foobar?publish-broadcast``, 
 ``ws://www.example.com/ws/foobar?publish-user`` or ``ws://www.example.com/ws/foobar?publish-session``
 will publish a message sent through the websocket on the named Redis channel ``broadcast:foobar``,
-``user:johndoe:foobar`` and ``session:wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x:foobar`` respectively.
+``user:john:foobar`` and ``session:wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x:foobar`` respectively.
 Every listener subscribed to any of the named channels, then will be notified.
 
 This configuration only makes sense, if the messages send by the client using the websocket, shall
@@ -214,6 +224,7 @@ The argument ``audience`` must be one of ``broadcast``, ``group``, ``user``, ``s
 ``any``. The method ``fetch_message`` searches through the Redis datastore to find a persisted
 message for that channel. The first found message is returned to the caller. If no matching message
 was found, ``None`` is returned.
+
 
 Persisting messages
 -------------------

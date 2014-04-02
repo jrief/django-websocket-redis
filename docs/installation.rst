@@ -149,11 +149,11 @@ using Redis, but check django-redis-sessions_ and django-redis-cache_ for detail
 description on how to use `Redis as Django session store and cache backend`_.
 
 Also keep in mind, that accessing session data is a blocking I/O call. Hence the connection from
-the websocket loop to the session store must use gevent, otherwise the websockets may block
+the websocket loop to the session store **must use gevent**, otherwise the websockets may block
 altogether. Therefore, if you for some reason you have to remain with your current session store,
 make sure its monkey patched with gevent.
 
-.. note:: **Never** store session data in the database if using this library.
+.. warn:: **Never** store session data in the database in combination with *Websockets for Redis*!
 
 .. _Redis from source: http://redis.io/download
 .. _github: https://github.com/jrief/django-websocket-redis

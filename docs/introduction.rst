@@ -18,7 +18,7 @@ making responses in a simple way abstracted from the HTTP protocol, but by desig
 support non-blocking requests.
 
 The WSGI protocol can not support websockets
---------------------------------------------
+============================================
 In Django, the web server accepts an incoming request, sets up a WSGI dictionary which then is
 passed to the application server. There the HTTP headers and the payload is created and immediately
 afterwards the request is finished and flushed to the client. This processing typically requires
