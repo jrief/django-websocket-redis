@@ -4,8 +4,9 @@
 <script type="text/javascript">
 jQuery(document).ready(function($) {
 	var ws4redis = WS4Redis({
-		uri: 'ws://{{ request.get_host }}{{ WEBSOCKET_URL }}foobar?subscribe-broadcast&publish-broadcast',
-		receive_message: receiveMessage
+		uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast',
+		receive_message: receiveMessage,
+		heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
 	});
 
 	// send message though the Websocket to the server

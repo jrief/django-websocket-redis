@@ -10,9 +10,7 @@ function WS4Redis(options, $) {
 		throw new Error('No Websocket URI in options');
 	if ($ === undefined)
 		$ = jQuery;
-	opts = $.extend({
-		heartbeat_msg: '--heartbeat--'
-	}, options);
+	opts = $.extend({ heartbeat_msg: null }, options);
 	connect(opts.uri);
 
 	function connect(uri) {
