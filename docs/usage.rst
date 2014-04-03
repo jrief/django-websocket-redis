@@ -86,7 +86,7 @@ Server Side
 ===========
 The Django loop is triggered by client HTTP requests, except for special cases such as jobs
 triggered by, for instance django-celery_. Intentionally, there is no way to trigger events in the
-Django loop through a websocket request. Hence, all of the communication between the Websocket loop
+Django loop through a Websocket request. Hence, all of the communication between the Websocket loop
 and the Django loop must pass through the message queue.
 
 RedisSubscriber
@@ -103,8 +103,8 @@ Both, ``RedisSubscriber`` and ``RedisPublisher`` share the same base class ``Red
 
 Subscribe to Broadcast Notifications
 ------------------------------------
-This is the simplest form of notification. Every websocket subscribed to a broadcast channel is
-notified, when a message is sent to that named Redis channel. Say, the websocket URL is
+This is the simplest form of notification. Every Websocket subscribed to a broadcast channel is
+notified, when a message is sent to that named Redis channel. Say, the Websocket URL is
 ``ws://www.example.com/ws/foobar?subscribe-broadcast`` and the Django loop wants to publish a
 message to all clients listening on the named facility, referred here as ``foobar``.
 
@@ -123,7 +123,7 @@ notification.
 
 Subscribe to User Notification
 ------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-user``, will be
+A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-user``, will be
 notified if that connection belongs to a logged in user and someone publishes a message on for that
 user, using the ``RedisPublisher``.
 
@@ -148,7 +148,7 @@ If the message shall be send to the currently logged in user, then you may use t
 
 Subscribe to Group Notification
 -------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-group``, will be
+A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-group``, will be
 notified if that connection belongs to a logged in user and someone publishes a message for a
 group where this user is member of.
 
@@ -172,7 +172,7 @@ belongs to.
 
 Subscribe to Session Notification
 ---------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-session``, will be
+A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-session``, will be
 notified if someone publishes a message for a client owning this session key.
 
 .. code-block:: python
@@ -190,13 +190,13 @@ In this context the the magic item ``SELF`` refers to all clients owning the sam
 
 Publish for Broadcast, User, Group and Session
 ----------------------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar?publish-broadcast``, 
+A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?publish-broadcast``, 
 ``ws://www.example.com/ws/foobar?publish-user`` or ``ws://www.example.com/ws/foobar?publish-session``
-will publish a message sent through the websocket on the named Redis channel ``broadcast:foobar``,
+will publish a message sent through the Websocket on the named Redis channel ``broadcast:foobar``,
 ``user:john:foobar`` and ``session:wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x:foobar`` respectively.
 Every listener subscribed to any of the named channels, then will be notified.
 
-This configuration only makes sense, if the messages send by the client using the websocket, shall
+This configuration only makes sense, if the messages send by the client using the Websocket, shall
 not trigger any server side event. A practical use would be to store current the GPS coordinates of
 a moving client inside the Redis datastore. Then Django can fetch these coordinates from Redis,
 whenever it requires them.
@@ -226,7 +226,7 @@ configuration settings ``WS4REDIS_EXPIRE`` is set to a positive value, **Websock
 persists the current message in its key-value store. This message then is retrieved and sent to
 the client, immediately after he connects to the server.
 
-.. note:: By using client code, which automatically reconnects after the websocket closes, one can
+.. note:: By using client code, which automatically reconnects after the Websocket closes, one can
           create a setup which is immune against server and client reboots.
 
 .. _django-celery: http://www.celeryproject.org/

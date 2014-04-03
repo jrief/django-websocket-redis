@@ -4,17 +4,17 @@
 Sending and receiving heartbeat messages
 ========================================
 
-The websocket protocol implements so called PING/PONG messages to keep websockets alive, even behind
+The Websocket protocol implements so called PING/PONG messages to keep Websockets alive, even behind
 proxies, firewalls and load-balancers. The server sends a PING message to the client through the
-websocket, which then replies with PONG. If the client does not reply, the server closes
+Websocket, which then replies with PONG. If the client does not reply, the server closes
 the connection.
 
 The client part
 ---------------
-Unfortunately, the websocket protocol does not provide a similar method for the client, to find out
+Unfortunately, the Websocket protocol does not provide a similar method for the client, to find out
 if it is still connected to the server. This can happen, if the connection simply disappears without
 further notification. In order to have the client recognize this, some Javascript code has to be
-added to the client code responsible for the websocket:
+added to the client code responsible for the Websocket:
 
 .. code-block:: javascript
 
@@ -63,7 +63,7 @@ receive function, just before further processing the message:
 
 The server part
 ---------------
-The main loop of the websocket server is idle for a maximum of 4 seconds, even if there is nothing
+The main loop of the Websocket server is idle for a maximum of 4 seconds, even if there is nothing
 to do. After that time interval has elapsed, this loop optionally sends a magic string to the
 client. This can be configured using the special setting:
 
@@ -72,7 +72,7 @@ client. This can be configured using the special setting:
 	WS4REDIS_HEARTBEAT = '--heartbeat--'
 
 The purpose of this setting is twofold. During processing, the server ignores incoming messages
-containing this magic string. Additionally the websocket server sends a message with that magic
+containing this magic string. Additionally the Websocket server sends a message with that magic
 string to the client, about every four seconds. The above client code awaits these messages, at
 least every five seconds, and if too many were not received, it closes the connection and tries
 to reestablish it.

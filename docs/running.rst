@@ -5,13 +5,13 @@ Running Websocket for Redis
 ===========================
 
 **Websocket for Redis** is a library which runs side by side with Django. It has its own separate
-main loop, which does nothing else than keeping the websocket alive and dispatching requests
-from **Redis** to the configured websockets and vice versa.
+main loop, which does nothing else than keeping the Websocket alive and dispatching requests
+from **Redis** to the configured Websockets and vice versa.
 
 Django with Websockets for Redis in development mode
 ====================================================
 With **Websockets for Redis**, a Django application has immediate access to code written for
-websockets. Make sure, that Redis is up and accepts connections.
+Websockets. Make sure, that Redis is up and accepts connections.
 
 .. code-block:: bash
 
@@ -28,21 +28,21 @@ As usual, this command shall only be used for development.
 
 The ``runserver`` command is a monkey patched version of the original Django main loop and works
 similar to it. If an incoming request is of type WSGI, everything works as usual. However, if the
-patched handler detects an incoming request wishing to open a websocket, then the Django main
+patched handler detects an incoming request wishing to open a Websocket, then the Django main
 loop is hijacked by **ws4redis**. This separate loop then waits until ``select`` notifies that some
-data is available for further processing, or by the websocket itself, or by the Redis message queue.
-This hijacked main loop finishes when the websocket is closed or when an error occurs.
+data is available for further processing, or by the Websocket itself, or by the Redis message queue.
+This hijacked main loop finishes when the Websocket is closed or when an error occurs.
 
-.. note:: In development, one thread is created for each open websocket.
+.. note:: In development, one thread is created for each open Websocket.
 
-Opened websocket connections exchange so called Ping/Pong messages. They keep the connections open,
+Opened Websocket connections exchange so called Ping/Pong messages. They keep the connections open,
 even if there is no payload to be sent. In development mode, the “Websocket” main loop does not send
 these stay alive packages, because normally there is no proxy or firewall between the server and the
 client which could drop the connection. This could be easily implemented, though.
 
-Django with websockets for Redis as a stand alone uWSGI server
+Django with Websockets for Redis as a stand alone uWSGI server
 ==============================================================
-In this configuration the **uWSGI** server owns the main loop. To distinguish websockets from
+In this configuration the **uWSGI** server owns the main loop. To distinguish Websockets from
 normals requests, modify the Python starter module ``wsgi.py`` to
 
 .. code-block:: python
@@ -67,9 +67,9 @@ Run uWSGI as stand alone server with
 
 	uwsgi --virtualenv /path/to/virtualenv --http :80 --gevent 100 --http-websockets --module wsgi
 
-This will answer, both Django and websocket requests on port 80 using HTTP. Here the modified
+This will answer, both Django and Websocket requests on port 80 using HTTP. Here the modified
 ``application`` dispatches incoming requests depending on the URL on either a Django handler or
-into the websocket's main loop.
+into the Websocket's main loop.
 
 This configuration works for testing uWSGI and low traffic sites. Since uWSGI then runs in one
 thread/process, blocking calls such as accessing the database, would also block all other HTTP
@@ -77,16 +77,17 @@ requests. Adding ``--gevent-monkey-patch`` to the command line may help here, bu
 instance requires to monkey patch its blocking calls with **gevent** using the psycogreen_ library.
 Moreover, only one CPU core is then used, and static files must be handled by another webserver.
 
-Django with websockets for Redis behind NGiNX using uWSGI
+Django with Websockets for Redis behind NGiNX using uWSGI
 =========================================================
 This is the most scalable solution. Here two instances of a uWSGI server are spawned, one to handle
-normal HTTP requests for Django and one to handle websocket requests. Look at this diagram:
+normal HTTP requests for Django and one to handle Websocket requests. Look at this diagram:
 
 |websocket4redis|
 
-The webserver undertakes the task of dispatching normal requests to one uWSGI instance and websocket
-requests to another one. The responsible configuration section for an NGiNX webserver shall look
-like
+Assure that you use NGiNX version 1.4 or later, since earlier versions have no support for
+Websockets. The web server undertakes the task of dispatching normal requests to one uWSGI
+instance and Websocket requests to another one. The responsible configuration section for
+NGiNX shall look like:
 
 .. code-block:: nginx
 
@@ -103,7 +104,7 @@ like
 	}
 
 Since both uWSGI handlers create their own main loop, they also require their own application and
-different UNIX sockets. Create two adopter files, one say ``wsgi_django.py``
+different UNIX sockets. Create two adopter files, one for the Django loop, say ``wsgi_django.py``
 
 .. code-block:: python
 
@@ -112,7 +113,7 @@ different UNIX sockets. Create two adopter files, one say ``wsgi_django.py``
 	from django.core.wsgi import get_wsgi_application
 	application = get_wsgi_application()
 
-and another, say ``wsgi_websocket.py``
+and one for the Websocket loop, say ``wsgi_websocket.py``
 
 .. code-block:: python
 
@@ -124,7 +125,7 @@ and another, say ``wsgi_websocket.py``
 	from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
 	application = uWSGIWebsocketServer()
 
-Start two separate uWSGI instances
+Start those two applications as separate uWSGI instances
 
 .. code-block:: bash
 
@@ -132,10 +133,10 @@ Start two separate uWSGI instances
 	uwsgi --virtualenv /path/to/virtualenv --http-socket /path/to/web.socket --gevent 1000 --http-websockets --workers=2 --master --module wsgi_websocket
 
 The NGiNX web server is now configured as a scalable application server which can handle a thousand
-websockets connections concurrently.
+Websockets connections concurrently.
 
-If you feel uncomfortable with separating websocket from normal requests on NGiNX, consider
-that you already separate static and media requests on the webserver. Hence, websockets are just
+If you feel uncomfortable with separating Websocket from normal requests on NGiNX, consider
+that you already separate static and media requests on the web server. Hence, Websockets are just
 another extra routing path.
 
 .. |websocket4redis| image:: _static/websocket4redis.png

@@ -100,7 +100,7 @@ clashes you're encouraged to prefix these entries with a unique string, say
 
 .. code-block:: python
 
-WS4REDIS_PREFIX = 'ws'
+	WS4REDIS_PREFIX = 'ws'
 
 Override ``ws4redis.store.RedisStore`` with a customized class, in case you need an alternative
 implementation of that class
@@ -155,16 +155,26 @@ demos as a starting point for your application.
 Replace memcached with Redis
 ============================
 Since Redis has to be added as an additional service to the current infrastructure, at least
-another service can be safely removed: memcached. This is required by typical Django installations
+another service can be safely removed: *memcached*. This is required by typical Django installations
 and is used for caching and session storage.
 
 It's beyond the scope of this documentation to explain how to set up a caching and/or session store
-using Redis, but check django-redis-sessions_ and django-redis-cache_ for details. Here is a
-description on how to use `Redis as Django session store and cache backend`_.
+using Redis, but check django-redis-sessions_ and optionally django-redis-cache_ for details, but
+it should be as easy as installing
 
-.. _django-redis-sessions: https://github.com/martinrusev/django-redis-sessions
-.. _django-redis-cache: https://github.com/sebleier/django-redis-cache
-.. _Redis as Django session store and cache backend: http://michal.karzynski.pl/blog/2013/07/14/using-redis-as-django-session-store-and-cache-backend/
+.. code-block:: bash
+
+	pip install django-redis-sessions
+
+and adding
+
+.. code-block:: python
+
+	SESSION_ENGINE = 'redis_sessions.session'
+	SESSION_REDIS_PREFIX = 'session'
+
+to the file ``settings.py``. Here is a full description on how to use
+`Redis as Django session store and cache backend`_.
 
 Also keep in mind, that accessing session data is a blocking I/O call. Hence the connection from
 the websocket loop to the session store **must use gevent**, otherwise the websockets may block
@@ -180,3 +190,6 @@ make sure its monkey patched with gevent.
 .. _gevent: https://pypi.python.org/pypi/gevent
 .. _greenlet: https://pypi.python.org/pypi/greenlet
 .. _wsaccel: https://pypi.python.org/pypi/wsaccel
+.. _django-redis-sessions: https://github.com/martinrusev/django-redis-sessions
+.. _django-redis-cache: https://github.com/sebleier/django-redis-cache
+.. _Redis as Django session store and cache backend: http://michal.karzynski.pl/blog/2013/07/14/using-redis-as-django-session-store-and-cache-backend/
