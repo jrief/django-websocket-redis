@@ -39,7 +39,7 @@ SESSION_REDIS_PREFIX = 'session'
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.static',
-    'django.core.context_processors.request',
+    'ws4redis.context_processors.default',
 )
 
 # List of callables that know how to import templates from various sources.
