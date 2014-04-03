@@ -1,14 +1,19 @@
 
-var ws4redis = ws4redis || {
-	heartbeat_msg: '--heartbeat--'
-};
-
-jQuery.noConflict();
-
-(function($) {
+function WS4Redis(options, $) {
 	'use strict';
-	var ws, deferred, timer, timer_interval = 0;
+	var opts, ws, deferred, timer, timer_interval = 0;
 	var heartbeat_interval = null, missed_heartbeats = 0;
+
+	if (this === undefined)
+		return new WS4Redis(options, $);
+	if (options.uri === undefined)
+		throw new Error('No Websocket URI in options');
+	if ($ === undefined)
+		$ = jQuery;
+	opts = $.extend({
+		heartbeat_msg: '--heartbeat--'
+	}, options);
+	connect(opts.uri);
 
 	function connect(uri) {
 		try {
@@ -24,14 +29,13 @@ jQuery.noConflict();
 			deferred.reject(new Error(err));
 		}
 	}
-	ws4redis.connect = connect;
 
 	function send_heartbeat() {
 		try {
 			missed_heartbeats++;
 			if (missed_heartbeats > 3)
 				throw new Error("Too many missed heartbeats.");
-			ws.send(ws4redis.heartbeat_msg);
+			ws.send(opts.heartbeat_msg);
 		} catch(e) {
 			clearInterval(heartbeat_interval);
 			heartbeat_interval = null;
@@ -44,7 +48,7 @@ jQuery.noConflict();
 		console.log('Connected!');
 		timer_interval = 500;
 		deferred.resolve();
-		if (ws4redis.heartbeat_msg && heartbeat_interval === null) {
+		if (opts.heartbeat_msg && heartbeat_interval === null) {
 			missed_heartbeats = 0;
 			heartbeat_interval = setInterval(send_heartbeat, 5000);
 		}
@@ -67,15 +71,15 @@ jQuery.noConflict();
 	}
 
 	function on_message(evt) {
-		if (ws4redis.heartbeat_msg && evt.data === ws4redis.heartbeat_msg) {
+		if (opts.heartbeat_msg && evt.data === opts.heartbeat_msg) {
 			// reset the counter for missed heartbeats
 			missed_heartbeats = 0;
-		} else {
-			$('#billboard').append('<br/>' + evt.data);
+		} else if (typeof opts.receive_message === 'function') {
+			return opts.receive_message(evt.data);
 		}
 	}
 
-	ws4redis.send_message = function(message) {
+	this.send_message = function(message) {
 		ws.send(message);
 	}
-}(jQuery));
+}

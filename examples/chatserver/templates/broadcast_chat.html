@@ -3,11 +3,21 @@
 {% block script_panel %}
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-	ws4redis.connect('ws://{{ request.get_host }}/ws/foobar?subscribe-broadcast&publish-broadcast');
+	var ws4redis = WS4Redis({
+		uri: 'ws://{{ request.get_host }}{{ WEBSOCKET_URL }}foobar?subscribe-broadcast&publish-broadcast',
+		receive_message: receiveMessage
+	});
+
+	// send message though the Websocket to the server
 	$('#send_message').click(function() {
 		var value = $('#text_message').val();
 		ws4redis.send_message(value);
 	});
+
+	// receive a message though the Websocket from the server
+	function receiveMessage(msg) {
+		$('#billboard').append('<br/>' + msg);
+	}
 });
 </script>
 {% endblock %}

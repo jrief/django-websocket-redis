@@ -10,15 +10,25 @@
 {% endblock control_panel %}
 
 {% block script_panel %}
-	<script type="text/javascript">
-		jQuery(document).ready(function($) {
-			ws4redis.connect('ws://{{ request.get_host }}/ws/foobar?subscribe-user');
-			$('#send_message').click(function() {
-				$.post('{% url "user_chat" %}', {
-					user: $('#user').val(),
-					message: $('#text_message').val()
-				});
+<script type="text/javascript">
+	jQuery(document).ready(function($) {
+		var ws4redis = WS4Redis({
+			uri: 'ws://{{ request.get_host }}{{ WEBSOCKET_URL }}foobar?subscribe-user',
+			receive_message: receiveMessage
+		});
+
+		// send message to the server using Ajax
+		$('#send_message').click(function() {
+			$.post('{% url "user_chat" %}', {
+				user: $('#user').val(),
+				message: $('#text_message').val()
 			});
 		});
-	</script>
+
+		// receive a message though the Websocket from the server
+		function receiveMessage(msg) {
+			$('#billboard').append('<br/>' + msg);
+		}
+	});
+</script>
 {% endblock script_panel %}
