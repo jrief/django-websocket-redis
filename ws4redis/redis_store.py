@@ -10,7 +10,7 @@ or as a group.
 SELF = type('SELF_TYPE', (object,), {})()
 
 
-def wrap_users(users, request):
+def _wrap_users(users, request):
     """
     Returns a list with the given list of users and/or the currently logged in user, if the list
     contains the magic item SELF.
@@ -24,7 +24,7 @@ def wrap_users(users, request):
     return result
 
 
-def wrap_groups(groups, request):
+def _wrap_groups(groups, request):
     """
     Returns a list of groups for the given list of groups and/or the current logged in user, if
     the list contains the magic item SELF.
@@ -40,7 +40,7 @@ def wrap_groups(groups, request):
     return result
 
 
-def wrap_sessions(sessions, request):
+def _wrap_sessions(sessions, request):
     """
     Returns a list of session keys for the given lists of sessions and/or the session key of the
     current logged in user, if the list contains the magic item SELF.
@@ -96,7 +96,7 @@ class RedisStore(object):
         if isinstance(groups, (list, tuple)):
             # message is delivered to all listed groups
             channels.extend('{prefix}group:{0}:{facility}'.format(g, prefix=prefix, facility=facility)
-                            for g in wrap_groups(groups, request))
+                            for g in _wrap_groups(groups, request))
         elif groups is True and request and request.user and request.user.is_authenticated():
             # message is delivered to all groups the currently logged in user belongs to
             warnings.warn('Wrap groups=True into a list or tuple using SELF', DeprecationWarning)
@@ -113,7 +113,7 @@ class RedisStore(object):
         if isinstance(users, (list, tuple)):
             # message is delivered to all listed users
             channels.extend('{prefix}user:{0}:{facility}'.format(u, prefix=prefix, facility=facility)
-                            for u in wrap_users(users, request))
+                            for u in _wrap_users(users, request))
         elif users is True and request and request.user and request.user.is_authenticated():
             # message is delivered to browser instances of the currently logged in user
             warnings.warn('Wrap users=True into a list or tuple using SELF', DeprecationWarning)
@@ -129,7 +129,7 @@ class RedisStore(object):
         if isinstance(sessions, (list, tuple)):
             # message is delivered to all browsers instances listed in sessions
             channels.extend('{prefix}session:{0}:{facility}'.format(s, prefix=prefix, facility=facility)
-                            for s in wrap_sessions(sessions, request))
+                            for s in _wrap_sessions(sessions, request))
         elif sessions is True and request and request.session:
             # message is delivered to browser instances owning the current session
             warnings.warn('Wrap a single session key into a list or tuple using SELF', DeprecationWarning)
