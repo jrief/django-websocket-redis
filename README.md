@@ -44,5 +44,4 @@ Please use the issue tracker to ask questions.
 
 License
 -------
-Copyright (c) 2014 Jacob Rief
-Licensed under the MIT license.
+Copyright &copy; 2014 Jacob Rief. Licensed under the MIT license.
