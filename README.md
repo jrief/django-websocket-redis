@@ -3,13 +3,21 @@ django-websocket-redis
 
 Project home: https://github.com/jrief/django-websocket-redis
 
-Detailed documentation on: [ReadTheDocs](http://django-websocket-redis.readthedocs.org/en/latest/).
+Detailed documentation on [ReadTheDocs](http://django-websocket-redis.readthedocs.org/en/latest/).
 
 Websockets for Django using Redis as message queue
 --------------------------------------------------
 This module implements websockets on top of Django without requiring any additional framework. For
 messaging it uses the [Redis](http://redis.io/) datastore and in a production environment, it is
 intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiNX](http://nginx.com/).
+
+New in 0.4.0
+------------
+* Messages can be sent to users being member of one or more Django groups.
+* Simplified the usage of ``RedisPublisher`` and ``RedisSubscriber`` to make the API more consistent.
+* Added the possibility to receive heartbeats.
+* Added reusable JavaScript code for the client.
+* Added a context processor to inject some settings from ``ws4redis`` into templates.
 
 Features
 --------
