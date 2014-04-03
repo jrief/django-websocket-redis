@@ -3,6 +3,18 @@
 ===============
 Release History
 ===============
+0.4.0
+-----
+* Messages can be sent to users being member of one or more Django groups.
+* ``RedisPublisher`` and ``RedisSubscriber`` now only accept lists for ``users``, ``groups`` and 
+  ``sessions``. This makes the API simpler and more consistent.
+ * A new magic item ``ws4redis.redis_store.SELF`` has been added to reflect self referencing in
+   this list, what before was done through ``users=True`` or ``sessions=True``.
+* Added the possibility to receive heartbeats. This lets the client disconnect and attempt to
+  reconnect after a number of heartbeats were missed. It prevents silent disconnections.
+* Refactored the examples.
+* Added reusable JavaScript code for the client.
+* Added a context processor to inject some settings from ``ws4redis`` into templates.
 
 0.3.1
 -----
@@ -13,8 +25,8 @@ Release History
 ----- 
 * Added possibility to publish and subscribe for Django Groups, additionally to Users and Sesions.
 * To ease the communication between Redis and the Django, a new class ``RedisPublisher`` has
-  been added as Programming Interface for the Django loop. Before, one had to connect to Redis
-  directly.
+  been added as Programming Interface for the Django loop. Before, one had to connect to the Redis
+  datastore directly to send messages to the Websoclet loop.
 * Renamed configuration setting ``WS4REDIS_STORE`` to ``WS4REDIS_SUBSCRIBER``.
 
 0.2.3

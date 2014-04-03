@@ -20,7 +20,8 @@ Additionally, a client may declare on initialization, on which channels he wishe
 message. The latter is not that important for a websocket implementation, because it can be achieved
 otherwise, using the well known XMLHttpRequest (Ajax) methods.
 
-Minimal Javascript client:
+A minimal client in pure JavaScript
+-----------------------------------
 
 .. code-block:: javascript
 
@@ -41,58 +42,45 @@ Minimal Javascript client:
 	    ws.send(msg);
 	}
 
-Client code using jQuery, being able to reconnect on broken websockets:
+Client JavaScript depending on jQuery
+-------------------------------------
+When using jQuery, clients can reconnect on broken Websockets. Additionally the client awaits for
+heartbeat messages and reconnects if too many of them were missed.
+
+Include the client code in your template:
+
+.. code-block:: html
+
+	<script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
+
+and access the Websocket code:
 
 .. code-block:: javascript
 
-	(function($) {
-	    var ws, deferred, timer, interval = 1000;
+	jQuery(document).ready(function($) {
+	    var ws4redis = WS4Redis({
+	        uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast',
+	        receive_message: receiveMessage,
+	        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+	    });
 	
-	    function connect(uri) {
-	        try {
-	            console.log("Connecting to " + uri);
-	            deferred = $.Deferred();
-	            ws = new WebSocket(uri);
-	            ws.onopen = on_open;
-	            ws.onmessage = on_message;
-	            ws.onerror = on_error;
-	            ws.onclose = on_close;
-	            timer = null;
-	        } catch (err) {
-	            deferred.reject(new Error(err));
-	        }
+	    // attach this function to an event handler on your site
+	    function sendMessage() {
+	        ws4redis.send_message('A message');
+	    });
+	
+	    // receive a message though the websocket from the server
+	    function receiveMessage(msg) {
+	        alert('Message from Websocket: ' + msg);
 	    }
-	
-	    function on_open() {
-	        console.log("Connected");
-	        deferred.resolve();
-	    }
-	
-	    function on_close(evt) {
-	        console.log("Connection closed");
-	        if (!timer) {
-	            timer = setTimeout(function() {
-	                connect(ws.url);
-	            }, interval);
-	        }
-	    }
-	
-	    function on_error(evt) {
-	        console.error("Websocket connection is broken!");
-	        deferred.reject(new Error(evt));
-	    }
-	
-	    function on_message(evt) {
-	        console.log("Received: " + e.data);
-	    }
-	
-	    connect('ws://www.example.com/ws/foobar?subscribe-broadcast');
-	}(jQuery));
+	});
 
+This example shows how to configure a Websocket for bidirectional communication.
 
 .. note:: A client wishing to trigger events on the server side, shall use XMLHttpRequests (Ajax),
-          as they are much more suitable, rather than messages sent via websockets. The main purpose
-          for websockets is to communicate asynchronously from the server to the client.
+          as they are much more suitable, rather than messages sent via Websockets. The main purpose
+          for Websockets is to communicate asynchronously from the server to the client.
+
 
 Server Side
 ===========
@@ -176,6 +164,10 @@ group ``chatters`` and subscribing to that kind of notification.
 
 In this context the the magic item ``SELF`` refers to all the groups, the current logged in user
 belongs to.
+
+.. note::  This feature uses a signal handler in the Django loop, which determines the groups a user
+           belongs to. This list of groups then is persisted inside a session variable to avoid
+           having the Websocket loop to access the database.
 
 
 Subscribe to Session Notification

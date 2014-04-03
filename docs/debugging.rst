@@ -50,7 +50,7 @@ keys
 Gives a list of all keys used in Redis. If a ``WS4REDIS_PREFIX`` is specified in ``settings.py``,
 this prefixing string can be used to limit the keys to those used by **Websocket for Redis**.
 
-If for instance you're interested into all messages available for broadcast, then invoke:
+If, for instance you're interested into all messages available for broadcast, then invoke:
 
 .. code-block:: guess
 
