@@ -159,8 +159,8 @@ another service can be safely removed: *memcached*. This is required by typical 
 and is used for caching and session storage.
 
 It's beyond the scope of this documentation to explain how to set up a caching and/or session store
-using Redis, but check django-redis-sessions_ and optionally django-redis-cache_ for details, but
-it should be as easy as installing
+using Redis, so please check django-redis-sessions_ and optionally django-redis-cache_ for details,
+but it should be as easy as installing
 
 .. code-block:: bash
 
