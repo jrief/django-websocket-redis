@@ -38,7 +38,7 @@ class RedisPublisher(RedisStore):
             try:
                 if request.user.is_authenticated():
                     groups = request.session['ws4redis:memberof']
-                    channels.extend('{prefix}group:{0}:{facility}'.format(g.name, prefix=prefix, facility=facility)
+                    channels.extend('{prefix}group:{0}:{facility}'.format(g, prefix=prefix, facility=facility)
                                 for g in groups)
             except (KeyError, AttributeError):
                 pass
