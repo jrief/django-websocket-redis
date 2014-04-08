@@ -91,7 +91,7 @@ class WebsocketWSGIServer(object):
         except WebSocketError, excpt:
             logger.warning('WebSocketError: ', exc_info=sys.exc_info())
             response = HttpResponse(status=1001, content='Websocket Closed')
-        except UpgradeRequiredError:
+        except UpgradeRequiredError, excpt:
             logger.info('Websocket upgrade required')
             response = HttpResponseBadRequest(status=426, content=excpt)
         except HandshakeError, excpt:
