@@ -1,0 +1,37 @@
+<html>
+<head>
+	<style>
+		body, input {
+			font-size: 18px;
+			line-height: 25px;
+		}
+		#text_message {
+			margin: 10px;
+			width: 400px;
+			height: 30px;
+			padding: 5px;
+		}
+		#billboard {
+			margin: 10px;
+			padding: 5px;
+			width: 600px;
+			height: 400px;
+			background-color: black;
+			color: white;
+			border: solid 2px green;
+			overflow-y: auto;
+		}
+	</style>
+	<script type="text/javascript" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
+</head>
+<body>
+	<h1>Simple chat using django-websocket-redis</h1>
+	{% block control_panel %}
+	<input type="text" id="text_message" />
+	<button id="send_message">Send message</button>
+	{% endblock control_panel %}
+	<div id="billboard"></div>
+	{% block script_panel %}{% endblock %}
+</body>
+</html>

@@ -39,7 +39,7 @@ Testing uWSGI
 -------------
 Before configuring NGiNX to run in front of two instances of uWSGI, it is recommended to run
 uWSGI as a stand alone server for testing purpose. The entry point of this server makes the
-distinction between normal HTTP and websocket requests. In directory ``examples``, start uwsgi as
+distinction between normal HTTP and Websocket requests. In directory ``examples``, start uwsgi as
 
 .. code-block:: bash
 
@@ -63,7 +63,7 @@ Run the tests
 
 Currently it is not possible to simulate more than one client at a time. Django's built in
 LiveServerTestCase_ can not handle more than one simultaneous open connection, and thus more
-sophisticated tests with more than one active websockets are not possible.
+sophisticated tests with more than one active Websockets are not possible.
 
 
 Running Stress Tests
@@ -93,8 +93,8 @@ or start a similar test using real threads instead of greenlets
 
 (this test, on my MacBook, requires about 2.5 seconds)
 
-Both clients subscribe to 1000 concurrent websockets. Then a message is published from another
-websocket. If all the clients receive that message, the test is considered as successful. Both
+Both clients subscribe to 1000 concurrent Websockets. Then a message is published from another
+Websocket. If all the clients receive that message, the test is considered as successful. Both
 perform the same test, but ``test_uwsgi_gevent.py`` uses greenlet_'s for each client to simulate,
 whereas ``test_uwsgi_threads.py`` uses `Python thread`_'s.
 

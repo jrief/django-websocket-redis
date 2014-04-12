@@ -9,6 +9,8 @@ Installation
 If not already done, install the **Redis server**, using the installation tool offered by the
 operating system, such as ``aptitude``, ``yum``, ``port`` or install `Redis from source`_.
 
+.. _Redis from source: http://redis.io/download
+
 Start the Redis service on your host
 
 .. code-block:: bash
@@ -98,7 +100,7 @@ clashes you're encouraged to prefix these entries with a unique string, say
 
 .. code-block:: python
 
-WS4REDIS_PREFIX = 'ws'
+	WS4REDIS_PREFIX = 'ws'
 
 Override ``ws4redis.store.RedisStore`` with a customized class, in case you need an alternative
 implementation of that class
@@ -113,6 +115,18 @@ Django's internal main loop and adds a URL dispatcher in front of the request ha
 .. code-block:: python
 
 	WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+
+Ensure that your template context contains at least these processors:
+
+.. code-block:: python
+
+	TEMPLATE_CONTEXT_PROCESSORS = (
+	    ...
+	    'django.contrib.auth.context_processors.auth',
+	    'django.core.context_processors.static',
+	    'ws4redis.context_processors.default',
+	    ...
+	)
 
 
 Check your Installation
@@ -139,23 +153,36 @@ chat server can be used to send messages to specific users logged into the syste
 demos as a starting point for your application.
 
 Replace memcached with Redis
-----------------------------
-Since Redis has to be added as an additional service into the current infrastructure, at least
-another service, can be safely removed: memcached is required by typical Django installations and
-is used for caching and session storage.
+============================
+Since Redis has to be added as an additional service to the current infrastructure, at least
+another service can be safely removed: *memcached*. This is required by typical Django installations
+and is used for caching and session storage.
 
-Its beyond the scope of this documentation to explain how to set up a caching and/or session store
-using Redis, but check django-redis-sessions_ and django-redis-cache_ for details. Here is a
-description on how to use `Redis as Django session store and cache backend`_.
+It's beyond the scope of this documentation to explain how to set up a caching and/or session store
+using Redis, so please check django-redis-sessions_ and optionally django-redis-cache_ for details,
+but it should be as easy as installing
+
+.. code-block:: bash
+
+	pip install django-redis-sessions
+
+and adding
+
+.. code-block:: python
+
+	SESSION_ENGINE = 'redis_sessions.session'
+	SESSION_REDIS_PREFIX = 'session'
+
+to the file ``settings.py``. Here is a full description on how to use
+`Redis as Django session store and cache backend`_.
 
 Also keep in mind, that accessing session data is a blocking I/O call. Hence the connection from
-the websocket loop to the session store must use gevent, otherwise the websockets may block
+the websocket loop to the session store **must use gevent**, otherwise the websockets may block
 altogether. Therefore, if you for some reason you have to remain with your current session store,
 make sure its monkey patched with gevent.
 
-.. note:: **Never** store session data in the database if using this library.
+.. warn:: **Never** store session data in the database in combination with *Websockets for Redis*!
 
-.. _Redis from source: http://redis.io/download
 .. _github: https://github.com/jrief/django-websocket-redis
 .. _Django: http://djangoproject.com/
 .. _Python client for Redis: https://pypi.python.org/pypi/redis/

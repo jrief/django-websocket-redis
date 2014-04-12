@@ -16,14 +16,14 @@ entry points. You shall rarely need to access the Websocket Loop, because intent
 no hooks for adding server side logics. The latter must reside inside the Django loop using Redis
 as the communication engine between those two.
 
-A reason one might need to debug inside the websocket loop, is, because the subscriber was
+A reason one might need to debug inside the Websocket loop, is, because the subscriber was
 overridden using the configuration setting ``WS4REDIS_SUBSCRIBER``. Therefore, one of the aims of
 this project is to facilitate the entry level for debugging. During development, hence the server
 is started with ``./manage.py runserver``, this is achieved by hijacking the Django loop. Then the
-connection is kept open, until the client closes the websocket.
+connection is kept open, until the client closes the Websocket.
 
 If existing workers do not return, Django creates a thread for new incoming requests. This means
-that during debugging, each websocket connection owns its own thread. Such an approach is perfectly
+that during debugging, each Websocket connection owns its own thread. Such an approach is perfectly
 feasible, however it scales badly and therefore should not be used during production.
 
 Query the datastore
@@ -50,7 +50,7 @@ keys
 Gives a list of all keys used in Redis. If a ``WS4REDIS_PREFIX`` is specified in ``settings.py``,
 this prefixing string can be used to limit the keys to those used by **Websocket for Redis**.
 
-If for instance you're interested into all messages available for broadcast, then invoke:
+If, for instance you're interested into all messages available for broadcast, then invoke:
 
 .. code-block:: guess
 

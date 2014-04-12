@@ -20,7 +20,8 @@ Additionally, a client may declare on initialization, on which channels he wishe
 message. The latter is not that important for a websocket implementation, because it can be achieved
 otherwise, using the well known XMLHttpRequest (Ajax) methods.
 
-Minimal Javascript client:
+A minimal client in pure JavaScript
+-----------------------------------
 
 .. code-block:: javascript
 
@@ -41,64 +42,51 @@ Minimal Javascript client:
 	    ws.send(msg);
 	}
 
-Client code using jQuery, being able to reconnect on broken websockets:
+Client JavaScript depending on jQuery
+-------------------------------------
+When using jQuery, clients can reconnect on broken Websockets. Additionally the client awaits for
+heartbeat messages and reconnects if too many of them were missed.
+
+Include the client code in your template:
+
+.. code-block:: html
+
+	<script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
+
+and access the Websocket code:
 
 .. code-block:: javascript
 
-	(function($) {
-	    var ws, deferred, timer, interval = 1000;
+	jQuery(document).ready(function($) {
+	    var ws4redis = WS4Redis({
+	        uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast',
+	        receive_message: receiveMessage,
+	        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+	    });
 	
-	    function connect(uri) {
-	        try {
-	            console.log("Connecting to " + uri);
-	            deferred = $.Deferred();
-	            ws = new WebSocket(uri);
-	            ws.onopen = on_open;
-	            ws.onmessage = on_message;
-	            ws.onerror = on_error;
-	            ws.onclose = on_close;
-	            timer = null;
-	        } catch (err) {
-	            deferred.reject(new Error(err));
-	        }
+	    // attach this function to an event handler on your site
+	    function sendMessage() {
+	        ws4redis.send_message('A message');
+	    });
+	
+	    // receive a message though the websocket from the server
+	    function receiveMessage(msg) {
+	        alert('Message from Websocket: ' + msg);
 	    }
-	
-	    function on_open() {
-	        console.log("Connected");
-	        deferred.resolve();
-	    }
-	
-	    function on_close(evt) {
-	        console.log("Connection closed");
-	        if (!timer) {
-	            timer = setTimeout(function() {
-	                connect(ws.url);
-	            }, interval);
-	        }
-	    }
-	
-	    function on_error(evt) {
-	        console.error("Websocket connection is broken!");
-	        deferred.reject(new Error(evt));
-	    }
-	
-	    function on_message(evt) {
-	        console.log("Received: " + e.data);
-	    }
-	
-	    connect('ws://www.example.com/ws/foobar?subscribe-broadcast');
-	}(jQuery));
+	});
 
+This example shows how to configure a Websocket for bidirectional communication.
 
 .. note:: A client wishing to trigger events on the server side, shall use XMLHttpRequests (Ajax),
-          as they are much more suitable, rather than messages sent via websockets. The main purpose
-          for websockets is to communicate asynchronously from the server to the client.
+          as they are much more suitable, rather than messages sent via Websockets. The main purpose
+          for Websockets is to communicate asynchronously from the server to the client.
+
 
 Server Side
 ===========
 The Django loop is triggered by client HTTP requests, except for special cases such as jobs
 triggered by, for instance django-celery_. Intentionally, there is no way to trigger events in the
-Django loop through a websocket request. Hence, all of the communication between the Websocket loop
+Django loop through a Websocket request. Hence, all of the communication between the Websocket loop
 and the Django loop must pass through the message queue.
 
 RedisSubscriber
@@ -115,8 +103,8 @@ Both, ``RedisSubscriber`` and ``RedisPublisher`` share the same base class ``Red
 
 Subscribe to Broadcast Notifications
 ------------------------------------
-This is the simplest form of notification. Every websocket subscribed to a broadcast channel is
-notified, when a message is sent to that named Redis channel. Say, the websocket URL is
+This is the simplest form of notification. Every Websocket subscribed to a broadcast channel is
+notified, when a message is sent to that named Redis channel. Say, the Websocket URL is
 ``ws://www.example.com/ws/foobar?subscribe-broadcast`` and the Django loop wants to publish a
 message to all clients listening on the named facility, referred here as ``foobar``.
 
@@ -132,69 +120,83 @@ message to all clients listening on the named facility, referred here as ``fooba
 now, the message “Hello World” is received by all clients listening for that broadcast
 notification.
 
+
 Subscribe to User Notification
 ------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-user``, will be
-notified if someone publishes a message on a named Redis channel.
+A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-user``, will be
+notified if that connection belongs to a logged in user and someone publishes a message on for that
+user, using the ``RedisPublisher``.
 
 .. code-block:: python
 
-	redis_publisher = RedisPublisher(facility='foobar', users='johndoe')
+	redis_publisher = RedisPublisher(facility='foobar', users=['john', 'mary'])
 	
 	# and somewhere else
 	redis_publisher.publish_message('Hello World')
 
-now, the message “Hello World” is sent to all clients logged in as ``johndoe`` and listening for
-that notification.
+now, the message “Hello World” is sent to all clients logged in as ``john`` or ``mary`` and
+listening for that kind of notification.
 
-If the message shall be send to a list of users, replace the constructor by
+If the message shall be send to the currently logged in user, then you may use the magic item
+``SELF``.
+
+.. code-block:: python
+	from ws4redis.redis_store import SELF
+
+	redis_publisher = RedisPublisher(facility='foobar', users=[SELF])
+
+
+Subscribe to Group Notification
+-------------------------------
+A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-group``, will be
+notified if that connection belongs to a logged in user and someone publishes a message for a
+group where this user is member of.
 
 .. code-block:: python
 
-	redis_publisher = RedisPublisher(facility='foobar', users=['johndoe', 'marybarn'])
+	redis_publisher = RedisPublisher(facility='foobar', groups=['chatters'])
+	
+	# and somewhere else
+	redis_publisher.publish_message('Hello World')
 
-If the message shall be send to the currently logged in user, replace the constructor by
+now, the message “Hello World” is sent to all clients logged in as users which are members of the
+group ``chatters`` and subscribing to that kind of notification.
 
-.. code-block:: python
+In this context the the magic item ``SELF`` refers to all the groups, the current logged in user
+belongs to.
 
-	redis_publisher = RedisPublisher(facility='foobar', users=True)
+.. note::  This feature uses a signal handler in the Django loop, which determines the groups a user
+           belongs to. This list of groups then is persisted inside a session variable to avoid
+           having the Websocket loop to access the database.
+
 
 Subscribe to Session Notification
 ---------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-session``, will be
-notified if someone publishes a message on a named Redis channel.
+A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-session``, will be
+notified if someone publishes a message for a client owning this session key.
 
 .. code-block:: python
 
-	redis_publisher = RedisPublisher(facility='foobar', sessions='wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x')
+	redis_publisher = RedisPublisher(facility='foobar', sessions=['wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x'])
 	
 	# and somewhere else
 	redis_publisher.publish_message('Hello World')
 
-now, the message “Hello World” is sent to all clients using the Session-Id
-``wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x`` and listening for that notification.
+now, the message “Hello World” is sent to all clients using the session key
+``wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x`` and subscribing to that kind of notification.
 
-If the message shall be send to a list of sessions, replace the constructor by
+In this context the the magic item ``SELF`` refers to all clients owning the same session key.
 
-.. code-block:: python
 
-	redis_publisher = RedisPublisher(facility='foobar', sessions=['wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x', ...])
-
-If the message shall be send to the browser owning the current session, replace the constructor by
-
-.. code-block:: python
-
-	redis_publisher = RedisPublisher(facility='foobar', sessions=True)
-
-Publish for Broadcast, User and Session
----------------------------------------
-A websocket initialized with the URL ``ws://www.example.com/ws/foobar?publish-broadcast``, 
+Publish for Broadcast, User, Group and Session
+----------------------------------------------
+A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?publish-broadcast``, 
 ``ws://www.example.com/ws/foobar?publish-user`` or ``ws://www.example.com/ws/foobar?publish-session``
-will publish a message sent through the websocket on the named Redis channel ``broadcast:foobar``,
-``user:johndoe:foobar`` and ``session:wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x:foobar`` respectively.
+will publish a message sent through the Websocket on the named Redis channel ``broadcast:foobar``,
+``user:john:foobar`` and ``session:wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x:foobar`` respectively.
 Every listener subscribed to any of the named channels, then will be notified.
 
-This configuration only makes sense, if the messages send by the client using the websocket, shall
+This configuration only makes sense, if the messages send by the client using the Websocket, shall
 not trigger any server side event. A practical use would be to store current the GPS coordinates of
 a moving client inside the Redis datastore. Then Django can fetch these coordinates from Redis,
 whenever it requires them.
@@ -215,6 +217,7 @@ The argument ``audience`` must be one of ``broadcast``, ``group``, ``user``, ``s
 message for that channel. The first found message is returned to the caller. If no matching message
 was found, ``None`` is returned.
 
+
 Persisting messages
 -------------------
 If a client connects to a Redis channel for the first time, or if he reconnects after a page reload,
@@ -223,7 +226,7 @@ configuration settings ``WS4REDIS_EXPIRE`` is set to a positive value, **Websock
 persists the current message in its key-value store. This message then is retrieved and sent to
 the client, immediately after he connects to the server.
 
-.. note:: By using client code, which automatically reconnects after the websocket closes, one can
+.. note:: By using client code, which automatically reconnects after the Websocket closes, one can
           create a setup which is immune against server and client reboots.
 
 .. _django-celery: http://www.celeryproject.org/

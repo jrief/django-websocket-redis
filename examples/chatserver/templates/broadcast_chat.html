@@ -1,79 +1,24 @@
-<html>
-<head>
-	<style>
-		body, input {
-			font-size: 18px;
-			line-height: 25px;
-		}
-		#text_message {
-			margin: 10px;
-			width: 400px;
-			height: 30px;
-			padding: 5px;
-		}
-		#billboard {
-			margin: 10px;
-			padding: 5px;
-			width: 600px;
-			height: 400px;
-			background-color: black;
-			color: white;
-			border: solid 2px green;
-			overflow-y: auto;
-		}
-	</style>
-	<script language="Javascript">
-		var ws, timeout = null;
-		connect();
+{% extends "chat_base.html" %}
 
-		function connect() {
-			try {
-				ws = new WebSocket('{{ ws_url }}?subscribe-broadcast&publish-broadcast');
-				ws.onopen = ws_onopen;
-				ws.onmessage = ws_onmessage;
-				ws.onerror = ws_onerror;
-				ws.onclose = ws_onclose;
-				timeout = null;
-			} catch(err) {
-				console.log(err + "\nReconnecting ...");
-				timeout = setTimeout(connect, 10000);
-			}
-		}
+{% block script_panel %}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+	var ws4redis = WS4Redis({
+		uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast',
+		receive_message: receiveMessage,
+		heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+	});
 
-		function ws_onopen() {
-			console.log("connected to "+ws.url);
-		}
+	// send message though the Websocket to the server
+	$('#send_message').click(function() {
+		var value = $('#text_message').val();
+		ws4redis.send_message(value);
+	});
 
-		function ws_onmessage(e) {
-			var bb = document.getElementById('billboard')
-			var html = bb.innerHTML;
-			bb.innerHTML = html + '<br/>' + e.data;
-		}
-
-		function ws_onerror(err) {
-			console.warn("connection broken");
-			if (!timeout) {
-				timeout = setTimeout(connect, 1000);
-			}
-		}
-
-		function ws_onclose(e) {
-			console.log("connection closed");
-			if (!timeout) {
-				timeout = setTimeout(connect, 1000);
-			}
-		}
-
-		function send_message() {
-			var value = document.getElementById('text_message').value;
-			ws.send(value);
-		}
-	</script>
-</head>
-<body>
-	<h1>Simple chat using django-websocket-redis</h1>
-	<input type="text" id="text_message" />
-	<input type="button" value="Send message" onClick="send_message();" />
-	<div id="billboard"></div>
-</body>
-</html>
+	// receive a message though the Websocket from the server
+	function receiveMessage(msg) {
+		$('#billboard').append('<br/>' + msg);
+	}
+});
+</script>
+{% endblock %}

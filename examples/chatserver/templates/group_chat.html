@@ -1,0 +1,35 @@
+{% extends "chat_base.html" %}
+
+{% block control_panel %}
+	<input type="text" id="text_message" />
+	<button id="send_message">Send message</button>
+	to
+	<select id="group">{% for group in groups %}
+		<option value="{{ group.name }}">{{ group.name }}</option>
+	{% endfor %}</select>
+{% endblock control_panel %}
+
+{% block script_panel %}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+	var ws4redis = WS4Redis({
+		uri: '{{ WEBSOCKET_URI }}foobar?subscribe-group',
+		receive_message: receiveMessage,
+		heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+	});
+
+	// send message to the server using Ajax
+	$('#send_message').click(function() {
+		$.post('{% url "group_chat" %}', {
+			group: $('#group').val(),
+			message: $('#text_message').val()
+		});
+	});
+
+	// receive a message though the Websocket from the server
+	function receiveMessage(msg) {
+		$('#billboard').append('<br/>' + msg);
+	}
+});
+</script>
+{% endblock script_panel %}

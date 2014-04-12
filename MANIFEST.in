@@ -2,3 +2,4 @@ include LICENSE.txt
 include README.md
 include setup.py
 recursive-include ws4redis *.py
+recursive-include ws4redis/static *
