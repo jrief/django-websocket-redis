@@ -80,7 +80,7 @@ Moreover, only one CPU core is then used, and static files must be handled by an
 Django with websockets for Redis behind NGiNX using uWSGI
 =========================================================
 This is the most scalable solution. Here two instances of a uWSGI server are spawned, one to handle
-normal HTTP requests for Django and one to handle websocket requests. Look at this diagram:
+normal HTTP requests for Django and one to handle websocket requests.
 
 |websocket4redis|
 
