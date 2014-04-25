@@ -69,6 +69,7 @@ class WebsocketWSGIServer(object):
             if redis_fd:
                 listening_fds.append(redis_fd)
             subscriber.send_persited_messages(websocket)
+            message = None
             while websocket and not websocket.closed:
                 ready = self.select(listening_fds, [], [], 4.0)[0]
                 if not ready:
@@ -76,12 +77,13 @@ class WebsocketWSGIServer(object):
                     websocket.flush()
                 for fd in ready:
                     if fd == websocket_fd:
-                        message = websocket.receive()
-                        if message != redis_settings.WS4REDIS_HEARTBEAT:
+                        receivement = websocket.receive()
+                        if receivement != redis_settings.WS4REDIS_HEARTBEAT and receivement != message:
+                            message = receivement
                             subscriber.publish_message(message)
                     elif fd == redis_fd:
                         response = subscriber.parse_response()
-                        if response[0] == 'message':
+                        if response[0] == 'message' and response[2] != message:
                             message = response[2]
                             websocket.send(message)
                     else:
