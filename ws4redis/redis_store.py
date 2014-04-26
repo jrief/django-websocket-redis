@@ -18,7 +18,7 @@ def _wrap_users(users, request):
     result = set()
     for u in users:
         if u is SELF and request and request.user and request.user.is_authenticated():
-            result.add(request.user.username)
+            result.add(request.user.get_username())
         else:
             result.add(u)
     return result
@@ -117,7 +117,7 @@ class RedisStore(object):
         elif users is True and request and request.user and request.user.is_authenticated():
             # message is delivered to browser instances of the currently logged in user
             warnings.warn('Wrap users=True into a list or tuple using SELF', DeprecationWarning)
-            channels.append('{prefix}user:{0}:{facility}'.format(request.user.username, prefix=prefix, facility=facility))
+            channels.append('{prefix}user:{0}:{facility}'.format(request.user.get_username(), prefix=prefix, facility=facility))
         elif isinstance(users, basestring):
             # message is delivered to the named user
             warnings.warn('Wrap a single user into a list or tuple', DeprecationWarning)

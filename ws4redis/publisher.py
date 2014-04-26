@@ -33,7 +33,7 @@ class RedisPublisher(RedisStore):
                 channels.append('{prefix}session:{0}:{facility}'.format(request.session.session_key, prefix=prefix, facility=facility))
         if audience in ('user', 'any',):
             if request and request.user and request.user.is_authenticated():
-                channels.append('{prefix}user:{0}:{facility}'.format(request.user.username, prefix=prefix, facility=facility))
+                channels.append('{prefix}user:{0}:{facility}'.format(request.user.get_username(), prefix=prefix, facility=facility))
         if audience in ('group', 'any',):
             try:
                 if request.user.is_authenticated():
