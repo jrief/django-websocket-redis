@@ -76,7 +76,7 @@ class RedisStore(object):
             for channel in self._publishers:
                 self._connection.publish(channel, message)
                 if expire > 0:
-                    self._connection.set(channel, message, ex=expire)
+                    self._connection.setex(channel, expire, message)
 
     def get_prefix(self):
         """
