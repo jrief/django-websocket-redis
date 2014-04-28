@@ -1,4 +1,6 @@
 #-*- coding: utf-8 -*-
+import six
+import json
 import warnings
 from ws4redis import settings
 
@@ -28,8 +30,10 @@ def _wrap_groups(groups, request):
     """
     Returns a list of groups for the given list of groups and/or the current logged in user, if
     the list contains the magic item SELF.
-    Note that this method bypasses Django's own databased group resolution, and rather uses
-    the session store which is filled by a signal handler, during login.
+    Note that this method bypasses Django's own group resolution, which requires a database query
+    and thus is unsuitable for coroutines.
+    Therefore the membership is takes from the session store, which is filled by a signal handler,
+    while the users logs in.
     """
     result = set()
     for g in groups:
@@ -54,9 +58,54 @@ def _wrap_sessions(sessions, request):
     return result
 
 
+class RedisMessage(object):
+    """
+    A wrapper class, to hold the message to be stores by Redis, which additionally contains a unique
+    identifier to distinguish identical messages.
+    """
+    def __init__(self, rawdata):
+        self.origin = 0
+        self.msgid = 0
+        self.message = None
+        if isinstance(rawdata, six.string_types):
+            if rawdata == settings.WS4REDIS_HEARTBEAT:
+                return
+            try:
+                data = json.loads(rawdata)
+                if not isinstance(data[0], int) or not isinstance(data[1], int) \
+                    or not isinstance(data[2], six.string_types):
+                        raise ValueError()
+                self.origin, self.msgid, self.message = data
+            except (ValueError, IndexError):
+                self.message = unicode(rawdata)
+        elif isinstance(rawdata, list):
+            if len(rawdata) >= 2 and rawdata[0] == 'message':
+                data = json.loads(rawdata[2])
+                self.origin, self.msgid, self.message = data
+
+    def __str__(self):
+        return json.dumps([self.origin, self.msgid, self.message])
+
+    def __bool__(self):
+        return self.message is not None
+
+    def __nonzero__(self):
+        return type(self).__bool__(self)
+
+    def __eq__(self, other):
+        if self.message is None or other.message is None or self.origin == 0 or other.origin == 0:
+            # undefined messages or untagged messages are never considered as equal
+            return False
+        return self.origin == other.origin and self.msgid == other.msgid
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
 class RedisStore(object):
     """
-    Abstract base class to control publishing  and subscription for messages to and from the Redis datastore.
+    Abstract base class to control publishing and subscription for messages to and from the Redis
+    datastore.
     """
     _expire = settings.WS4REDIS_EXPIRE
 
@@ -72,21 +121,16 @@ class RedisStore(object):
         configuration settings ``WS4REDIS_EXPIRE``.
         """
         expire = expire is None and self._expire or expire
-        if message:
-            for channel in self._publishers:
-                self._connection.publish(channel, message)
-                if expire > 0:
-                    self._connection.setex(channel, expire, message)
-
-    def get_prefix(self):
-        """
-        Returns the string used to prefix entries in the Redis datastore.
-        """
-        return settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
+        if not isinstance(message, RedisMessage):
+            raise ValueError('message object is not of type RedisMessage')
+        for channel in self._publishers:
+            self._connection.publish(channel, message)
+            if expire > 0:
+                self._connection.setex(channel, expire, message)
 
     def _get_message_channels(self, request=None, facility='{facility}', broadcast=False,
                               groups=[], users=[], sessions=[]):
-        prefix = self.get_prefix()
+        prefix = settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
         channels = []
         if broadcast is True:
             # broadcast message to each subscriber listening on the named facility

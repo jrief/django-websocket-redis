@@ -8,6 +8,7 @@ from django.utils.encoding import force_str
 from django.utils.importlib import import_module
 from django.utils.functional import SimpleLazyObject
 from ws4redis import settings as redis_settings
+from ws4redis.redis_store import RedisMessage
 from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
 
@@ -46,9 +47,15 @@ class WebsocketWSGIServer(object):
                     request.user = SimpleLazyObject(lambda: get_user(request))
 
     def process_subscriptions(self, request):
-        requested_channels = [p.strip().lower() for p in request.GET]
-        agreed_channels = [p for p in requested_channels if p in self.allowed_channels]
-        return agreed_channels
+        agreed_channels = []
+        echo_message = False
+        for qp in request.GET:
+            param = qp.strip().lower()
+            if param in self.allowed_channels:
+                agreed_channels.append(param)
+            elif param == 'echo':
+                echo_message = True
+        return agreed_channels, echo_message
 
     def __call__(self, environ, start_response):
         """ Hijack the main loop from the original thread and listen on events on Redis and Websockets"""
@@ -58,7 +65,7 @@ class WebsocketWSGIServer(object):
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
             self.process_request(request)
-            channels = self.process_subscriptions(request)
+            channels, echo_message = self.process_subscriptions(request)
             websocket = self.upgrade_websocket(environ, start_response)
             logger.debug('Subscribed to channels: {0}'.format(', '.join(channels)))
             subscriber.set_pubsub_channels(request, channels)
@@ -68,7 +75,7 @@ class WebsocketWSGIServer(object):
             if redis_fd:
                 listening_fds.append(redis_fd)
             subscriber.send_persited_messages(websocket)
-            message = None
+            recvmsg = None
             while websocket and not websocket.closed:
                 ready = self.select(listening_fds, [], [], 4.0)[0]
                 if not ready:
@@ -76,15 +83,14 @@ class WebsocketWSGIServer(object):
                     websocket.flush()
                 for fd in ready:
                     if fd == websocket_fd:
-                        receivement = websocket.receive()
-                        if receivement != redis_settings.WS4REDIS_HEARTBEAT and receivement != message:
-                            message = receivement
-                            subscriber.publish_message(message)
+                        recvmsg = RedisMessage(websocket.receive())
+                        if recvmsg:
+                            recvmsg.origin = fd
+                            subscriber.publish_message(recvmsg)
                     elif fd == redis_fd:
-                        response = subscriber.parse_response()
-                        if response[0] == 'message' and response[2] != message:
-                            message = response[2]
-                            websocket.send(message)
+                        sendmsg = RedisMessage(subscriber.parse_response())
+                        if sendmsg and (echo_message or sendmsg != recvmsg):
+                            websocket.send(sendmsg)
                     else:
                         logger.error('Invalid file descriptor: {0}'.format(fd))
                 if redis_settings.WS4REDIS_HEARTBEAT:
