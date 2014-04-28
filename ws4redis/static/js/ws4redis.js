@@ -1,7 +1,7 @@
 
 function WS4Redis(options, $) {
 	'use strict';
-	var opts, ws, deferred, timer, timer_interval = 0;
+	var opts, ws, deferred, timer, client_id = 0, timer_interval = 0;
 	var heartbeat_interval = null, missed_heartbeats = 0;
 
 	if (this === undefined)
@@ -69,15 +69,19 @@ function WS4Redis(options, $) {
 	}
 
 	function on_message(evt) {
+		var data;
 		if (opts.heartbeat_msg && evt.data === opts.heartbeat_msg) {
 			// reset the counter for missed heartbeats
 			missed_heartbeats = 0;
 		} else if (typeof opts.receive_message === 'function') {
-			return opts.receive_message(evt.data);
+			data = JSON.parse(evt.data);
+			client_id = data[0];
+			return opts.receive_message(data[2]);
 		}
 	}
 
 	this.send_message = function(message) {
-		ws.send(message);
+		var data = [client_id, new Date().valueOf(), message];
+		ws.send(JSON.stringify(data));
 	}
 }
