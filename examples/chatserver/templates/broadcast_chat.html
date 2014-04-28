@@ -4,7 +4,7 @@
 <script type="text/javascript">
 jQuery(document).ready(function($) {
 	var ws4redis = WS4Redis({
-		uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast',
+		uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast&echo',
 		receive_message: receiveMessage,
 		heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
 	});
