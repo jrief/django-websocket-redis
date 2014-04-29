@@ -9,7 +9,6 @@ from django.utils.importlib import import_module
 from django.utils.functional import SimpleLazyObject
 from ws4redis import settings as redis_settings
 from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
-from ws4redis import signals
 
 
 class WebsocketWSGIServer(object):
