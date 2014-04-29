@@ -8,8 +8,7 @@ from django.contrib.sessions.backends.db import SessionStore
 from websocket import create_connection
 from ws4redis.django_runserver import application
 from ws4redis.publisher import RedisPublisher
-from ws4redis.subscriber import RedisSubscriber
-from ws4redis.redis_store import SELF
+from ws4redis.redis_store import RedisMessage, SELF
 
 
 class WebsocketTests(LiveServerTestCase):
@@ -23,7 +22,7 @@ class WebsocketTests(LiveServerTestCase):
     def setUp(self):
         self.facility = u'unittest'
         self.websocket_base_url = self.live_server_url.replace('http:', 'ws:', 1) + u'/ws/' + self.facility
-        self.message = ''.join(unichr(c) for c in range(33, 128))
+        self.message = RedisMessage(''.join(unichr(c) for c in range(33, 128)))
         self.factory = RequestFactory()
 
     @classmethod
