@@ -8,6 +8,7 @@ from django.utils.encoding import force_str
 from django.utils.importlib import import_module
 from django.utils.functional import SimpleLazyObject
 from ws4redis import settings as redis_settings
+from ws4redis.redis_store import RedisMessage
 from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
 
@@ -75,14 +76,13 @@ class WebsocketWSGIServer(object):
                     websocket.flush()
                 for fd in ready:
                     if fd == websocket_fd:
-                        message = websocket.receive()
-                        if message != redis_settings.WS4REDIS_HEARTBEAT:
-                            subscriber.publish_message(message)
+                        recvmsg = RedisMessage(websocket.receive())
+                        if recvmsg:
+                            subscriber.publish_message(recvmsg)
                     elif fd == redis_fd:
-                        response = subscriber.parse_response()
-                        if response[0] == 'message':
-                            message = response[2]
-                            websocket.send(message)
+                        sendmsg = RedisMessage(subscriber.parse_response())
+                        if sendmsg and (echo_message or sendmsg != recvmsg):
+                            websocket.send(sendmsg)
                     else:
                         logger.error('Invalid file descriptor: {0}'.format(fd))
                 if redis_settings.WS4REDIS_HEARTBEAT:

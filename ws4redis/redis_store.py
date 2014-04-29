@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+import six
 import warnings
 from ws4redis import settings
 
@@ -28,8 +29,10 @@ def _wrap_groups(groups, request):
     """
     Returns a list of groups for the given list of groups and/or the current logged in user, if
     the list contains the magic item SELF.
-    Note that this method bypasses Django's own databased group resolution, and rather uses
-    the session store which is filled by a signal handler, during login.
+    Note that this method bypasses Django's own group resolution, which requires a database query
+    and thus is unsuitable for coroutines.
+    Therefore the membership is takes from the session store, which is filled by a signal handler,
+    while the users logs in.
     """
     result = set()
     for g in groups:
@@ -54,9 +57,26 @@ def _wrap_sessions(sessions, request):
     return result
 
 
+class RedisMessage(str):
+    """
+    A class wrapping messages to be send and received through RedisStore. This class behaves like
+    a normal string class, but silently discards heartbeats and converts messages received from
+    Redis.
+    """
+    def __new__(cls, value):
+        if isinstance(value, six.string_types):
+            if value != settings.WS4REDIS_HEARTBEAT:
+                return str.__new__(cls, value)
+        elif isinstance(value, list):
+            if len(value) >= 2 and value[0] == 'message':
+                return str.__new__(cls, value[2])
+        return None
+
+
 class RedisStore(object):
     """
-    Abstract base class to control publishing  and subscription for messages to and from the Redis datastore.
+    Abstract base class to control publishing and subscription for messages to and from the Redis
+    datastore.
     """
     _expire = settings.WS4REDIS_EXPIRE
 
@@ -72,21 +92,16 @@ class RedisStore(object):
         configuration settings ``WS4REDIS_EXPIRE``.
         """
         expire = expire is None and self._expire or expire
-        if message:
-            for channel in self._publishers:
-                self._connection.publish(channel, message)
-                if expire > 0:
-                    self._connection.setex(channel, expire, message)
-
-    def get_prefix(self):
-        """
-        Returns the string used to prefix entries in the Redis datastore.
-        """
-        return settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
+        if not isinstance(message, RedisMessage):
+            raise ValueError('message object is not of type RedisMessage')
+        for channel in self._publishers:
+            self._connection.publish(channel, message)
+            if expire > 0:
+                self._connection.setex(channel, expire, message)
 
     def _get_message_channels(self, request=None, facility='{facility}', broadcast=False,
                               groups=[], users=[], sessions=[]):
-        prefix = self.get_prefix()
+        prefix = settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
         channels = []
         if broadcast is True:
             # broadcast message to each subscriber listening on the named facility
