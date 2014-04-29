@@ -47,9 +47,15 @@ class WebsocketWSGIServer(object):
                     request.user = SimpleLazyObject(lambda: get_user(request))
 
     def process_subscriptions(self, request):
-        requested_channels = [p.strip().lower() for p in request.GET]
-        agreed_channels = [p for p in requested_channels if p in self.allowed_channels]
-        return agreed_channels
+        agreed_channels = []
+        echo_message = False
+        for qp in request.GET:
+            param = qp.strip().lower()
+            if param in self.allowed_channels:
+                agreed_channels.append(param)
+            elif param == 'echo':
+                echo_message = True
+        return agreed_channels, echo_message
 
     def __call__(self, environ, start_response):
         """ Hijack the main loop from the original thread and listen on events on Redis and Websockets"""
@@ -59,7 +65,7 @@ class WebsocketWSGIServer(object):
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
             self.process_request(request)
-            channels = self.process_subscriptions(request)
+            channels, echo_message = self.process_subscriptions(request)
             websocket = self.upgrade_websocket(environ, start_response)
             logger.debug('Subscribed to channels: {0}'.format(', '.join(channels)))
             subscriber.set_pubsub_channels(request, channels)
@@ -69,6 +75,7 @@ class WebsocketWSGIServer(object):
             if redis_fd:
                 listening_fds.append(redis_fd)
             subscriber.send_persited_messages(websocket)
+            recvmsg = None
             while websocket and not websocket.closed:
                 ready = self.select(listening_fds, [], [], 4.0)[0]
                 if not ready:
