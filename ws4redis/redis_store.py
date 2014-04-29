@@ -99,9 +99,13 @@ class RedisStore(object):
             if expire > 0:
                 self._connection.setex(channel, expire, message)
 
+    @staticmethod
+    def get_prefix():
+        return settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
+
     def _get_message_channels(self, request=None, facility='{facility}', broadcast=False,
                               groups=[], users=[], sessions=[]):
-        prefix = settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
+        prefix = self.get_prefix()
         channels = []
         if broadcast is True:
             # broadcast message to each subscriber listening on the named facility
