@@ -25,7 +25,7 @@ A minimal client in pure JavaScript
 
 .. code-block:: javascript
 
-	var ws = new WebSocket('ws://www.example.com/ws/foobar?subscribe-broadcast&publish-broadcast');
+	var ws = new WebSocket('ws://www.example.com/ws/foobar?subscribe-broadcast&publish-broadcast&echo');
 	ws.onopen = function() {
 	    console.log("websocket connected");
 	};
@@ -59,7 +59,7 @@ and access the Websocket code:
 
 	jQuery(document).ready(function($) {
 	    var ws4redis = WS4Redis({
-	        uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast',
+	        uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast&echo',
 	        receive_message: receiveMessage,
 	        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
 	    });
@@ -217,6 +217,17 @@ The argument ``audience`` must be one of ``broadcast``, ``group``, ``user``, ``s
 message for that channel. The first found message is returned to the caller. If no matching message
 was found, ``None`` is returned.
 
+Message echoing
+---------------
+Some kind of applications require to just hold a state object on the server-side, which is a copy
+of a corresponding JavaScript object on the client. These applications do not require message
+echoing. Here an incoming message is only dispatched to the subscribed websockets, if the this
+message contains a different content. This is the default setting.
+
+Other applications such as chats or games, must be informed on each message published
+on the message queue, regardless of its content. These applications require message echoing.
+Here an incoming message is always dispatched to the subscribed websockets. To activate message
+echoing, simply append the parameter ``&echo`` to the URL used for connecting to the websocket.
 
 Persisting messages
 -------------------
