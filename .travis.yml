@@ -4,12 +4,12 @@ python:
   - 2.7
 
 env:
-  - DJANGO=1.5.5
-  - DJANGO=1.6.2
+  - DJANGO=1.5.7
+  - DJANGO=1.6.4
 
 branches:
-  except:
-    - devel
+  only:
+    - master
 
 install:
   - pip install -q Django==$DJANGO
