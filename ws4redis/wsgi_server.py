@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 import sys
+import six
 from redis import StrictRedis
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
@@ -89,27 +90,27 @@ class WebsocketWSGIServer(object):
                     elif fd == redis_fd:
                         sendmsg = RedisMessage(subscriber.parse_response())
                         if sendmsg and (echo_message or sendmsg != recvmsg):
-                            websocket.send(sendmsg)
+                            websocket.send(six.u(sendmsg))
                     else:
                         logger.error('Invalid file descriptor: {0}'.format(fd))
                 if redis_settings.WS4REDIS_HEARTBEAT:
-                    websocket.send(redis_settings.WS4REDIS_HEARTBEAT)
-        except WebSocketError, excpt:
+                    websocket.send(six.u(redis_settings.WS4REDIS_HEARTBEAT))
+        except WebSocketError as excpt:
             logger.warning('WebSocketError: ', exc_info=sys.exc_info())
             response = HttpResponse(status=1001, content='Websocket Closed')
-        except UpgradeRequiredError, excpt:
+        except UpgradeRequiredError as excpt:
             logger.info('Websocket upgrade required')
             response = HttpResponseBadRequest(status=426, content=excpt)
-        except HandshakeError, excpt:
+        except HandshakeError as excpt:
             logger.warning('HandshakeError: ', exc_info=sys.exc_info())
             response = HttpResponseBadRequest(content=excpt)
-        except Exception, excpt:
+        except Exception as excpt:
             logger.error('Other Exception: ', exc_info=sys.exc_info())
             response = HttpResponseServerError(content=excpt)
         else:
             response = HttpResponse()
         if websocket:
-            websocket.close(code=1001, message='Websocket Closed')
+            websocket.close(code=1001, message=u'Websocket Closed')
         if hasattr(start_response, 'im_self') and not start_response.im_self.headers_sent:
             logger.warning('Staring late response on websocket')
             status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
