@@ -58,7 +58,7 @@ function WS4Redis(options, $) {
 		if (!timer) {
 			// try to reconnect
 			timer = setTimeout(function() {
-				connect(ws.url);
+				connect(opts.uri);
 			}, timer_interval);
 			timer_interval = Math.min(timer_interval + 500, 5000);
 		}
