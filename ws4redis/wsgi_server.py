@@ -68,7 +68,7 @@ class WebsocketWSGIServer(object):
             self.process_request(request)
             channels, echo_message = self.process_subscriptions(request)
             if callable(private_settings.WS4REDIS_ALLOWED_CHANNELS):
-                channels = private_settings.WS4REDIS_ALLOWED_CHANNELS(request, channels)
+                channels = list(private_settings.WS4REDIS_ALLOWED_CHANNELS(request, channels))
             websocket = self.upgrade_websocket(environ, start_response)
             logger.debug('Subscribed to channels: {0}'.format(', '.join(channels)))
             subscriber.set_pubsub_channels(request, channels)
