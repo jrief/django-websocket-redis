@@ -57,7 +57,7 @@ def _wrap_sessions(sessions, request):
     return result
 
 
-class RedisMessage(str):
+class RedisMessage(six.binary_type):
     """
     A class wrapping messages to be send and received through RedisStore. This class behaves like
     a normal string class, but silently discards heartbeats and converts messages received from
@@ -66,10 +66,10 @@ class RedisMessage(str):
     def __new__(cls, value):
         if isinstance(value, six.string_types):
             if value != settings.WS4REDIS_HEARTBEAT:
-                return str.__new__(cls, value)
+                return six.binary_type.__new__(cls, value)
         elif isinstance(value, list):
             if len(value) >= 2 and value[0] == 'message':
-                return str.__new__(cls, value[2])
+                return six.binary_type.__new__(cls, value[2])
         return None
 
 

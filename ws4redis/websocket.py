@@ -50,9 +50,9 @@ class WebSocket(object):
         """
         if isinstance(text, six.binary_type):
             return text
-        if isinstance(text, six.text_type):
-            return text.encode('utf-8')
-        return six.b(text or '')
+        if not isinstance(text, six.text_type):
+            text = six.text_type(text or '')
+        return text.encode('utf-8')
 
     def _is_valid_close_code(self, code):
         """
@@ -197,7 +197,7 @@ class WebSocket(object):
         if self._closed:
             raise WebSocketError("Connection is already closed")
         try:
-            return bytes(self.read_message())
+            return self.read_message()
         except UnicodeError:
             logger.info('websocket.receive: UnicodeError')
             self.close(1007)
@@ -223,7 +223,7 @@ class WebSocket(object):
         if opcode == self.OPCODE_TEXT:
             message = self._encode_bytes(message)
         elif opcode == self.OPCODE_BINARY:
-            message = six.b(message)
+            message = six.binary_type(message)
         header = Header.encode_header(True, opcode, '', len(message), 0)
         try:
             self.stream.write(header + message)
@@ -305,7 +305,7 @@ class Header(object):
     def mask_payload(self, payload):
         payload = bytearray(payload)
         mask = bytearray(self.mask)
-        for i in range(self.length):
+        for i in xrange(self.length):
             payload[i] ^= mask[i % 4]
         return str(payload)
 
@@ -398,4 +398,4 @@ class Header(object):
         if mask:
             second_byte |= cls.MASK_MASK
             extra += mask
-        return six.b(chr(first_byte) + chr(second_byte) + extra)
+        return chr(first_byte) + chr(second_byte) + extra

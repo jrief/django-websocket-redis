@@ -1,6 +1,5 @@
 #-*- coding: utf-8 -*-
 import sys
-import six
 from redis import StrictRedis
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
@@ -90,11 +89,11 @@ class WebsocketWSGIServer(object):
                     elif fd == redis_fd:
                         sendmsg = RedisMessage(subscriber.parse_response())
                         if sendmsg and (echo_message or sendmsg != recvmsg):
-                            websocket.send(six.u(sendmsg))
+                            websocket.send(sendmsg)
                     else:
                         logger.error('Invalid file descriptor: {0}'.format(fd))
                 if redis_settings.WS4REDIS_HEARTBEAT:
-                    websocket.send(six.u(redis_settings.WS4REDIS_HEARTBEAT))
+                    websocket.send(redis_settings.WS4REDIS_HEARTBEAT)
         except WebSocketError as excpt:
             logger.warning('WebSocketError: ', exc_info=sys.exc_info())
             response = HttpResponse(status=1001, content='Websocket Closed')
@@ -110,7 +109,7 @@ class WebsocketWSGIServer(object):
         else:
             response = HttpResponse()
         if websocket:
-            websocket.close(code=1001, message=u'Websocket Closed')
+            websocket.close(code=1001, message='Websocket Closed')
         if hasattr(start_response, 'im_self') and not start_response.im_self.headers_sent:
             logger.warning('Staring late response on websocket')
             status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')

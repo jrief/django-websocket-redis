@@ -42,13 +42,13 @@ class WebsocketRunServer(WebsocketWSGIServer):
             # 5.2.1 (3)
             raise HandshakeError('Invalid key: {0}'.format(key))
 
-        checksum = base64.b64encode(sha1(six.b(key) + self.WS_GUID).digest())
+        sec_ws_accept = base64.b64encode(sha1(six.b(key) + self.WS_GUID).digest())
         if six.PY3:
-            checksum = checksum.decode('ascii')
+            sec_ws_accept = sec_ws_accept.decode('ascii')
         headers = [
             ('Upgrade', 'websocket'),
             ('Connection', 'Upgrade'),
-            ('Sec-WebSocket-Accept', checksum),
+            ('Sec-WebSocket-Accept', sec_ws_accept),
             ('Sec-WebSocket-Version', str(websocket_version)),
         ]
         logger.debug('WebSocket request accepted, switching protocols')

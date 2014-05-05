@@ -1,5 +1,4 @@
 #-*- coding: utf-8 -*-
-import six
 from django.conf import settings
 from ws4redis.redis_store import RedisStore, SELF
 
@@ -57,7 +56,7 @@ class RedisSubscriber(RedisStore):
         for channel in self._subscription.channels:
             message = self._connection.get(channel)
             if message:
-                websocket.send(six.u(message))
+                websocket.send(message)
 
     def get_file_descriptor(self):
         """
