@@ -1,3 +1,4 @@
+six
 nose
 django-nose
 websocket-client

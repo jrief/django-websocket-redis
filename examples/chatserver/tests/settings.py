@@ -68,3 +68,6 @@ WEBSOCKET_URL = '/ws/'
 WS4REDIS_EXPIRE = 10
 
 WS4REDIS_PREFIX = 'ws4redis'
+
+from .denied_channels import denied_channels
+WS4REDIS_ALLOWED_CHANNELS = denied_channels

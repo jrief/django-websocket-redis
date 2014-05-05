@@ -1,10 +1,11 @@
 #-*- coding: utf-8 -*-
 # This code was generously pilfered from https://bitbucket.org/Jeffrey/gevent-websocket
 # written by Jeffrey Gelens (http://noppo.pro/) and licensed under the Apache License, Version 2.0
+import six
 import struct
 from socket import error as socket_error
-from utf8validator import Utf8Validator
 from django.core.handlers.wsgi import logger
+from ws4redis.utf8validator import Utf8Validator
 from ws4redis.exceptions import WebSocketError, FrameTooLargeException
 
 
@@ -47,10 +48,10 @@ class WebSocket(object):
         """
         :returns: The utf-8 byte string equivalent of `text`.
         """
-        if isinstance(text, str):
+        if isinstance(text, six.binary_type):
             return text
-        if not isinstance(text, unicode):
-            text = unicode(text or '')
+        if not isinstance(text, six.text_type):
+            text = six.text_type(text or '')
         return text.encode('utf-8')
 
     def _is_valid_close_code(self, code):
@@ -203,7 +204,7 @@ class WebSocket(object):
         except WebSocketError:
             logger.info('websocket.receive: WebSocketError')
             self.close(1002)
-        except Exception, e:
+        except Exception as e:
             logger.info('websocket.receive: Unknown error %s', e)
             raise e
 
@@ -222,7 +223,7 @@ class WebSocket(object):
         if opcode == self.OPCODE_TEXT:
             message = self._encode_bytes(message)
         elif opcode == self.OPCODE_BINARY:
-            message = str(message)
+            message = six.binary_type(message)
         header = Header.encode_header(True, opcode, '', len(message), 0)
         try:
             self.stream.write(header + message)
@@ -234,7 +235,7 @@ class WebSocket(object):
         Send a frame over the websocket with message as its payload
         """
         if binary is None:
-            binary = not isinstance(message, (str, unicode))
+            binary = not isinstance(message, six.string_types)
         opcode = self.OPCODE_BINARY if binary else self.OPCODE_TEXT
         try:
             self.send_frame(message, opcode)
@@ -271,9 +272,13 @@ class Stream(object):
     __slots__ = ('read', 'write', 'fileno')
 
     def __init__(self, wsgi_input):
-        self.read = wsgi_input._sock.recv
-        self.write = wsgi_input._sock.sendall
-        self.fileno = wsgi_input._sock.fileno()
+        if six.PY2:
+            self.read = wsgi_input._sock.recv
+            self.write = wsgi_input._sock.sendall
+        else:
+            self.read = wsgi_input.raw._sock.recv
+            self.write = wsgi_input.raw._sock.sendall
+        self.fileno = wsgi_input.fileno()
 
 
 class Header(object):

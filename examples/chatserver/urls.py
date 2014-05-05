@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import url, patterns, include
 from django.contrib import admin
-from views import BroadcastChatView, UserChatView, GroupChatView
+from .views import BroadcastChatView, UserChatView, GroupChatView
 admin.autodiscover()
 
 

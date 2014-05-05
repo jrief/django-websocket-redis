@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+import six
 import base64
 import select
 from hashlib import sha1
@@ -41,16 +42,18 @@ class WebsocketRunServer(WebsocketWSGIServer):
             # 5.2.1 (3)
             raise HandshakeError('Invalid key: {0}'.format(key))
 
+        sec_ws_accept = base64.b64encode(sha1(six.b(key) + self.WS_GUID).digest())
+        if six.PY3:
+            sec_ws_accept = sec_ws_accept.decode('ascii')
         headers = [
             ('Upgrade', 'websocket'),
             ('Connection', 'Upgrade'),
-            ('Sec-WebSocket-Accept', base64.b64encode(sha1(key + self.WS_GUID).digest())),
+            ('Sec-WebSocket-Accept', sec_ws_accept),
             ('Sec-WebSocket-Version', str(websocket_version)),
         ]
-
         logger.debug('WebSocket request accepted, switching protocols')
         start_response(force_str('101 Switching Protocols'), headers)
-        start_response.im_self.finish_content()
+        six.get_method_self(start_response).finish_content()
         return WebSocket(environ['wsgi.input'])
 
     def select(self, rlist, wlist, xlist, timeout=None):
@@ -64,8 +67,8 @@ def run(addr, port, wsgi_handler, ipv6=False, threading=False):
     logger.info('Websocket support is enabled')
     server_address = (addr, port)
     if not threading:
-        raise Exception('Django\'s Websocket server must run with threading enabled')
-    httpd_cls = type('WSGIServer', (socketserver.ThreadingMixIn, WSGIServer), { 'daemon_threads': True })
+        raise Exception("Django's Websocket server must run with threading enabled")
+    httpd_cls = type('WSGIServer', (socketserver.ThreadingMixIn, WSGIServer), {'daemon_threads': True})
     httpd = httpd_cls(server_address, WSGIRequestHandler, ipv6=ipv6)
     httpd.set_app(wsgi_handler)
     httpd.serve_forever()
