@@ -90,12 +90,12 @@ Django loop through a Websocket request. Hence, all of the communication between
 and the Django loop must pass through the message queue.
 
 RedisSubscriber
-...............
+---------------
 In the Websocket loop, the message queue is controlled by the class ``RedisSubscriber``, which can
 be replaced using the configuration directive ``WS4REDIS_SUBSCRIBER``.
 
 RedisPublisher
-..............
+--------------
 In the Django loop, this message queue is controlled by the class ``RedisPublisher``, which can
 be accessed by any Django view.
 
@@ -120,7 +120,6 @@ message to all clients listening on the named facility, referred here as ``fooba
 now, the message “Hello World” is received by all clients listening for that broadcast
 notification.
 
-
 Subscribe to User Notification
 ------------------------------
 A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-user``, will be
@@ -141,10 +140,10 @@ If the message shall be send to the currently logged in user, then you may use t
 ``SELF``.
 
 .. code-block:: python
+
 	from ws4redis.redis_store import SELF
 
 	redis_publisher = RedisPublisher(facility='foobar', users=[SELF])
-
 
 Subscribe to Group Notification
 -------------------------------
@@ -169,7 +168,6 @@ belongs to.
            belongs to. This list of groups then is persisted inside a session variable to avoid
            having the Websocket loop to access the database.
 
-
 Subscribe to Session Notification
 ---------------------------------
 A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?subscribe-session``, will be
@@ -186,7 +184,6 @@ now, the message “Hello World” is sent to all clients using the session key
 ``wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x`` and subscribing to that kind of notification.
 
 In this context the the magic item ``SELF`` refers to all clients owning the same session key.
-
 
 Publish for Broadcast, User, Group and Session
 ----------------------------------------------

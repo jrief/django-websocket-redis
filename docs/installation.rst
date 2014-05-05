@@ -181,7 +181,7 @@ the websocket loop to the session store **must use gevent**, otherwise the webso
 altogether. Therefore, if you for some reason you have to remain with your current session store,
 make sure its monkey patched with gevent.
 
-.. warn:: **Never** store session data in the database in combination with *Websockets for Redis*!
+.. warning:: **Never** store session data in the database in combination with *Websockets for Redis*!
 
 .. _github: https://github.com/jrief/django-websocket-redis
 .. _Django: http://djangoproject.com/

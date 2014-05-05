@@ -14,19 +14,16 @@
 import sys
 import os
 import datetime
-from django.conf import settings
-from django.core.management import setup_environ
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.append(os.path.abspath('..'))
 from ws4redis import __version__
-
 sys.path.append(os.path.abspath(os.path.join('..', 'examples')))
-from chatserver import settings
-
-setup_environ(settings)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'chatserver.settings'
+from django.conf import settings
+settings.configure()
 
 # -- General configuration -----------------------------------------------------
 
