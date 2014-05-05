@@ -21,7 +21,7 @@ class WebsocketWSGIServer(object):
         comps = str(private_settings.WS4REDIS_SUBSCRIBER).split('.')
         module = import_module('.'.join(comps[:-1]))
         Subscriber = getattr(module, comps[-1])
-        self.allowed_channels = Subscriber.subscription_channels + Subscriber.publish_channels
+        self.possible_channels = Subscriber.subscription_channels + Subscriber.publish_channels
         self._redis_connection = redis_connection and redis_connection or StrictRedis(**private_settings.WS4REDIS_CONNECTION)
         self.Subscriber = Subscriber
 
@@ -52,7 +52,7 @@ class WebsocketWSGIServer(object):
         echo_message = False
         for qp in request.GET:
             param = qp.strip().lower()
-            if param in self.allowed_channels:
+            if param in self.possible_channels:
                 agreed_channels.append(param)
             elif param == 'echo':
                 echo_message = True

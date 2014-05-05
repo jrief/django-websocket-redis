@@ -2,10 +2,10 @@
 import time
 import requests
 from django.contrib.auth.models import User
+from django.contrib.sessions.backends.db import SessionStore
 from django.test import LiveServerTestCase
 from django.test.client import RequestFactory
-from django.contrib.sessions.backends.db import SessionStore
-from websocket import create_connection
+from websocket import create_connection, WebSocketException
 from ws4redis.django_runserver import application
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage, SELF
@@ -196,3 +196,11 @@ class WebsocketTests(LiveServerTestCase):
         self.assertEqual(pub1._publishers, set(['ws4redis:broadcast:' + self.facility]))
         pub2 = RedisPublisher(facility=self.facility, users=['john'])
         self.assertEqual(pub2._publishers, set(['ws4redis:user:john:' + self.facility]))
+
+    def test_forbidden_channel(self):
+        websocket_url = self.websocket_base_url + u'?subscribe-broadcast&publish-broadcast'
+        try:
+            create_connection(websocket_url, header=['Deny-Channels: YES'])
+            self.fail('Did not reject channels')
+        except WebSocketException:
+            self.assertTrue(True)
