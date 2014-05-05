@@ -3,11 +3,12 @@ import sys
 from redis import StrictRedis
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
-from django.http import HttpResponse, HttpResponseServerError, HttpResponseBadRequest
+from django.core.exceptions import PermissionDenied
+from django import http
 from django.utils.encoding import force_str
 from django.utils.importlib import import_module
 from django.utils.functional import SimpleLazyObject
-from ws4redis import settings as redis_settings
+from ws4redis import settings as private_settings
 from ws4redis.redis_store import RedisMessage
 from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
@@ -17,11 +18,11 @@ class WebsocketWSGIServer(object):
         """
         redis_connection can be overriden by a mock object.
         """
-        comps = str(redis_settings.WS4REDIS_SUBSCRIBER).split('.')
+        comps = str(private_settings.WS4REDIS_SUBSCRIBER).split('.')
         module = import_module('.'.join(comps[:-1]))
         Subscriber = getattr(module, comps[-1])
         self.allowed_channels = Subscriber.subscription_channels + Subscriber.publish_channels
-        self._redis_connection = redis_connection and redis_connection or StrictRedis(**redis_settings.WS4REDIS_CONNECTION)
+        self._redis_connection = redis_connection and redis_connection or StrictRedis(**private_settings.WS4REDIS_CONNECTION)
         self.Subscriber = Subscriber
 
     def assure_protocol_requirements(self, environ):
@@ -66,6 +67,8 @@ class WebsocketWSGIServer(object):
             request = WSGIRequest(environ)
             self.process_request(request)
             channels, echo_message = self.process_subscriptions(request)
+            if callable(private_settings.WS4REDIS_ALLOWED_CHANNELS):
+                channels = private_settings.WS4REDIS_ALLOWED_CHANNELS(request, channels)
             websocket = self.upgrade_websocket(environ, start_response)
             logger.debug('Subscribed to channels: {0}'.format(', '.join(channels)))
             subscriber.set_pubsub_channels(request, channels)
@@ -92,22 +95,25 @@ class WebsocketWSGIServer(object):
                             websocket.send(sendmsg)
                     else:
                         logger.error('Invalid file descriptor: {0}'.format(fd))
-                if redis_settings.WS4REDIS_HEARTBEAT:
-                    websocket.send(redis_settings.WS4REDIS_HEARTBEAT)
+                if private_settings.WS4REDIS_HEARTBEAT:
+                    websocket.send(private_settings.WS4REDIS_HEARTBEAT)
         except WebSocketError as excpt:
             logger.warning('WebSocketError: ', exc_info=sys.exc_info())
-            response = HttpResponse(status=1001, content='Websocket Closed')
+            response = http.HttpResponse(status=1001, content='Websocket Closed')
         except UpgradeRequiredError as excpt:
             logger.info('Websocket upgrade required')
-            response = HttpResponseBadRequest(status=426, content=excpt)
+            response = http.HttpResponseBadRequest(status=426, content=excpt)
         except HandshakeError as excpt:
             logger.warning('HandshakeError: ', exc_info=sys.exc_info())
-            response = HttpResponseBadRequest(content=excpt)
+            response = http.HttpResponseBadRequest(content=excpt)
+        except PermissionDenied as excpt:
+            logger.warning('PermissionDenied: ', exc_info=sys.exc_info())
+            response = http.HttpResponseForbidden(content=excpt)
         except Exception as excpt:
             logger.error('Other Exception: ', exc_info=sys.exc_info())
-            response = HttpResponseServerError(content=excpt)
+            response = http.HttpResponseServerError(content=excpt)
         else:
-            response = HttpResponse()
+            response = http.HttpResponse()
         if websocket:
             websocket.close(code=1001, message='Websocket Closed')
         if hasattr(start_response, 'im_self') and not start_response.im_self.headers_sent:
