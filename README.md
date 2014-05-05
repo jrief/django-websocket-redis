@@ -11,6 +11,10 @@ This module implements websockets on top of Django without requiring any additio
 messaging it uses the [Redis](http://redis.io/) datastore and in a production environment, it is
 intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiNX](http://nginx.com/).
 
+Fixed in 0.4.1
+------------
+* request.user.username has been replaced by get_username()
+
 New in 0.4.0
 ------------
 * Messages can be sent to users being member of one or more Django groups.
