@@ -12,8 +12,8 @@ Release History
 * Messages can be sent to users being member of one or more Django groups.
 * ``RedisPublisher`` and ``RedisSubscriber`` now only accept lists for ``users``, ``groups`` and 
   ``sessions``. This makes the API simpler and more consistent.
- * A new magic item ``ws4redis.redis_store.SELF`` has been added to reflect self referencing in
-   this list, what before was done through ``users=True`` or ``sessions=True``.
+* A new magic item ``ws4redis.redis_store.SELF`` has been added to reflect self referencing in
+  this list, what before was done through ``users=True`` or ``sessions=True``.
 * Added the possibility to receive heartbeats. This lets the client disconnect and attempt to
   reconnect after a number of heartbeats were missed. It prevents silent disconnections.
 * Refactored the examples.
