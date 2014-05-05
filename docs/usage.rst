@@ -241,9 +241,9 @@ the client, immediately after he connects to the server.
 
 Safety considerations
 ---------------------
-The default setting of **Websocket for Redis** is to allow every client to subscribe and to publish
+The default setting of **Websocket for Redis** is to allow each client to subscribe and to publish
 on every possible channel. This normally is not what you want. Therefore **Websocket for Redis**
-allowes to restrict the channels for subscription and publishing to the application needs. This is
+allows to restrict the channels for subscription and publishing to your application needs. This is
 done by a callback function, which is called right after the initialization of the Websocket.
 This function shall be used to restrict the subscription/publishing channels for the current client.
 
@@ -267,7 +267,10 @@ Disallow non authenticated users to subscribe or to publish on the Websocket:
 	    if not request.user.is_authenticated():
 	        raise PermissionDenied('Not allowed to subscribe nor to publish on the Websocket!')
 
-The callback function must be specified using the configuration directive
+When using this callback function, Websockets opened by a non-authenticated users, will get a
+**403 - Response Forbidden** error.
+
+To enable this function in your application, use the configuration directive
 ``WS4REDIS_ALLOWED_CHANNELS``.
 
 .. note:: This function must not perform any blocking requests, such as accessing the database!
