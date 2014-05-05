@@ -3,6 +3,10 @@
 ===============
 Release History
 ===============
+0.4.1
+-----
+* Fixed: ``request.user.username`` has been replaced by ``get_username()``.
+
 0.4.0
 -----
 * Messages can be sent to users being member of one or more Django groups.
