@@ -89,6 +89,8 @@ triggered by, for instance django-celery_. Intentionally, there is no way to tri
 Django loop through a Websocket request. Hence, all of the communication between the Websocket loop
 and the Django loop must pass through the message queue.
 
+.. _django-celery: http://www.celeryproject.org/
+
 RedisSubscriber
 ...............
 In the Websocket loop, the message queue is controlled by the class ``RedisSubscriber``, which can
@@ -240,4 +242,35 @@ the client, immediately after he connects to the server.
 .. note:: By using client code, which automatically reconnects after the Websocket closes, one can
           create a setup which is immune against server and client reboots.
 
-.. _django-celery: http://www.celeryproject.org/
+Safety considerations
+---------------------
+The default setting of **Websocket for Redis** is to allow every client to subscribe and to publish
+on every possible channel. This normally is not what you want. Therefore **Websocket for Redis**
+allowes to restrict the channels for subscription and publishing to the application needs. This is
+done by a callback function, which is called right after the initialization of the Websocket.
+This function shall be used to restrict the subscription/publishing channels for the current client.
+
+Example:
+
+.. code-block:: python
+
+	def get_allowed_channels(request, channels):
+	    return set(channels).intersection(['subscribe-broadcast', 'subscribe-group'])
+
+This function restricts the allowed channels to ``subscribe-broadcast`` and ``subscribe-group``
+only. All other attempts to subscribe or to publish on other channels will be silently discarded.
+
+Disallow non authenticated users to subscribe or to publish on the Websocket:
+
+.. code-block:: python
+
+	from django.core.exceptions import PermissionDenied
+	
+	def get_allowed_channels(request, channels):
+	    if not request.user.is_authenticated():
+	        raise PermissionDenied('Not allowed to subscribe nor to publish on the Websocket!')
+
+The callback function must be specified using the configuration directive
+``WS4REDIS_ALLOWED_CHANNELS``.
+
+.. note:: This function must not perform any blocking requests, such as accessing the database!
