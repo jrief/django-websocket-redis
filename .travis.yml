@@ -10,6 +10,7 @@ env:
 branches:
   only:
     - master
+    - echo-message
 
 install:
   - pip install -q Django==$DJANGO
