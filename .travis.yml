@@ -25,4 +25,5 @@ before_script:
   - sh -e /etc/init.d/xvfb start
 
 script:
+ - pip freeze
  - cd examples && ./manage.py test chatserver --settings=chatserver.tests.settings
