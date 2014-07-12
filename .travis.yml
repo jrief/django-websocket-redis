@@ -21,7 +21,7 @@ services:
   - redis-server
 
 before_script:
-  - pip freeze
+  - pip freeze > &2
 
 script:
   - cd examples && ./manage.py test chatserver --settings=chatserver.tests.settings
