@@ -21,9 +21,7 @@ services:
   - redis-server
 
 before_script:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
+  - pip freeze
 
 script:
- - pip freeze
- - cd examples && ./manage.py test chatserver --settings=chatserver.tests.settings
+  - cd examples && ./manage.py test chatserver --settings=chatserver.tests.settings
