@@ -59,7 +59,7 @@ Run the tests
 
 .. code-block:: bash
 
-	cd examples && ./manage.py test chatserver --settings=chatserver.test_settings
+	cd examples && ./manage.py test chatserver --settings=chatserver.tests.settings
 
 Currently it is not possible to simulate more than one client at a time. Django's built in
 LiveServerTestCase_ can not handle more than one simultaneous open connection, and thus more
