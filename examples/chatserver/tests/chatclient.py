@@ -24,7 +24,6 @@ class WebsocketTests(LiveServerTestCase):
         self.websocket_base_url = self.live_server_url.replace('http:', 'ws:', 1) + u'/ws/' + self.facility
         self.message = RedisMessage(''.join(unichr(c) for c in range(33, 128)))
         self.factory = RequestFactory()
-        time.sleep(1)
 
     @classmethod
     def tearDownClass(cls):

@@ -21,7 +21,7 @@ services:
   - redis-server
 
 before_script:
-  - pip freeze >&2
+  - pip freeze
 
 script:
-  - cd examples && ./manage.py test chatserver --settings=chatserver.tests.settings
+  - cd examples && ./manage.py test chatserver --settings=chatserver.tests.settings --liveserver=localhost:9000-60000
