@@ -5,8 +5,8 @@ Release History
 ===============
 0.4.2
 -----
-* Message echoing can be switched on and off according to the user needs. Before it was on be
-  default.
+* Message echoing can be switched “on” and “off” according to the user needs. Before it was “on”
+  by default.
 * Many changes to get this app compatible with Python3. This is still not finished, since the
   pilfered module ``websocket.py`` is not PY3 compatible yet.
 * Added a class ``RedisMessage`` to pass and store the message to and from the websocket.
