@@ -11,17 +11,13 @@ This module implements websockets on top of Django without requiring any additio
 messaging it uses the [Redis](http://redis.io/) datastore and in a production environment, it is
 intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiNX](http://nginx.com/).
 
-Fixed in 0.4.1
+New in 0.4.2
 ------------
-* request.user.username has been replaced by get_username()
-
-New in 0.4.0
-------------
-* Messages can be sent to users being member of one or more Django groups.
-* Simplified the usage of ``RedisPublisher`` and ``RedisSubscriber`` to make the API more consistent.
-* Added the possibility to receive heartbeats.
-* Added reusable JavaScript code for the client.
-* Added a context processor to inject some settings from ``ws4redis`` into templates.
+* Message echoing can be switched “on” and “off” according to the user needs. Before it was “on” by
+  default.
+* Many changes to become compatible with Python3; there are still minor issues to solve.
+* The message string to be passed and stored to and from the websocket hase been converted into
+  a class ``RedisMessage`` for type saftey.
 
 Features
 --------
