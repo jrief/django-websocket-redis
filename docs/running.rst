@@ -122,7 +122,7 @@ and one for the WebSocket loop, say ``wsgi_websocket.py``
 .. code-block:: python
 
 	import os
-	import gevent.monkey
+	import gevent.socket
 	import redis.connection
 	redis.connection.socket = gevent.socket
 	os.environ.update(DJANGO_SETTINGS_MODULE='my_app.settings')
