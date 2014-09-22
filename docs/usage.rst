@@ -67,7 +67,7 @@ and access the Websocket code:
 	    // attach this function to an event handler on your site
 	    function sendMessage() {
 	        ws4redis.send_message('A message');
-	    });
+	    }
 	
 	    // receive a message though the websocket from the server
 	    function receiveMessage(msg) {
