@@ -41,6 +41,7 @@ setup(
         'redis',
         'gevent',
         'greenlet',
+        'six',
     ],
     extras_require={
         'uwsgi': ['uWSGI>=1.9.20'],

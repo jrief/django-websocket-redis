@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # This code was generously pilfered from https://bitbucket.org/Jeffrey/gevent-websocket
 # written by Jeffrey Gelens (http://noppo.pro/) and licensed under the Apache License, Version 2.0
 import six

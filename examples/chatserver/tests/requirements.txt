@@ -1,5 +1,5 @@
 six
 nose
 django-nose
-websocket-client
+websocket-client==0.13.0
 requests
