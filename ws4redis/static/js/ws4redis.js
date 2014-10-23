@@ -12,7 +12,7 @@ function WS4Redis(options, $) {
 	if ($ === undefined)
 		$ = jQuery;
 	opts = $.extend({ heartbeat_msg: null }, options);
-	if(opts.status_callback && typeof opts.status_callback === 'function')
+	if (opts.status_callback && typeof opts.status_callback === 'function')
 		status_callback = opts.status_callback;
 	connect(opts.uri);
 
