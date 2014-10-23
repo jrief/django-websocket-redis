@@ -58,8 +58,8 @@ function WS4Redis(options, $) {
 		if (!timer) {
 			// try to reconnect
 			var interval = generateInteval(attempts);
-			console.log("will try to reconnect in " + interval + "ms");
 			timer = setTimeout(function() {
+				attempts++;
 				connect(ws.url);
 			}, interval);
 		}
@@ -80,6 +80,10 @@ function WS4Redis(options, $) {
 	}
 
 	// this code is borrowed from http://blog.johnryding.com/post/78544969349/
+	//
+	// Generate an interval that is randomly between 0 and 2^k - 1, where k is
+	// the number of connection attmpts, with a maximum interval of 30 seconds,
+	// so it starts at 0 - 1 seconds and maxes out at 0 - 30 seconds
 	function generateInteval (k) {
 		var maxInterval = (Math.pow(2, k) - 1) * 1000;
 
