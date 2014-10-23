@@ -1,7 +1,7 @@
 
 function WS4Redis(options, $) {
 	'use strict';
-	var opts, ws, deferred, timer, timer_interval = 0;
+	var opts, ws, deferred, timer, attempts = 1;
 	var heartbeat_interval = null, missed_heartbeats = 0;
 
 	if (this === undefined)
@@ -44,7 +44,8 @@ function WS4Redis(options, $) {
 
 	function on_open() {
 		console.log('Connected!');
-		timer_interval = 500;
+		// new connection, reset attemps counter
+		attempts = 1;
 		deferred.resolve();
 		if (opts.heartbeat_msg && heartbeat_interval === null) {
 			missed_heartbeats = 0;
@@ -56,10 +57,11 @@ function WS4Redis(options, $) {
 		console.log("Connection closed!");
 		if (!timer) {
 			// try to reconnect
+			var interval = generateInteval(attempts);
+			console.log("will try to reconnect in " + interval + "ms");
 			timer = setTimeout(function() {
 				connect(ws.url);
-			}, timer_interval);
-			timer_interval = Math.min(timer_interval + 500, 5000);
+			}, interval);
 		}
 	}
 
@@ -77,7 +79,20 @@ function WS4Redis(options, $) {
 		}
 	}
 
+	// this code is borrowed from http://blog.johnryding.com/post/78544969349/
+	function generateInteval (k) {
+		var maxInterval = (Math.pow(2, k) - 1) * 1000;
+
+		// If the generated interval is more than 30 seconds, truncate it down to 30 seconds.
+		if (maxInterval > 30*1000) {
+			maxInterval = 30*1000;
+		}
+
+		// generate the interval to a random number between 0 and the maxInterval determined from above
+		return Math.random() * maxInterval;
+	}
+
 	this.send_message = function(message) {
 		ws.send(message);
-	}
+	};
 }
