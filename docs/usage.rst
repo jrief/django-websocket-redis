@@ -115,9 +115,9 @@ message to all clients listening on the named facility, referred here as ``fooba
 	from ws4redis.publisher import RedisPublisher
 	
 	redis_publisher = RedisPublisher(facility='foobar', broadcast=True)
-	
+	message = RedisMessage('Hello World')
 	# and somewhere else
-	redis_publisher.publish_message('Hello World')
+	redis_publisher.publish_message(message)
 
 now, the message “Hello World” is received by all clients listening for that broadcast
 notification.
@@ -131,9 +131,9 @@ user, using the ``RedisPublisher``.
 .. code-block:: python
 
 	redis_publisher = RedisPublisher(facility='foobar', users=['john', 'mary'])
-	
+	message = RedisMessage('Hello World')
 	# and somewhere else
-	redis_publisher.publish_message('Hello World')
+	redis_publisher.publish_message(message)
 
 now, the message “Hello World” is sent to all clients logged in as ``john`` or ``mary`` and
 listening for that kind of notification.
@@ -178,9 +178,10 @@ notified if someone publishes a message for a client owning this session key.
 .. code-block:: python
 
 	redis_publisher = RedisPublisher(facility='foobar', sessions=['wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x'])
-	
+	message = RedisMessage('Hello World')
+
 	# and somewhere else
-	redis_publisher.publish_message('Hello World')
+	redis_publisher.publish_message(message)
 
 now, the message “Hello World” is sent to all clients using the session key
 ``wnqd0gbw5obpnj50zwh6yaq2yz4o8g9x`` and subscribing to that kind of notification.
