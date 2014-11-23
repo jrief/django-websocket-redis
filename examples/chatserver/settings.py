@@ -1,4 +1,5 @@
 # Django settings for unit test project.
+import os
 
 DEBUG = True
 
@@ -26,7 +27,7 @@ MEDIA_URL = ''
 
 # Absolute path to the directory that holds static files.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '/home/static/'
+STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT', '')
 
 # URL that handles the static files served from STATIC_ROOT.
 # Example: "http://media.lawrence.com/static/"
@@ -39,6 +40,7 @@ SESSION_REDIS_PREFIX = 'session'
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.static',
+    'django.core.context_processors.request',
     'ws4redis.context_processors.default',
 )
 
@@ -62,6 +64,7 @@ INSTALLED_APPS = (
 # These two middleware classes must be present, if messages sent or received through a websocket
 # connection shall be delivered to an authenticated Django user.
 MIDDLEWARE_CLASSES = (
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',

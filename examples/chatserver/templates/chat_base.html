@@ -1,37 +1,94 @@
-<html>
+{% load tutorial_tags %}
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-	<style>
-		body, input {
-			font-size: 18px;
-			line-height: 25px;
-		}
-		#text_message {
-			margin: 10px;
-			width: 400px;
-			height: 30px;
-			padding: 5px;
-		}
-		#billboard {
-			margin: 10px;
-			padding: 5px;
-			width: 600px;
-			height: 400px;
-			background-color: black;
-			color: white;
-			border: solid 2px green;
-			overflow-y: auto;
-		}
-	</style>
-	<script type="text/javascript" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Django Websocket Redis</title>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
-	<h1>Simple chat using django-websocket-redis</h1>
-	{% block control_panel %}
-	<input type="text" id="text_message" />
-	<button id="send_message">Send message</button>
-	{% endblock control_panel %}
-	<div id="billboard"></div>
+	<header class="navbar navbar-static-top navbar-inverse">
+		<div class="container">
+			<div class="navbar-header">
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+			<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+				<ul class="nav navbar-nav">
+					<li class="{% active request 'broadcast_chat' %}">
+						<a href="{% url 'broadcast_chat' %}">Broadcast Chat</a>
+					</li>
+					<li class="{% active request 'user_chat' %}">
+						<a href="{% url 'user_chat' %}">User Chat</a>
+					</li>
+					<li class="{% active request 'group_chat' %}">
+						<a href="{% url 'group_chat' %}">Group Chat</a>
+					</li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown" id="menuLogin">
+					{% if request.user.is_authenticated %}
+						<a class="dropdown-toggle" href="#" data-toggle="dropdown">{{ request.user.get_full_name }} <span class="caret"></span></a>
+						<div class="dropdown-menu" style="padding:1em;">
+							<form class="form" action="{% url 'logout' %}" method="post">{% csrf_token %}
+								<input type="hidden" name="next" value="{{ request.get_full_path }}" />
+								<input class="btn btn-success btn-block" type="submit" value="Logout">
+							</form>
+						</div>
+					{% else %}
+						<a class="dropdown-toggle" href="#" data-toggle="dropdown">Login <span class="caret"></span></a>
+						<div class="dropdown-menu" style="padding:1em;">
+							<p class="help-block">Login as <em>john</em> or <em>mary</em> using password <em>secret</em>.</p>
+							<form class="form" action="{% url 'login' %}" method="post">{% csrf_token %}
+								<input type="hidden" name="next" value="{{ request.get_full_path }}" />
+								<div class="form-group">
+									<input class="form-control" placeholder="Username" name="username" type="text">
+								</div>
+								<div class="form-group">
+									<input class="form-control" placeholder="Password" name="password" type="password" value="">
+								</div>
+								<input class="btn btn-success btn-block" type="submit" value="Login">
+							</form>
+						</div>
+					{% endif %}
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</header>
+
+	<div class="container">
+		<div class="row">
+			{% block main_content %}
+			<div class="col-xs-12">
+				<h1>Simple chat {% block "title" %}{% endblock %}</h1>
+				<div class="form-inline">
+					<div class="form-group">
+						<input class="form-control" type="text" id="text_message" style="width: 33em; margin-right: 1em;"/>
+					</div>
+					{% block control_panel %}
+					<button class="btn btn-primary" id="send_message">Send message</button>
+					{% endblock control_panel %}
+				</div>
+				<div class="panel panel-default" style="margin-top: 1em;">
+					<div id="billboard" class="panel-body" style="overflow-y: auto; height: 24em;"></div>
+				</div>
+			</div>
+			{% endblock main_content %}
+		</div>
+	</div>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="{{ STATIC_URL }}js/ws4redis.js" type="text/javascript"></script>
 	{% block script_panel %}{% endblock %}
 </body>
+
 </html>

@@ -1,10 +1,11 @@
 {% extends "chat_base.html" %}
 
+{% block "title" %}using subscribe-user{% endblock %}
+
 {% block control_panel %}
-	<input type="text" id="text_message" />
-	<button id="send_message">Send message</button>
+	<button class="btn btn-primary" id="send_message">Send message</button>
 	to
-	<select id="user">{% for user in users %}
+	<select class="form-control" id="user">{% for user in users %}
 		<option value="{{ user.username }}">{% firstof user.get_full_name user.username %}</option>
 	{% endfor %}</select>
 {% endblock control_panel %}

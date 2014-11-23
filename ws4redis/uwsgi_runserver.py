@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import uwsgi
 import gevent.select
 from ws4redis.exceptions import WebSocketError

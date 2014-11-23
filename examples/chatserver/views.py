@@ -25,6 +25,9 @@ class UserChatView(TemplateView):
         return context
 
     @csrf_exempt
+    def dispatch(self, *args, **kwargs):
+        return super(UserChatView, self).dispatch(*args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         redis_publisher = RedisPublisher(facility='foobar', users=[request.POST.get('user')])
         message = RedisMessage(request.POST.get('message'))
@@ -41,6 +44,9 @@ class GroupChatView(TemplateView):
         return context
 
     @csrf_exempt
+    def dispatch(self, *args, **kwargs):
+        return super(GroupChatView, self).dispatch(*args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         redis_publisher = RedisPublisher(facility='foobar', groups=[request.POST.get('group')])
         message = RedisMessage(request.POST.get('message'))
