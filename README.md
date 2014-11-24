@@ -5,6 +5,8 @@ Project home: https://github.com/jrief/django-websocket-redis
 
 Detailed documentation on [ReadTheDocs](http://django-websocket-redis.readthedocs.org/en/latest/).
 
+Online demo: http://websocket.aws.awesto.com/
+
 Websockets for Django using Redis as message queue
 --------------------------------------------------
 This module implements websockets on top of Django without requiring any additional framework. For
