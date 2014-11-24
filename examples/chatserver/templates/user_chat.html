@@ -5,9 +5,11 @@
 {% block control_panel %}
 	<button class="btn btn-primary" id="send_message">Send message</button>
 	to
-	<select class="form-control" id="user">{% for user in users %}
+	<select class="form-control" id="user" style="display: inline-block; width: auto;">
+	{% for user in users %}
 		<option value="{{ user.username }}">{% firstof user.get_full_name user.username %}</option>
-	{% endfor %}</select>
+	{% endfor %}
+	</select>
 {% endblock control_panel %}
 
 {% block script_panel %}
@@ -18,6 +20,7 @@
 			receive_message: receiveMessage,
 			heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
 		});
+		var billboard = $('#billboard');
 
 		// send message to the server using Ajax
 		$('#send_message').click(function() {
@@ -29,7 +32,8 @@
 
 		// receive a message though the Websocket from the server
 		function receiveMessage(msg) {
-			$('#billboard').append('<br/>' + msg);
+			billboard.append('<br/>' + msg);
+			billboard.scrollTop(billboard.scrollTop() + 25);
 		}
 	});
 </script>

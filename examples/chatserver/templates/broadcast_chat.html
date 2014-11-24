@@ -10,6 +10,7 @@ jQuery(document).ready(function($) {
 		receive_message: receiveMessage,
 		heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
 	});
+	var billboard = $('#billboard');
 
 	// send message though the Websocket to the server
 	$('#send_message').click(function() {
@@ -19,7 +20,8 @@ jQuery(document).ready(function($) {
 
 	// receive a message though the Websocket from the server
 	function receiveMessage(msg) {
-		$('#billboard').append('<br/>' + msg);
+		billboard.append('<br/>' + msg);
+		billboard.scrollTop(billboard.scrollTop() + 25);
 	}
 });
 </script>
