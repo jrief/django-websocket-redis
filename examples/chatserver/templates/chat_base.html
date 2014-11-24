@@ -73,6 +73,12 @@
 			</div>
 		</div>
 		<div class="row">
+			<div class="col-xs-12 col-md-11 col-lg-10">
+				{% block introduction %}{% endblock introduction %}
+				<pre id="billboard" style="overflow-y: auto; height: 24em; margin-top: 1em;"></pre>
+			</div>
+		</div>
+		<div class="row">
 			<div "form-inline">
 				<div class="form-group col-xs-12 col-sm-7">
 					<input class="form-control" type="text" id="text_message" />
@@ -82,12 +88,6 @@
 					<button class="btn btn-primary" id="send_message">Send message</button>
 					{% endblock control_panel %}
 				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-xs-12 col-md-11 col-lg-10">
-				<pre id="billboard" style="overflow-y: auto; height: 24em; margin-top: 1em;"></pre>
-				{% block introduction %}{% endblock introduction %}
 			</div>
 		</div>
 		{% endblock main_content %}
