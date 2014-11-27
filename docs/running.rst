@@ -77,6 +77,26 @@ requests. Adding ``--gevent-monkey-patch`` to the command line may help here, bu
 instance requires to monkey patch its blocking calls with **gevent** using the psycogreen_ library.
 Moreover, only one CPU core is then used, and static files must be handled by another webserver.
 
+Serving static files
+--------------------
+In this configuration, you are not able to serve static files, because Django does not run in debug
+mode and uWSGI does not know how to server your deployed static files. Therefore in ``urls.py`` add
+``staticfiles_urlpatterns`` to your urlpatterns:
+
+.. code-block:: python
+
+	from django.conf.urls import url, patterns, include
+	from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+	urlpatterns = patterns('',
+	    ....
+	)  + staticfiles_urlpatterns()
+
+
+.. note:: Remember to remove ``staticfiles_urlpatterns`` when upgrading to a more scalable
+	configuration as explained in the next section.
+
+
 Django with WebSockets for Redis behind NGiNX using uWSGI
 =========================================================
 This is the most scalable solution. Here two instances of a uWSGI server are spawned, one to handle
