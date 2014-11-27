@@ -1,0 +1,25 @@
+[default]
+umask = 002
+virtualenv = /path/to/your/virtualenv
+master = true
+no-orphans = true
+uid = unixuser
+gid = unixgroup
+threads = 1
+env = DJANGO_SETTINGS_MODULE=chatserver.settings
+env = DJANGO_STATIC_ROOT=/path/to/your/static_root
+
+[runserver]
+ini = :default
+socket = django.socket
+module = wsgi_django:application
+buffer-size = 32768
+processes = 2
+
+[wsserver]
+ini = :default
+http-socket = web.socket
+module = wsgi_websocket:application
+processes = 1
+http-websockets = true
+gevent = 1000
