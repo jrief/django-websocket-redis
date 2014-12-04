@@ -1,0 +1,8 @@
+[uwsgi]
+emperor = vassals
+http-socket = :80
+die-on-term = true
+offload-threads = 1
+route = ^/ws uwsgi:/var/tmp/web.socket,0,0
+route = ^/ uwsgi:/var/tmp/django.socket,0,0
+

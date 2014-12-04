@@ -165,3 +165,89 @@ another extra routing path.
 
 .. |websocket4redis| image:: _static/websocket4redis.png
 .. _psycogreen: https://bitbucket.org/dvarrazzo/psycogreen/
+
+
+Django with WebSockets for Redis as a stand alone uWSGI server in emperor mode
+==============================================================================
+In this configuration the **uWSGI** server owns both main loops. To distinguish WebSockets from
+normal requests, use uWSGI's `internal routing`_ capabilities.
+
+First create the two applications, ``wsgi_django.py`` and ``wsgi_websocket.py`` using the same code
+as in the above example. These are the two entry points for uWSGI. Then create these three
+ini-files, one for the emperor, say ``uwsgi.ini``:
+
+.. code-block:: ini
+
+	[uwsgi]
+	emperor = vassals
+	http-socket = :9090
+	die-on-term = true
+	offload-threads = 1
+	route = ^/ws uwsgi:/var/tmp/web.socket,0,0
+	route = ^/ uwsgi:/var/tmp/django.socket,0,0
+
+Create a separate directory named ``vassals`` and add a configuration file for the Websocket
+loop, say ``vassals/wsserver.ini``:
+
+.. code-block:: ini
+
+	; run the Websocket loop
+	[uwsgi]
+	umask = 002
+	virtualenv = /path/to/your/virtualenv
+	chdir = ..
+	master = true
+	no-orphans = true
+	die-on-term = true
+	memory-report = true
+	env = DJANGO_SETTINGS_MODULE=my_app.settings
+	socket = /var/tmp/web.socket
+	module = wsgi_websocket:application
+	threads = 1
+	processes = 1
+	http-websockets = true
+	gevent = 1000
+
+To the directory named ``vassals``, add a configuration file for the Django loop, say
+``vassals/runserver.ini``:
+
+.. code-block:: ini
+
+	; run the Django loop
+	[uwsgi]
+	umask = 002
+	virtualenv = /path/to/your/virtualenv
+	chdir = ..
+	master = true
+	no-orphans = true
+	die-on-term = true
+	memory-report = true
+	env = DJANGO_SETTINGS_MODULE=my_app.settings
+	socket = /var/tmp/django.socket
+	module = wsgi_django:application
+	buffer-size = 32768
+	threads = 1
+	processes = 2
+
+Adopt the virtualenv, pathes, ports and number of threads/processes to your operating system and
+hosts capabilities.
+
+Then start uWSGI:
+
+.. code-block:: bash
+
+	uwsgi --ini uwsgi.ini
+
+This configuration scales as well, as the sample from the previous section. It shall be used if no
+NGiNX server is available.
+
+Serving static files
+--------------------
+The alert reader will have noticed, that static files are not handled by this configuration. While
+in theory it is possible to configure **uWSGI** to `deliver static files`_, please note that
+**uWSGI** is not intended to completly replace a webserver. Therefore, before adding
+``route = ^/static static:/path/to/static/root`` to the emperors ini-file, consider to place them
+onto a Content Delivery Network, such as Amazon S3.
+
+.. _internal routing: https://uwsgi.readthedocs.org/en/latest/InternalRouting.html
+.. _deliver static files: https://uwsgi.readthedocs.org/en/latest/InternalRouting.html?highlight=routing#static

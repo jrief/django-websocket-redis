@@ -3,6 +3,13 @@
 ===============
 Release History
 ===============
+0.4.3
+-----
+* Fixed: **django-websocket-redis** failed to initialize under some circumstances in combination
+  with Django-1.7. This only happened for logged in users and threw this exception:
+  ``django.core.exceptions.AppRegistryNotReady: Models aren't loaded yet.``
+* Added setup on how to run **django-websocket-redis** with uWSGI but without NGiNX.
+
 0.4.2
 -----
 * Message echoing can be switched “on” and “off” according to the user needs. Before it was “on”
