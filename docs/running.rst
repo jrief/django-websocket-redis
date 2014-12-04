@@ -90,7 +90,7 @@ mode and uWSGI does not know how to server your deployed static files. Therefore
 
 	urlpatterns = patterns('',
 	    ....
-	)  + staticfiles_urlpatterns()
+	) + staticfiles_urlpatterns()
 
 
 .. note:: Remember to remove ``staticfiles_urlpatterns`` when upgrading to a more scalable
