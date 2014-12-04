@@ -1,6 +1,9 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import sys
 from redis import StrictRedis
+import django
+if django.VERSION[:2] >= (1, 7):
+    django.setup()
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
 from django.core.exceptions import PermissionDenied
