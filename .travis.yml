@@ -4,13 +4,13 @@ python:
   - 2.7
 
 env:
-  - DJANGO=1.5.10
-  - DJANGO=1.6.7
+  - DJANGO=1.5.11 MIGRATE='true'
+  - DJANGO=1.6.8 MIGRATE='true'
+  - DJANGO=1.7.1 MIGRATE='./manage.py migrate'
 
 branches:
   only:
     - master
-    - echo-message
 
 install:
   - pip install -q Django==$DJANGO
@@ -24,4 +24,4 @@ before_script:
   - pip freeze
 
 script:
-  - cd examples && ./manage.py test chatserver --settings=chatserver.tests.settings
+  - cd examples && $MIGRATE && ./manage.py test chatserver --settings=chatserver.tests.settings
