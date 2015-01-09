@@ -3,6 +3,7 @@
 import os
 import sys
 import gevent.monkey
+import gevent.socket
 import redis.connection
 redis.connection.socket = gevent.socket
 
