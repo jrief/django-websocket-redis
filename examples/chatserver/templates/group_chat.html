@@ -26,13 +26,22 @@ jQuery(document).ready(function($) {
 	});
 	var billboard = $('#billboard');
 
+	$("#text_message").keydown(function(event) {
+		if (event.keyCode === 13) {
+			event.preventDefault();
+			sendMessage();
+		}
+	});
+
+	$('#send_message').click(sendMessage);
+
 	// send message to the server using Ajax
-	$('#send_message').click(function() {
+	function sendMessage() {
 		$.post('{% url "group_chat" %}', {
 			group: $('#group').val(),
 			message: $('#text_message').val()
 		});
-	});
+	}
 
 	// receive a message though the Websocket from the server
 	function receiveMessage(msg) {
