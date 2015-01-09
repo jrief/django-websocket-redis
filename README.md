@@ -39,6 +39,7 @@ If unsure, if this proposed architecture is the correct approach on how to integ
 Build status
 ------------
 [![Build Status](https://travis-ci.org/jrief/django-websocket-redis.png?branch=master)](https://travis-ci.org/jrief/django-websocket-redis)
+[![Downloads](http://img.shields.io/pypi/dm/django-websocket-redis.svg?style=flat-square)](https://pypi.python.org/pypi/django-websocket-redis/)
 
 Questions
 ---------
@@ -46,6 +47,6 @@ Please use the issue tracker to ask questions.
 
 License
 -------
-Copyright &copy; 2014 Jacob Rief.
+Copyright &copy; 2015 Jacob Rief.
 
 MIT licensed.
