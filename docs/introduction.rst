@@ -17,8 +17,10 @@ webserver and themselves. WSGI is a stateless protocol which defines how to hand
 making responses in a simple way abstracted from the HTTP protocol, but by design it does not
 support non-blocking requests.
 
+
 The WSGI protocol can not support websockets
 ============================================
+
 In Django, the web server accepts an incoming request, sets up a WSGI dictionary which then is
 passed to the application server. There the HTTP headers and the payload is created and immediately
 afterwards the request is finished and flushed to the client. This processing typically requires
@@ -50,8 +52,10 @@ makes the project dependent on another infrastructure and thus harder to maintai
 to run two concurrent frameworks can be quite embarrassing during application development,
 specially while debugging code.
 
+
 uWSGI
 =====
+
 While searching for a simpler solution, I found out that `uWSGI offers websockets`_ right out of
 the box. With Redis_ as a message queue, and a few lines of Python code, one can bidirectionally
 communicate with any WSGI based framework, for instance **Django**. Of course, here it also is
@@ -74,6 +78,7 @@ This approach has some advantages:
 
 Using Redis as a message queue
 ==============================
+
 One might argue that all this is not as simple, since an additional service – the Redis data server
 – must run side by side with Django. Websockets are bidirectional but their normal use case is to
 trigger server initiated events on the client. Although the other direction is possible, it can
@@ -88,6 +93,17 @@ Productive webservers require some kind of session store anyway. This can be a m
 Redis data server. Therefore, such a service must run anyway and if we can choose between one
 of them, we shall use one with integrated message queuing support. When using Redis for caching and
 as a session store, we practically get the message queue for free.
+
+
+Scalability
+-----------
+
+One of the nice features of Redis is its infinite scalability. If one Redis server can't handle its
+workload, just connect it with another one and all events and messages are mirrored across this
+network. Since **django-websocket-redis** can be deployed multiple times and as self-contained
+Django applications, this configuration can scale infinitely, ypu just have to interconnect the
+Redis servers to each other.
+
 
 .. _NodeJS: http://nodejs.org/
 .. _socket.io: http://socket.io/
