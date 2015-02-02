@@ -46,6 +46,7 @@ can't start a Django server thread for each of these connections.
 Build status
 ------------
 [![Build Status](https://travis-ci.org/jrief/django-websocket-redis.png?branch=master)](https://travis-ci.org/jrief/django-websocket-redis)
+[![Downloads](http://img.shields.io/pypi/dm/django-websocket-redis.svg?style=flat-square)](https://pypi.python.org/pypi/django-websocket-redis/)
 
 Questions
 ---------
