@@ -48,4 +48,5 @@ setup(
         'wsaccel': ['wsaccel>=0.6.2'],
         'django-redis-sessions': ['django-redis-sessions>=0.4.0'],
     },
+    zip_safe=False,
 )

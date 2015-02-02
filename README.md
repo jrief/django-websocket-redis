@@ -29,12 +29,19 @@ Features
 * Full control over this seperate main loop during development, so **Django** can be started as usual with
   ``./manage.py runserver``.
 * No dependency to any other asynchronous event driven framework, such as Tornado, Twisted or
-  Node.js.
-* Normal Django requests communicate with this seperate main loop through **Redis**, which by the way is a good
+  Socket.io/Node.js.
+* Normal Django requests communicate with this seperate main loop through **Redis** which, by the way is a good
   replacement for memcached.
 * Optionally persiting messages, allowing server reboots and client reconnections.
 
-If unsure, if this proposed architecture is the correct approach on how to integrate websockets with Django, then please read Roberto De Ioris article about [Offloading Websockets and Server-Sent Events AKA “Combine them with Django safely”](http://uwsgi-docs.readthedocs.org/en/latest/articles/OffloadingWebsocketsAndSSE.html).
+If unsure, if this proposed architecture is the correct approach on how to integrate Websockets with Django, then
+please read Roberto De Ioris article about
+[Offloading Websockets and Server-Sent Events AKA “Combine them with Django safely”](http://uwsgi-docs.readthedocs.org/en/latest/articles/OffloadingWebsocketsAndSSE.html).
+
+Please also consider, that whichever alternative technology you use, you always need a message queue,
+so that the Django application can “talk” to the browser. This is because the only link between the browser and
+the server is through the Websocket and thus, by definition a long living connection. For scalability reasons you
+can't start a Django server thread for each of these connections.
 
 Build status
 ------------
@@ -46,6 +53,6 @@ Please use the issue tracker to ask questions.
 
 License
 -------
-Copyright &copy; 2014 Jacob Rief.
+Copyright &copy; 2015 Jacob Rief.
 
 MIT licensed.
