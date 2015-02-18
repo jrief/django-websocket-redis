@@ -99,11 +99,14 @@ Scalability
 -----------
 
 One of the nice features of Redis is its infinite scalability. If one Redis server can't handle its
-workload, just connect it with another one and all events and messages are mirrored across this
+workload, interconnect it with another one and all events and messages are mirrored across this
 network. Since **django-websocket-redis** can be deployed multiple times and as self-contained
-Django applications, this configuration can scale infinitely, ypu just have to interconnect the
-Redis servers to each other.
+Django applications, this configuration can scale infinitely, just interconnect the Redis servers
+to each other.
 
+On the main entry point of your site, add a loadbalancer capable of proxying the websocket protocol.
+This can be any OSI level 4 loadbalancer such as the `Linux Virtual Server`_ project, or if you
+prefer OSI level 7, the excellent HAProxy_.
 
 .. _NodeJS: http://nodejs.org/
 .. _socket.io: http://socket.io/
@@ -116,3 +119,5 @@ Redis servers to each other.
 .. _gevent: http://www.gevent.org/
 .. _greenlet: http://greenlet.readthedocs.org/
 .. |websocket-nodejs| image:: _static/websocket-nodejs.png
+.. _Linux Virtual Server: http://www.linuxvirtualserver.org/
+.. _HAProxy: http://blog.haproxy.com/2012/11/07/websockets-load-balancing-with-haproxy/
