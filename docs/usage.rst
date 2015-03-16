@@ -113,6 +113,7 @@ message to all clients listening on the named facility, referred here as ``fooba
 .. code-block:: python
 
 	from ws4redis.publisher import RedisPublisher
+	from ws4redis.redis_store import RedisMessage
 	
 	redis_publisher = RedisPublisher(facility='foobar', broadcast=True)
 	message = RedisMessage('Hello World')
