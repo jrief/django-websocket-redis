@@ -91,7 +91,8 @@ class RedisStore(object):
         published, also be persisted in the Redis datastore. If unset, it defaults to the
         configuration settings ``WS4REDIS_EXPIRE``.
         """
-        expire = expire is None and self._expire or expire
+        if expire is None:
+            expire = self._expire
         if not isinstance(message, RedisMessage):
             raise ValueError('message object is not of type RedisMessage')
         for channel in self._publishers:
