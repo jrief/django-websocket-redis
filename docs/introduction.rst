@@ -12,7 +12,7 @@ This however produces a lot of traffic, and depending on the granularity of the 
 it is not a viable solution for real time events such as chat applications or browser based
 multiplayer games.
 
-Web application written in Python usually use WSGI as the communication protocol between the
+Web application written in Python usually use WSGI as the communication layer between the
 webserver and themselves. WSGI is a stateless protocol which defines how to handle requests and
 making responses in a simple way abstracted from the HTTP protocol, but by design it does not
 support non-blocking requests.
@@ -69,8 +69,8 @@ This approach has some advantages:
 * The asynchronous I/O loop handling websockets can run
 	* inside Django with ``./manage.py runserver``, giving full debugging control.
 	* as a stand alone HTTP server, using uWSGI.
-	* using NGiNX as proxy in two decoupled loops, one for WSGI and one for websocket HTTP in front
-	  of two separate uWSGI workers.
+	* using NGiNX or Apache (>= 2.4) as proxy in two decoupled loops, one for WSGI and one for
+	  websocket HTTP in front of two separate uWSGI workers.
 * The whole Django API is available in this loop, provided that no blocking calls are made.
   Therefore the websocket code can access the Django configuration, the user and the session cache,
   etc.
@@ -84,9 +84,9 @@ One might argue that all this is not as simple, since an additional service – 
 trigger server initiated events on the client. Although the other direction is possible, it can
 be handled much easier using Ajax – adding an additional TCP/IP handshake.
 
-Here, the only “stay in touch with the client” is the file handle attached to the websocket.
+Here, the only “stay in touch with the client” is the file descriptor attached to the websocket.
 And since we speak about thousands of open connections, the footprint in terms of memory and CPU
-resources must be brought down to a minimum. In this implementation, only one single file descriptor
+resources must be brought down to a minimum. In this implementation, only one open file handle
 is required for each open websocket connection.
 
 Productive webservers require some kind of session store anyway. This can be a memcached_ or a

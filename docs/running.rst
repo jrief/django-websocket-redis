@@ -8,8 +8,10 @@ Running WebSocket for Redis
 main loop, which does nothing else than keeping the WebSocket alive and dispatching requests
 from **Redis** to the configured WebSockets and vice versa.
 
+
 Django with WebSockets for Redis in development mode
 ====================================================
+
 With **WebSockets for Redis**, a Django application has immediate access to code written for
 WebSockets. Make sure, that Redis is up and accepts connections.
 
@@ -40,8 +42,10 @@ even if there is no payload to be sent. In development mode, the “WebSocket”
 these stay alive packages, because normally there is no proxy or firewall between the server and the
 client which could drop the connection. This could be easily implemented, though.
 
+
 Django with WebSockets for Redis as a stand alone uWSGI server
 ==============================================================
+
 In this configuration the **uWSGI** server owns the main loop. To distinguish WebSockets from
 normals requests, modify the Python starter module ``wsgi.py`` to
 
@@ -77,8 +81,10 @@ requests. Adding ``--gevent-monkey-patch`` to the command line may help here, bu
 instance requires to monkey patch its blocking calls with **gevent** using the psycogreen_ library.
 Moreover, only one CPU core is then used, and static files must be handled by another webserver.
 
+
 Serving static files
 --------------------
+
 In this configuration, you are not able to serve static files, because Django does not run in debug
 mode and uWSGI does not know how to server your deployed static files. Therefore in ``urls.py`` add
 ``staticfiles_urlpatterns`` to your urlpatterns:
@@ -99,6 +105,7 @@ mode and uWSGI does not know how to server your deployed static files. Therefore
 
 Django with WebSockets for Redis behind NGiNX using uWSGI
 =========================================================
+
 This is the most scalable solution. Here two instances of a uWSGI server are spawned, one to handle
 normal HTTP requests for Django and one to handle WebSocket requests.
 
@@ -167,8 +174,38 @@ another extra routing path.
 .. _psycogreen: https://bitbucket.org/dvarrazzo/psycogreen/
 
 
+Django with WebSockets for Redis behind Apache-2.4 using uWSGI
+==============================================================
+
+Mike Martinka <mike.martinka@ntrepidcorp.com> reported this configuration, which allows to run
+**ws4redis** with Apache-2.4 and later.
+
+Configuratin for uWSGI:
+
+.. code-block:: ini
+
+	[uwsgi]
+	env=DJANGO_SETTINGS_MODULE=<app>.settings
+	module=<module>:application
+	master=True
+	http-socket=127.0.0.1:9090
+	http-websockets=true
+	gevent=1000
+	workers=2
+	plugin=python
+
+
+Configuration section for Apache:
+
+	<VirtualHost IPADDR:80>
+	    ProxyPass        /ws/   ws://127.0.0.1:9090/
+	    ProxyPassReverse /ws/   ws://127.0.0.1:9090/
+	</VirtualHost>
+
+
 Django with WebSockets for Redis as a stand alone uWSGI server in emperor mode
 ==============================================================================
+
 In this configuration the **uWSGI** server owns both main loops. To distinguish WebSockets from
 normal requests, use uWSGI's `internal routing`_ capabilities.
 
