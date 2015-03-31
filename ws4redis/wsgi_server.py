@@ -68,7 +68,10 @@ class WebsocketWSGIServer(object):
         try:
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
-            self.process_request(request)
+            if callable(private_settings.WS4REDIS_PROCESS_REQUEST):
+                private_settings.WS4REDIS_PROCESS_REQUEST(request)
+            else:
+                self.process_request(request)
             channels, echo_message = self.process_subscriptions(request)
             if callable(private_settings.WS4REDIS_ALLOWED_CHANNELS):
                 channels = list(private_settings.WS4REDIS_ALLOWED_CHANNELS(request, channels))
