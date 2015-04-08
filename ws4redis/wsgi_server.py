@@ -122,6 +122,10 @@ class WebsocketWSGIServer(object):
             response = http.HttpResponse()
         if websocket:
             websocket.close(code=1001, message='Websocket Closed')
+        #Kai Peng - We need to close Redis Subscriptions to prevent unbound memory consumption upon websocket closing
+        if subscriber:
+            subscriber.unsubscribe_pubsub_channels()
+        #Kai Peng
         if hasattr(start_response, 'im_self') and not start_response.im_self.headers_sent:
             logger.warning('Staring late response on websocket')
             status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
