@@ -120,8 +120,10 @@ class WebsocketWSGIServer(object):
             response = http.HttpResponseServerError(content=excpt)
         else:
             response = http.HttpResponse()
-        if websocket:
-            websocket.close(code=1001, message='Websocket Closed')
+        finally:
+            subscriber.release()
+            if websocket:
+                websocket.close(code=1001, message='Websocket Closed')
         if hasattr(start_response, 'im_self') and not start_response.im_self.headers_sent:
             logger.warning('Staring late response on websocket')
             status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
