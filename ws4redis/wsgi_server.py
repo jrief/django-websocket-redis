@@ -124,10 +124,10 @@ class WebsocketWSGIServer(object):
             subscriber.release()
             if websocket:
                 websocket.close(code=1001, message='Websocket Closed')
-        if hasattr(start_response, 'im_self') and not start_response.im_self.headers_sent:
-            logger.warning('Staring late response on websocket')
-            status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
-            status = '{0} {1}'.format(response.status_code, status_text)
-            start_response(force_str(status), response._headers.values())
-        logger.info('Finish long living response with status code: '.format(response.status_code))
+            else:
+                logger.warning('Starting late response on websocket')
+                status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
+                status = '{0} {1}'.format(response.status_code, status_text)
+                start_response(force_str(status), response._headers.values())
+                logger.info('Finish non-websocket response with status code: {}'.format(response.status_code))
         return response
