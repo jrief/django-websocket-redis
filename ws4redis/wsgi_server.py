@@ -104,19 +104,19 @@ class WebsocketWSGIServer(object):
                 if private_settings.WS4REDIS_HEARTBEAT:
                     websocket.send(private_settings.WS4REDIS_HEARTBEAT)
         except WebSocketError as excpt:
-            logger.warning('WebSocketError: ', exc_info=sys.exc_info())
+            logger.warning('WebSocketError: {}'.format(excpt), exc_info=sys.exc_info())
             response = http.HttpResponse(status=1001, content='Websocket Closed')
         except UpgradeRequiredError as excpt:
             logger.info('Websocket upgrade required')
             response = http.HttpResponseBadRequest(status=426, content=excpt)
         except HandshakeError as excpt:
-            logger.warning('HandshakeError: ', exc_info=sys.exc_info())
+            logger.warning('HandshakeError: {}'.format(excpt), exc_info=sys.exc_info())
             response = http.HttpResponseBadRequest(content=excpt)
         except PermissionDenied as excpt:
-            logger.warning('PermissionDenied: ', exc_info=sys.exc_info())
+            logger.warning('PermissionDenied: {}'.format(excpt), exc_info=sys.exc_info())
             response = http.HttpResponseForbidden(content=excpt)
         except Exception as excpt:
-            logger.error('Other Exception: ', exc_info=sys.exc_info())
+            logger.error('Other Exception: {}'.format(excpt), exc_info=sys.exc_info())
             response = http.HttpResponseServerError(content=excpt)
         else:
             response = http.HttpResponse()
