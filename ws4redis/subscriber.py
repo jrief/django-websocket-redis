@@ -64,3 +64,13 @@ class RedisSubscriber(RedisStore):
         on the message queue.
         """
         return self._subscription.connection and self._subscription.connection._sock.fileno()
+
+    def release(self):
+        """
+        New implementation to free up Redis subscriptions when websockets close. This prevents
+        memory sap when Redis Output Buffer and Output Lists build when websockets are abandoned.
+        """
+        if self._subscription and self._subscription.subscribed:
+            self._subscription.unsubscribe()
+            self._subscription.reset()
+
