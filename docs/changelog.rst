@@ -3,6 +3,12 @@
 ===============
 Release History
 ===============
+
+0.4.4
+-----
+* Added method ``release()`` to ``RedisSubscriber`` and calling this method each time a Websocket
+  closes, for whatever reason. This should avoid some reported memory issues.
+
 0.4.3
 -----
 * Fixed: **django-websocket-redis** failed to initialize under some circumstances in combination

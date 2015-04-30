@@ -11,7 +11,8 @@ Websockets for Django using Redis as message queue
 --------------------------------------------------
 This module implements websockets on top of Django without requiring any additional framework. For
 messaging it uses the [Redis](http://redis.io/) datastore and in a production environment, it is
-intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiNX](http://nginx.com/).
+intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiNX](http://nginx.com/)
+or [Apache](http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html) version 2.4.5 or later.
 
 New in 0.4.2
 ------------
