@@ -1,1 +1,72 @@
-[{"pk": 1, "model": "contenttypes.contenttype", "fields": {"model": "permission", "name": "permission", "app_label": "auth"}}, {"pk": 2, "model": "contenttypes.contenttype", "fields": {"model": "group", "name": "group", "app_label": "auth"}}, {"pk": 3, "model": "contenttypes.contenttype", "fields": {"model": "user", "name": "user", "app_label": "auth"}}, {"pk": 4, "model": "contenttypes.contenttype", "fields": {"model": "contenttype", "name": "content type", "app_label": "contenttypes"}}, {"pk": 5, "model": "contenttypes.contenttype", "fields": {"model": "session", "name": "session", "app_label": "sessions"}}, {"pk": 6, "model": "contenttypes.contenttype", "fields": {"model": "logentry", "name": "log entry", "app_label": "admin"}}, {"pk": 1, "model": "auth.permission", "fields": {"codename": "add_permission", "name": "Can add permission", "content_type": 1}}, {"pk": 2, "model": "auth.permission", "fields": {"codename": "change_permission", "name": "Can change permission", "content_type": 1}}, {"pk": 3, "model": "auth.permission", "fields": {"codename": "delete_permission", "name": "Can delete permission", "content_type": 1}}, {"pk": 4, "model": "auth.permission", "fields": {"codename": "add_group", "name": "Can add group", "content_type": 2}}, {"pk": 5, "model": "auth.permission", "fields": {"codename": "change_group", "name": "Can change group", "content_type": 2}}, {"pk": 6, "model": "auth.permission", "fields": {"codename": "delete_group", "name": "Can delete group", "content_type": 2}}, {"pk": 7, "model": "auth.permission", "fields": {"codename": "add_user", "name": "Can add user", "content_type": 3}}, {"pk": 8, "model": "auth.permission", "fields": {"codename": "change_user", "name": "Can change user", "content_type": 3}}, {"pk": 9, "model": "auth.permission", "fields": {"codename": "delete_user", "name": "Can delete user", "content_type": 3}}, {"pk": 10, "model": "auth.permission", "fields": {"codename": "add_contenttype", "name": "Can add content type", "content_type": 4}}, {"pk": 11, "model": "auth.permission", "fields": {"codename": "change_contenttype", "name": "Can change content type", "content_type": 4}}, {"pk": 12, "model": "auth.permission", "fields": {"codename": "delete_contenttype", "name": "Can delete content type", "content_type": 4}}, {"pk": 13, "model": "auth.permission", "fields": {"codename": "add_session", "name": "Can add session", "content_type": 5}}, {"pk": 14, "model": "auth.permission", "fields": {"codename": "change_session", "name": "Can change session", "content_type": 5}}, {"pk": 15, "model": "auth.permission", "fields": {"codename": "delete_session", "name": "Can delete session", "content_type": 5}}, {"pk": 16, "model": "auth.permission", "fields": {"codename": "add_logentry", "name": "Can add log entry", "content_type": 6}}, {"pk": 17, "model": "auth.permission", "fields": {"codename": "change_logentry", "name": "Can change log entry", "content_type": 6}}, {"pk": 18, "model": "auth.permission", "fields": {"codename": "delete_logentry", "name": "Can delete log entry", "content_type": 6}}, {"pk": 1, "model": "auth.group", "fields": {"name": "chatters", "permissions": []}}, {"pk": 1, "model": "auth.user", "fields": {"username": "admin", "first_name": "", "last_name": "", "is_active": true, "is_superuser": true, "is_staff": true, "last_login": "2014-04-03T10:37:34.627", "groups": [], "user_permissions": [], "password": "pbkdf2_sha256$12000$bVyKc3E8sPrU$WlsVVnDHiQuRA7zt6gFgso8qpSBqWPIu9qoHfg+DDjM=", "email": "", "date_joined": "2013-12-19T00:41:51.672"}}, {"pk": 2, "model": "auth.user", "fields": {"username": "john", "first_name": "John", "last_name": "Doe", "is_active": true, "is_superuser": false, "is_staff": true, "last_login": "2014-04-02T22:30:17", "groups": [1], "user_permissions": [], "password": "pbkdf2_sha256$12000$OUmooMDiDjE5$DGXOivQnZJ1ckeU4tZboMTjNGnSBHU1X73/HlI3tZqA=", "email": "", "date_joined": "2014-04-01T18:35:10"}}, {"pk": 3, "model": "auth.user", "fields": {"username": "mary", "first_name": "Mary", "last_name": "Lou", "is_active": true, "is_superuser": false, "is_staff": true, "last_login": "2014-04-02T22:31:28", "groups": [1], "user_permissions": [], "password": "pbkdf2_sha256$12000$V9B8FASp7Ryb$Hzd8Wa/9F9ugeRF3obS2tEoklgMsofRvITLlipGScdg=", "email": "", "date_joined": "2014-04-01T18:35:23"}}]
+[
+{
+    "fields": {
+        "name": "chatusers",
+        "permissions": []
+    },
+    "model": "auth.group",
+    "pk": 1
+},
+{
+    "fields": {
+        "username": "admin",
+        "first_name": "",
+        "last_name": "",
+        "is_active": true,
+        "is_superuser": true,
+        "is_staff": true,
+        "last_login": "2014-12-03T15:28:21.284",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$12000$WXI1VzpbuCG3$ptWU4133uJg5E+/EEqKfO1NsGnBh5MSA3QWk6eYCdD8=",
+        "email": "",
+        "date_joined": "2014-12-03T15:27:44.506"
+    },
+    "model": "auth.user",
+    "pk": 1
+},
+{
+    "fields": {
+        "username": "john",
+        "first_name": "John",
+        "last_name": "Doe",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2014-12-03T15:37:52.717",
+        "groups": [
+            [
+                "chatusers"
+            ]
+        ],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$12000$An09CtL2zmjl$QCiPQnPLCo5jNrDZHbNuA9JRtL32dXjlLvO3+f/NVCw=",
+        "email": "",
+        "date_joined": "2014-12-03T15:28:41"
+    },
+    "model": "auth.user",
+    "pk": 2
+},
+{
+    "fields": {
+        "username": "mary",
+        "first_name": "Mary",
+        "last_name": "Lou",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-01-09T16:43:11.702",
+        "groups": [
+            [
+                "chatusers"
+            ]
+        ],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$12000$x1tCLmCUppNj$jQdgXPaTAj75t2I4BaMBPml71BtTJi79VpobnFcs8pk=",
+        "email": "",
+        "date_joined": "2014-12-03T15:29:04"
+    },
+    "model": "auth.user",
+    "pk": 3
+}
+]
