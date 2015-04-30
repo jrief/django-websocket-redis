@@ -62,7 +62,10 @@ class WebsocketWSGIServer(object):
         return agreed_channels, echo_message
 
     def __call__(self, environ, start_response):
-        """ Hijack the main loop from the original thread and listen on events on Redis and Websockets"""
+        """
+        Hijack the main loop from the original thread and listen on events on the Redis
+        and the Websocket filedescriptors.
+        """
         websocket = None
         subscriber = self.Subscriber(self._redis_connection)
         try:
