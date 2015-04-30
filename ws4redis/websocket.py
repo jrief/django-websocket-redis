@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # This code was generously pilfered from https://bitbucket.org/Jeffrey/gevent-websocket
 # written by Jeffrey Gelens (http://noppo.pro/) and licensed under the Apache License, Version 2.0
-from __future__ import unicode_literals
 import six
 import struct
 from socket import error as socket_error
