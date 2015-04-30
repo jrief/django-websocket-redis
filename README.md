@@ -14,13 +14,10 @@ messaging it uses the [Redis](http://redis.io/) datastore and in a production en
 intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiNX](http://nginx.com/)
 or [Apache](http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html) version 2.4.5 or later.
 
-New in 0.4.2
+New in 0.4.4
 ------------
-* Message echoing can be switched “on” and “off” according to the user needs. Before it was “on” by
-  default.
-* Many changes to become compatible with Python3; there are still minor issues to solve.
-* The message string to be passed and stored to and from the websocket hase been converted into
-  a class ``RedisMessage`` for type saftey.
+* Added method ``release()`` to ``RedisSubscriber`` and calling this method each time a Websocket
+  closes, for whatever reason. This should avoid some reported memory issues.
 
 Features
 --------

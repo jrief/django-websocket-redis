@@ -43,10 +43,10 @@ any database synchronization.
 Dependencies
 ------------
 * Django_ >=1.5
-* `Python client for Redis`_
-* uWSGI_ >= 1.9.20
-* gevent_ >=1.0
-* greenlet_ >=0.4.1
+* redis >=2.10.3 (a `Python client for Redis`_)
+* uWSGI_ >=1.9.20
+* gevent_ >=1.0.1
+* greenlet_ >=0.4.5
 * optional, but recommended: wsaccel_ >=0.6
 
 
