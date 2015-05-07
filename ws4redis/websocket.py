@@ -305,7 +305,7 @@ class Header(object):
     def mask_payload(self, payload):
         payload = bytearray(payload)
         mask = bytearray(self.mask)
-        for i in xrange(self.length):
+        for i in range(self.length):
             payload[i] ^= mask[i % 4]
         return str(payload)
 
