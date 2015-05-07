@@ -2,6 +2,7 @@
 import sys
 from redis import StrictRedis
 import django
+import collections
 if django.VERSION[:2] >= (1, 7):
     django.setup()
 from django.conf import settings
@@ -71,12 +72,12 @@ class WebsocketWSGIServer(object):
         try:
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
-            if callable(private_settings.WS4REDIS_PROCESS_REQUEST):
+            if isinstance(private_settings.WS4REDIS_PROCESS_REQUEST, collections.Callable):
                 private_settings.WS4REDIS_PROCESS_REQUEST(request)
             else:
                 self.process_request(request)
             channels, echo_message = self.process_subscriptions(request)
-            if callable(private_settings.WS4REDIS_ALLOWED_CHANNELS):
+            if isinstance(private_settings.WS4REDIS_ALLOWED_CHANNELS, collections.Callable):
                 channels = list(private_settings.WS4REDIS_ALLOWED_CHANNELS(request, channels))
             websocket = self.upgrade_websocket(environ, start_response)
             logger.debug('Subscribed to channels: {0}'.format(', '.join(channels)))
