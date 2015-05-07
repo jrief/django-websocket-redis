@@ -37,7 +37,7 @@ class WebSocket(object):
         If the conversion fails, the socket will be closed.
         """
         if not bytestring:
-            return u''
+            return ''
         try:
             return bytestring.decode('utf-8')
         except UnicodeDecodeError:
