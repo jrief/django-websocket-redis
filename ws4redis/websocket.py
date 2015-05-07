@@ -91,7 +91,7 @@ class WebSocket(object):
             return
         if len(payload) < 2:
             raise WebSocketError('Invalid close frame: {0} {1}'.format(header, payload))
-        code = struct.unpack('!H', str(payload[:2]))[0]
+        code = struct.unpack('!H', payload[:2].encode('utf-8'))[0]
         payload = payload[2:]
         if payload:
             validator = Utf8Validator()
@@ -224,7 +224,7 @@ class WebSocket(object):
             message = self._encode_bytes(message)
         elif opcode == self.OPCODE_BINARY:
             message = six.binary_type(message)
-        header = Header.encode_header(True, opcode, '', len(message), 0)
+        header = Header.encode_header(True, opcode, '', len(message), 0).encode('utf-8')
         try:
             self.stream.write(header + message)
         except socket_error:
