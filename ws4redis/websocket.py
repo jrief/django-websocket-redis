@@ -87,7 +87,7 @@ class WebSocket(object):
         :param payload: The bytestring payload associated with the close frame.
         """
         if not payload:
-            self.close(1000, None)
+            self.close(1000, '')
             return
         if len(payload) < 2:
             raise WebSocketError('Invalid close frame: {0} {1}'.format(header, payload))
