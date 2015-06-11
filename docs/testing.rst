@@ -11,23 +11,35 @@ the SQLite database
 
 .. code-block:: bash
 
-	./manage.py syncdb
-	Creating tables ...
-	...
-	Would you like to create one now? (yes/no): yes
-	Username (leave blank to use 'johndoe'):
-	...
+	# create python2 virtualenv
+	virtualenv - p /path/to/python2 /path/to/virtualenv
+
+	# activate virtualenv
+	source /path/to/virtualenv/bin/activate
+
+	# pip
+	pip install /django-websocket/redis/examples/chatserver/requirements.txt
+
+	# Django 1.7+
+	# Load test data
+	./manage.py loaddata chatserver/fixtures/data.json	# if needed
+	./manage.py makemigrations
+	./manage.py migrate
 
 and then start the server
 
 .. code-block:: bash
 
+	# start Redis Server 
+	# (or follow quickstart instructions http://redis.io/topics/quickstart)
+
+	# start Django
 	./manage.py runserver
 
 Point a browser onto http://localhost:8000/admin/, login and add additional users. Enable their
 staff status, so that they can use the admin interface to log into the testing application.
 
-With http://localhost:8000/userchat/ you can send messages to specific users, provided they are
+With http://localhost:8000/chat/ you can send messages to specific users, provided they are
 logged in. To log in as another user, use Django's admin interface.
 
 Simple Broadcasting

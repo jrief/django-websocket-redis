@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import time
 import requests
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
 from django.test import LiveServerTestCase
 from django.test.client import RequestFactory
+from django.utils.importlib import import_module
 from websocket import create_connection, WebSocketException
 from ws4redis.django_runserver import application
 from ws4redis.publisher import RedisPublisher
@@ -24,6 +26,14 @@ class WebsocketTests(LiveServerTestCase):
         self.websocket_base_url = self.live_server_url.replace('http:', 'ws:', 1) + u'/ws/' + self.facility
         self.message = RedisMessage(''.join(unichr(c) for c in range(33, 128)))
         self.factory = RequestFactory()
+        # SessionStore
+        # as used here: http://stackoverflow.com/a/7722483/1913888
+        settings.SESSION_ENGINE = 'redis_sessions.session'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self.session = store
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
 
     @classmethod
     def tearDownClass(cls):

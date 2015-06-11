@@ -2,6 +2,7 @@
 *.egg-info
 *.coverage
 sqlite.db
+db.sqlite3
 *~
 .tmp*
 build

@@ -1,5 +1,0 @@
-six
-nose
-django-nose
-websocket-client==0.13.0
-requests

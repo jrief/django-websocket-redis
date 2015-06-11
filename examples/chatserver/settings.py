@@ -1,13 +1,19 @@
 # Django settings for unit test project.
 import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
 DEBUG = True
+
+TEMPLATE_DEBUG = True
+
+ALLOWED_HOSTS = []
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'sqlite.db',
-    },
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
 
 SITE_ID = 1
@@ -49,13 +55,26 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-TIME_ZONE = 'Europe/Berlin'
+# Internationalization
+# https://docs.djangoproject.com/en/1.7/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_L10N = True
+
+USE_TZ = True
+
 
 INSTALLED_APPS = (
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.admin',
+    'django.contrib.messages',
     'django.contrib.staticfiles',
     'ws4redis',
     'chatserver',
@@ -64,10 +83,13 @@ INSTALLED_APPS = (
 # These two middleware classes must be present, if messages sent or received through a websocket
 # connection shall be delivered to an authenticated Django user.
 MIDDLEWARE_CLASSES = (
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 # This setting is required to override the Django's main loop, when running in
