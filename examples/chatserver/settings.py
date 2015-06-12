@@ -68,7 +68,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -104,7 +103,7 @@ WS4REDIS_EXPIRE = 3600
 
 WS4REDIS_HEARTBEAT = '--heartbeat--'
 
-WS4REDIS_PREFIX = 'demo'
+WS4REDIS_PREFIX = 'ws4redis'
 
 LOGGING = {
     'version': 1,

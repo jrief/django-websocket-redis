@@ -4,7 +4,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
-from django.test import LiveServerTestCase
+from django.test import LiveServerTestCase, TestCase
 from django.test.client import RequestFactory
 from django.utils.importlib import import_module
 from websocket import create_connection, WebSocketException
@@ -150,7 +150,7 @@ class WebsocketTests(LiveServerTestCase):
     def test_subscribe_session(self):
         logged_in = self.client.login(username='john', password='secret')
         self.assertTrue(logged_in, 'John is not logged in')
-        self.assertIsInstance(self.client.session, (dict, SessionStore), 'Did not receive a session key')
+        self.assertIsInstance(self.client.session, (dict, type(self.session)), 'Did not receive a session key')
         session_key = self.client.session.session_key
         self.assertGreater(len(session_key), 30, 'Session key is too short')
         request = self.factory.get('/chat/')
@@ -170,7 +170,7 @@ class WebsocketTests(LiveServerTestCase):
     def test_publish_session(self):
         logged_in = self.client.login(username='mary', password='secret')
         self.assertTrue(logged_in, 'Mary is not logged in')
-        self.assertIsInstance(self.client.session, (dict, SessionStore), 'Did not receive a session key')
+        self.assertIsInstance(self.client.session, (dict, type(self.session)), 'Did not receive a session key')
         session_key = self.client.session.session_key
         self.assertGreater(len(session_key), 30, 'Session key is too short')
         websocket_url = self.websocket_base_url + u'?publish-session'
