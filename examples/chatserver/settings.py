@@ -60,7 +60,7 @@ TEMPLATE_LOADERS = (
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Berlin'
 
 USE_I18N = True
 
@@ -103,7 +103,7 @@ WS4REDIS_EXPIRE = 3600
 
 WS4REDIS_HEARTBEAT = '--heartbeat--'
 
-WS4REDIS_PREFIX = 'ws4redis'
+WS4REDIS_PREFIX = 'demo'
 
 LOGGING = {
     'version': 1,

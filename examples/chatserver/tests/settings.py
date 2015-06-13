@@ -32,6 +32,10 @@ STATIC_ROOT = '/home/static/'
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
+SESSION_ENGINE = 'redis_sessions.session'
+
+SESSION_REDIS_PREFIX = 'session'
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
