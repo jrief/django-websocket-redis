@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import time
 import requests
 from django.conf import settings
@@ -18,6 +19,7 @@ class WebsocketTests(LiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
+        os.environ.update(DJANGO_LIVE_TEST_SERVER_ADDRESS="localhost:8000-8010,8080,9200-9300")
         super(WebsocketTests, cls).setUpClass()
         cls.server_thread.httpd.set_app(application)
 
