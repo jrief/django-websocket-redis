@@ -109,7 +109,7 @@ class WebsocketTests(LiveServerTestCase):
         request.user = User.objects.get(username='john')
         result = publisher.fetch_message(request, self.facility, 'user')
         self.assertEqual(result, self.message)
-        request.user = User.objects.get(username='mary')
+        request.user = None 
         result = publisher.fetch_message(request, self.facility, 'user')
         self.assertEqual(result, None)
 
