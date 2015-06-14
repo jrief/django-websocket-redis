@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import os
 import time
 import requests
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
-from django.test import LiveServerTestCase
+from django.test import LiveServerTestCase, TestCase
 from django.test.client import RequestFactory
+from django.utils.importlib import import_module
 from websocket import create_connection, WebSocketException
 from ws4redis.django_runserver import application
 from ws4redis.publisher import RedisPublisher
@@ -16,6 +19,7 @@ class WebsocketTests(LiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
+        os.environ.update(DJANGO_LIVE_TEST_SERVER_ADDRESS="localhost:8000-8010,8080,9200-9300")
         super(WebsocketTests, cls).setUpClass()
         cls.server_thread.httpd.set_app(application)
 
@@ -24,6 +28,14 @@ class WebsocketTests(LiveServerTestCase):
         self.websocket_base_url = self.live_server_url.replace('http:', 'ws:', 1) + u'/ws/' + self.facility
         self.message = RedisMessage(''.join(unichr(c) for c in range(33, 128)))
         self.factory = RequestFactory()
+        # SessionStore
+        # as used here: http://stackoverflow.com/a/7722483/1913888
+        settings.SESSION_ENGINE = 'redis_sessions.session'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self.session = store
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
 
     @classmethod
     def tearDownClass(cls):
@@ -97,7 +109,7 @@ class WebsocketTests(LiveServerTestCase):
         request.user = User.objects.get(username='john')
         result = publisher.fetch_message(request, self.facility, 'user')
         self.assertEqual(result, self.message)
-        request.user = User.objects.get(username='mary')
+        request.user = None 
         result = publisher.fetch_message(request, self.facility, 'user')
         self.assertEqual(result, None)
 
@@ -140,7 +152,7 @@ class WebsocketTests(LiveServerTestCase):
     def test_subscribe_session(self):
         logged_in = self.client.login(username='john', password='secret')
         self.assertTrue(logged_in, 'John is not logged in')
-        self.assertIsInstance(self.client.session, (dict, SessionStore), 'Did not receive a session key')
+        self.assertIsInstance(self.client.session, (dict, type(self.session)), 'Did not receive a session key')
         session_key = self.client.session.session_key
         self.assertGreater(len(session_key), 30, 'Session key is too short')
         request = self.factory.get('/chat/')
@@ -160,7 +172,7 @@ class WebsocketTests(LiveServerTestCase):
     def test_publish_session(self):
         logged_in = self.client.login(username='mary', password='secret')
         self.assertTrue(logged_in, 'Mary is not logged in')
-        self.assertIsInstance(self.client.session, (dict, SessionStore), 'Did not receive a session key')
+        self.assertIsInstance(self.client.session, (dict, type(self.session)), 'Did not receive a session key')
         session_key = self.client.session.session_key
         self.assertGreater(len(session_key), 30, 'Session key is too short')
         websocket_url = self.websocket_base_url + u'?publish-session'

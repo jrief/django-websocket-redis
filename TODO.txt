@@ -6,3 +6,6 @@
 * Use >100 greenlets when running the unit test. This shall take no longer than 1 second.
 
 * Add prototype methods such as select() to base class, which raise a NotImplementedError.
+
+* Fix broken tests with examples/chatserver
+    - 7/12 tests passing
