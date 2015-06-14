@@ -4,6 +4,13 @@
 Release History
 ===============
 
+0.4.5 (dev)
+-----------
+* created 1 requirements file under ``examples/chatserver/requirements.txt``
+* renamed chatclient.py to test_chatclient.py - for django-nose testrunner
+* migrated example project to django 1.7
+* edited ``docs/testing.rst`` to show new changes for using example project
+
 0.4.4
 -----
 * Added method ``release()`` to ``RedisSubscriber`` and calling this method each time a Websocket
