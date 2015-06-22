@@ -9,11 +9,18 @@ from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
 from django.core.exceptions import PermissionDenied
 from django import http
 from django.utils.encoding import force_str
-from django.utils.importlib import import_module
 from django.utils.functional import SimpleLazyObject
 from ws4redis import settings as private_settings
 from ws4redis.redis_store import RedisMessage
 from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
+
+try:
+    # django >= 1.8 && python >= 2.7
+    # https://docs.djangoproject.com/en/1.8/releases/1.7/#django-utils-dictconfig-django-utils-importlib
+    from importlib import import_module
+except ImportError:
+    # RemovedInDjango19Warning: django.utils.importlib will be removed in Django 1.9.
+    from django.utils.importlib import import_module
 
 
 class WebsocketWSGIServer(object):
