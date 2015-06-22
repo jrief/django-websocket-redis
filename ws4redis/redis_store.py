@@ -66,6 +66,7 @@ class RedisMessage(six.binary_type):
     def __new__(cls, value):
         if isinstance(value, six.string_types):
             if value != settings.WS4REDIS_HEARTBEAT:
+                value = value.encode('utf-8')
                 return six.binary_type.__new__(cls, value)
         elif isinstance(value, list):
             if len(value) >= 2 and value[0] == 'message':
@@ -122,7 +123,7 @@ class RedisStore(object):
             warnings.warn('Wrap groups=True into a list or tuple using SELF', DeprecationWarning)
             channels.extend('{prefix}group:{0}:{facility}'.format(g, prefix=prefix, facility=facility)
                             for g in request.session.get('ws4redis:memberof', []))
-        elif isinstance(groups, basestring):
+        elif isinstance(groups, str):
             # message is delivered to the named group
             warnings.warn('Wrap a single group into a list or tuple', DeprecationWarning)
             channels.append('{prefix}group:{0}:{facility}'.format(groups, prefix=prefix, facility=facility))
@@ -138,7 +139,7 @@ class RedisStore(object):
             # message is delivered to browser instances of the currently logged in user
             warnings.warn('Wrap users=True into a list or tuple using SELF', DeprecationWarning)
             channels.append('{prefix}user:{0}:{facility}'.format(request.user.get_username(), prefix=prefix, facility=facility))
-        elif isinstance(users, basestring):
+        elif isinstance(users, str):
             # message is delivered to the named user
             warnings.warn('Wrap a single user into a list or tuple', DeprecationWarning)
             channels.append('{prefix}user:{0}:{facility}'.format(users, prefix=prefix, facility=facility))
@@ -154,7 +155,7 @@ class RedisStore(object):
             # message is delivered to browser instances owning the current session
             warnings.warn('Wrap a single session key into a list or tuple using SELF', DeprecationWarning)
             channels.append('{prefix}session:{0}:{facility}'.format(request.session.session_key, prefix=prefix, facility=facility))
-        elif isinstance(sessions, basestring):
+        elif isinstance(sessions, str):
             # message is delivered to the named user
             warnings.warn('Wrap a single session key into a list or tuple', DeprecationWarning)
             channels.append('{prefix}session:{0}:{facility}'.format(sessions, prefix=prefix, facility=facility))

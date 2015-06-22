@@ -37,7 +37,7 @@ class WebSocket(object):
         If the conversion fails, the socket will be closed.
         """
         if not bytestring:
-            return u''
+            return ''
         try:
             return bytestring.decode('utf-8')
         except UnicodeDecodeError:
@@ -87,11 +87,11 @@ class WebSocket(object):
         :param payload: The bytestring payload associated with the close frame.
         """
         if not payload:
-            self.close(1000, None)
+            self.close(1000, '')
             return
         if len(payload) < 2:
             raise WebSocketError('Invalid close frame: {0} {1}'.format(header, payload))
-        code = struct.unpack('!H', str(payload[:2]))[0]
+        code = struct.unpack('!H', payload[:2].encode('utf-8'))[0]
         payload = payload[2:]
         if payload:
             validator = Utf8Validator()
@@ -224,7 +224,7 @@ class WebSocket(object):
             message = self._encode_bytes(message)
         elif opcode == self.OPCODE_BINARY:
             message = six.binary_type(message)
-        header = Header.encode_header(True, opcode, '', len(message), 0)
+        header = Header.encode_header(True, opcode, '', len(message), 0).encode('utf-8')
         try:
             self.stream.write(header + message)
         except socket_error:
@@ -305,7 +305,7 @@ class Header(object):
     def mask_payload(self, payload):
         payload = bytearray(payload)
         mask = bytearray(self.mask)
-        for i in xrange(self.length):
+        for i in range(self.length):
             payload[i] ^= mask[i % 4]
         return str(payload)
 

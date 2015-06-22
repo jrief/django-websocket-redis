@@ -48,5 +48,8 @@ setup(
         'wsaccel': ['wsaccel>=0.6.2'],
         'django-redis-sessions': ['django-redis-sessions>=0.4.0'],
     },
+    dependency_links = [
+        'git+https://github.com/gevent/gevent.git@1.0.2#egg=gevent-1.0.2',
+    ],
     zip_safe=False,
 )

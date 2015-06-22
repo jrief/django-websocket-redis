@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 # run this test against an instance of uwsgi for websockets
+from __future__ import print_function
 from nose import tools
 import gevent
 from gevent import monkey
@@ -12,7 +13,7 @@ def test_simple():
         ws = create_connection(closure['websocket_url'])
         assert ws.connected
         result = ws.recv()
-        print '+',
+        print('+', end='')
         tools.eq_(result, 'Hello, World')
         ws.close()
         tools.eq_(ws.connected, False)

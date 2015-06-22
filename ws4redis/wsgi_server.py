@@ -2,6 +2,7 @@
 import sys
 from redis import StrictRedis
 import django
+import collections
 if django.VERSION[:2] >= (1, 7):
     django.setup()
 from django.conf import settings
@@ -78,12 +79,12 @@ class WebsocketWSGIServer(object):
         try:
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
-            if callable(private_settings.WS4REDIS_PROCESS_REQUEST):
+            if isinstance(private_settings.WS4REDIS_PROCESS_REQUEST, collections.Callable):
                 private_settings.WS4REDIS_PROCESS_REQUEST(request)
             else:
                 self.process_request(request)
             channels, echo_message = self.process_subscriptions(request)
-            if callable(private_settings.WS4REDIS_ALLOWED_CHANNELS):
+            if isinstance(private_settings.WS4REDIS_ALLOWED_CHANNELS, collections.Callable):
                 channels = list(private_settings.WS4REDIS_ALLOWED_CHANNELS(request, channels))
             websocket = self.upgrade_websocket(environ, start_response)
             logger.debug('Subscribed to channels: {0}'.format(', '.join(channels)))
@@ -138,6 +139,6 @@ class WebsocketWSGIServer(object):
                 logger.warning('Starting late response on websocket')
                 status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
                 status = '{0} {1}'.format(response.status_code, status_text)
-                start_response(force_str(status), response._headers.values())
+                start_response(force_str(status), list(response._headers.values()))
                 logger.info('Finish non-websocket response with status code: {}'.format(response.status_code))
         return response
