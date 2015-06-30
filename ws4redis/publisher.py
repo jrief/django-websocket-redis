@@ -45,6 +45,6 @@ class RedisPublisher(RedisStore):
         if audience in ('broadcast', 'any',):
             channels.append('{prefix}broadcast:{facility}'.format(prefix=prefix, facility=facility))
         for channel in channels:
-            message = self._connection.get(channel)
+            message = self.get_persisted_message(channel)
             if message:
                 return message
