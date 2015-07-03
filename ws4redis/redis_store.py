@@ -105,7 +105,7 @@ class RedisStore(object):
         return settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
 
     def _get_message_channels(self, request=None, facility='{facility}', broadcast=False,
-                              groups=[], users=[], sessions=[]):
+                              groups=(), users=(), sessions=()):
         prefix = self.get_prefix()
         channels = []
         if broadcast is True:
