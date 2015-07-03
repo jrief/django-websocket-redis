@@ -56,7 +56,7 @@ class RedisSubscriber(RedisStore):
         pass
 
     def send_persited_messages(self, websocket):
-        warnings.warn('Send_persisted_messages has been replaced by send_persistend messages', DeprecationWarning)
+        warnings.warn('send_persited_messages has been replaced by send_persisted messages', DeprecationWarning)
         return self.send_persisted_messages(websocket)
 
     def send_persisted_messages(self, websocket, request):
@@ -66,6 +66,8 @@ class RedisSubscriber(RedisStore):
         """
         for channel in self._subscription.channels:
             self.channel_connected(channel, request)
+
+            self._connection.rpush(channel, '{0}:{1}'.format(0, 'ws4redis_internal'))
             while True:
                 message = self.get_persisted_message(channel)
                 if message:

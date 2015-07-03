@@ -118,9 +118,11 @@ class RedisStore(object):
             if queue_value is None:
                 return None
             expire_time, message = queue_value.split(':', 1)
-            if expire_time < time.time():
-                self._connection.rpush(queue_value)
+            if float(expire_time) > time.time():
+                self._connection.rpush(channel, queue_value)
                 return message
+            elif expire_time == '0':
+                return None
 
     @staticmethod
     def get_prefix():
