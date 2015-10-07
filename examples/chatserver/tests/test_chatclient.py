@@ -120,8 +120,6 @@ class WebsocketTests(LiveServerTestCase):
         request = self.factory.get('/chat/')
         request.user = User.objects.get(username='john')
         result = publisher.fetch_message(request, self.facility, 'user')
-        if six.PY3:
-            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         request.user = None
         result = publisher.fetch_message(request, self.facility, 'user')

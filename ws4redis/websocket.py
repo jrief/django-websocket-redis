@@ -27,6 +27,7 @@ class WebSocket(object):
         self._closed = False
         self.stream = Stream(wsgi_input)
         self.utf8validator = Utf8Validator()
+        self.utf8validate_last = None
 
     def __del__(self):
         try:
@@ -95,7 +96,10 @@ class WebSocket(object):
             return
         if len(payload) < 2:
             raise WebSocketError('Invalid close frame: {0} {1}'.format(header, payload))
-        code = struct.unpack('!H', str(payload[:2]))[0]
+        rv = payload[:2]
+        if six.PY2:
+            rv = str(rv)
+        code = struct.unpack('!H', rv[0])
         payload = payload[2:]
         if payload:
             validator = Utf8Validator()
@@ -184,6 +188,8 @@ class WebSocket(object):
                 raise WebSocketError("Unexpected opcode={0!r}".format(f_opcode))
             if opcode == self.OPCODE_TEXT:
                 self.validate_utf8(payload)
+                if six.PY3:
+                    payload = payload.decode()
             message += payload
             if header.fin:
                 break
