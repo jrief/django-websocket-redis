@@ -2,6 +2,7 @@
 import os
 import time
 import requests
+import six
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
@@ -12,6 +13,10 @@ from websocket import create_connection, WebSocketException
 from ws4redis.django_runserver import application
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage, SELF
+
+
+if six.PY3:
+    unichr = chr
 
 
 class WebsocketTests(LiveServerTestCase):
@@ -50,6 +55,8 @@ class WebsocketTests(LiveServerTestCase):
         ws = create_connection(websocket_url)
         self.assertTrue(ws.connected)
         result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         ws.close()
         self.assertFalse(ws.connected)
@@ -60,6 +67,8 @@ class WebsocketTests(LiveServerTestCase):
         self.assertTrue(ws.connected)
         ws.send(self.message)
         result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         ws.close()
         self.assertFalse(ws.connected)
@@ -91,6 +100,8 @@ class WebsocketTests(LiveServerTestCase):
         ws = create_connection(websocket_url, header=header)
         self.assertTrue(ws.connected)
         result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         ws.close()
         self.assertFalse(ws.connected)
@@ -109,6 +120,8 @@ class WebsocketTests(LiveServerTestCase):
         request = self.factory.get('/chat/')
         request.user = User.objects.get(username='john')
         result = publisher.fetch_message(request, self.facility, 'user')
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         request.user = None
         result = publisher.fetch_message(request, self.facility, 'user')
@@ -127,6 +140,8 @@ class WebsocketTests(LiveServerTestCase):
         ws = create_connection(websocket_url, header=header)
         self.assertTrue(ws.connected)
         result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         ws.close()
         self.assertFalse(ws.connected)
@@ -166,6 +181,8 @@ class WebsocketTests(LiveServerTestCase):
         ws = create_connection(websocket_url, header=header)
         self.assertTrue(ws.connected)
         result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         ws.close()
         self.assertFalse(ws.connected)
@@ -193,7 +210,10 @@ class WebsocketTests(LiveServerTestCase):
         websocket_url = self.live_server_url + u'/ws/foobar'
         response = requests.get(websocket_url)
         self.assertEqual(response.status_code, 400)
-        self.assertIn('upgrade to a websocket', response.content)
+        content = response.content
+        if six.PY3:
+            content = content.decode()
+        self.assertIn('upgrade to a websocket', content)
         response = requests.post(websocket_url, {})
         self.assertEqual(response.status_code, 400)
 

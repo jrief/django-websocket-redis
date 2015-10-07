@@ -64,12 +64,24 @@ class RedisMessage(six.binary_type):
     Redis.
     """
     def __new__(cls, value):
-        if isinstance(value, six.string_types):
-            if value != settings.WS4REDIS_HEARTBEAT:
-                return six.binary_type.__new__(cls, value)
-        elif isinstance(value, list):
-            if len(value) >= 2 and value[0] == 'message':
-                return six.binary_type.__new__(cls, value[2])
+        if six.PY3:
+            print('OK -> python 3')
+            if isinstance(value, str):
+                if value != settings.WS4REDIS_HEARTBEAT:
+                    value = value.encode()
+                    return super(RedisMessage, cls).__new__(cls, value)
+            elif isinstance(value, list):
+                if len(value) >= 2 and value[0] == b'message':
+                    return super(RedisMessage, cls).__new__(cls, value[2])
+            else:
+                print(type(value))
+        else:
+            if isinstance(value, six.string_types):
+                if value != settings.WS4REDIS_HEARTBEAT:
+                    return six.binary_type.__new__(cls, value)
+            elif isinstance(value, list):
+                if len(value) >= 2 and value[0] == 'message':
+                    return six.binary_type.__new__(cls, value[2])
         return None
 
 
@@ -105,7 +117,7 @@ class RedisStore(object):
         return settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
 
     def _get_message_channels(self, request=None, facility='{facility}', broadcast=False,
-                              groups=[], users=[], sessions=[]):
+                              groups=(), users=(), sessions=()):
         prefix = self.get_prefix()
         channels = []
         if broadcast is True:

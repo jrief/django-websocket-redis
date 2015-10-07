@@ -9,6 +9,10 @@ from ws4redis.utf8validator import Utf8Validator
 from ws4redis.exceptions import WebSocketError, FrameTooLargeException
 
 
+if six.PY3:
+    xrange = range
+
+
 class WebSocket(object):
     __slots__ = ('_closed', 'stream', 'utf8validator', 'utf8validate_last')
 
@@ -127,7 +131,7 @@ class WebSocket(object):
         except socket_error:
             payload = ''
         except Exception:
-            # TODO log out this exception
+            logger.debug("{}: {}".format(type(e), six.text_type(e)))
             payload = ''
         if len(payload) != header.length:
             raise WebSocketError('Unexpected EOF reading frame payload')
@@ -184,7 +188,10 @@ class WebSocket(object):
             if header.fin:
                 break
         if opcode == self.OPCODE_TEXT:
-            self.validate_utf8(message)
+            if six.PY2:
+                self.validate_utf8(message)
+            else:
+                self.validate_utf8(message.encode())
             return message
         else:
             return bytearray(message)
@@ -307,6 +314,8 @@ class Header(object):
         mask = bytearray(self.mask)
         for i in xrange(self.length):
             payload[i] ^= mask[i % 4]
+        if six.PY3:
+            return bytes(payload)
         return str(payload)
 
     # it's the same operation
@@ -375,7 +384,10 @@ class Header(object):
         """
         first_byte = opcode
         second_byte = 0
-        extra = ''
+        if six.PY2:
+            extra = ''
+        else:
+            extra = b''
         if fin:
             first_byte |= cls.FIN_MASK
         if flags & cls.RSV0_MASK:
@@ -398,4 +410,6 @@ class Header(object):
         if mask:
             second_byte |= cls.MASK_MASK
             extra += mask
+        if six.PY3:
+            return bytes([first_byte, second_byte]) + extra
         return chr(first_byte) + chr(second_byte) + extra

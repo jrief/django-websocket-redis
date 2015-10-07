@@ -13,7 +13,7 @@ class uWSGIWebsocket(object):
         """Return the file descriptor for the given websocket"""
         try:
             return uwsgi.connection_fd()
-        except IOError, e:
+        except IOError as e:
             self.close()
             raise WebSocketError(e)
 
@@ -26,7 +26,7 @@ class uWSGIWebsocket(object):
             raise WebSocketError("Connection is already closed")
         try:
             return uwsgi.websocket_recv_nb()
-        except IOError, e:
+        except IOError as e:
             self.close()
             raise WebSocketError(e)
 
@@ -39,7 +39,7 @@ class uWSGIWebsocket(object):
     def send(self, message, binary=None):
         try:
             uwsgi.websocket_send(message)
-        except IOError, e:
+        except IOError as e:
             self.close()
             raise WebSocketError(e)
 
