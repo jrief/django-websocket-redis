@@ -25,6 +25,7 @@ class WebsocketTests(LiveServerTestCase):
 
     def setUp(self):
         self.facility = u'unittest'
+        self.prefix = getattr(settings, 'WS4REDIS_PREFIX', 'ws4redis')
         self.websocket_base_url = self.live_server_url.replace('http:', 'ws:', 1) + u'/ws/' + self.facility
         self.message = RedisMessage(''.join(unichr(c) for c in range(33, 128)))
         self.factory = RequestFactory()
@@ -75,7 +76,7 @@ class WebsocketTests(LiveServerTestCase):
         result = publisher.fetch_message(request, self.facility, 'broadcast')
         self.assertEqual(result, self.message)
         # now access Redis store directly
-        self.assertEqual(publisher._connection.get('ws4redis:broadcast:' + self.facility), self.message)
+        self.assertEqual(publisher._connection.get(self.prefix + ':broadcast:' + self.facility), self.message)
 
     def test_subscribe_user(self):
         logged_in = self.client.login(username='john', password='secret')
@@ -109,7 +110,7 @@ class WebsocketTests(LiveServerTestCase):
         request.user = User.objects.get(username='john')
         result = publisher.fetch_message(request, self.facility, 'user')
         self.assertEqual(result, self.message)
-        request.user = None 
+        request.user = None
         result = publisher.fetch_message(request, self.facility, 'user')
         self.assertEqual(result, None)
 
@@ -205,9 +206,9 @@ class WebsocketTests(LiveServerTestCase):
 
     def test_defining_multiple_publishers(self):
         pub1 = RedisPublisher(facility=self.facility, broadcast=True)
-        self.assertEqual(pub1._publishers, set(['ws4redis:broadcast:' + self.facility]))
+        self.assertEqual(pub1._publishers, set([self.prefix + ':broadcast:' + self.facility]))
         pub2 = RedisPublisher(facility=self.facility, users=['john'])
-        self.assertEqual(pub2._publishers, set(['ws4redis:user:john:' + self.facility]))
+        self.assertEqual(pub2._publishers, set([self.prefix + ':user:john:' + self.facility]))
 
     def test_forbidden_channel(self):
         websocket_url = self.websocket_base_url + u'?subscribe-broadcast&publish-broadcast'
