@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import six
 from redis import StrictRedis
 import django
 if django.VERSION[:2] >= (1, 7):
@@ -138,6 +139,9 @@ class WebsocketWSGIServer(object):
                 logger.warning('Starting late response on websocket')
                 status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
                 status = '{0} {1}'.format(response.status_code, status_text)
-                start_response(force_str(status), response._headers.values())
+                headers = response._headers.values()
+                if six.PY3:
+                    headers = list(headers)
+                start_response(force_str(status), headers)
                 logger.info('Finish non-websocket response with status code: {}'.format(response.status_code))
         return response

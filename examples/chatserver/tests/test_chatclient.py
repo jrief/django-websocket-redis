@@ -2,6 +2,7 @@
 import os
 import time
 import requests
+import six
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
@@ -12,6 +13,10 @@ from websocket import create_connection, WebSocketException
 from ws4redis.django_runserver import application
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage, SELF
+
+
+if six.PY3:
+    unichr = chr
 
 
 class WebsocketTests(LiveServerTestCase):
@@ -25,6 +30,7 @@ class WebsocketTests(LiveServerTestCase):
 
     def setUp(self):
         self.facility = u'unittest'
+        self.prefix = getattr(settings, 'WS4REDIS_PREFIX', 'ws4redis')
         self.websocket_base_url = self.live_server_url.replace('http:', 'ws:', 1) + u'/ws/' + self.facility
         self.message = RedisMessage(''.join(unichr(c) for c in range(33, 128)))
         self.factory = RequestFactory()
@@ -49,6 +55,8 @@ class WebsocketTests(LiveServerTestCase):
         ws = create_connection(websocket_url)
         self.assertTrue(ws.connected)
         result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         ws.close()
         self.assertFalse(ws.connected)
@@ -59,6 +67,8 @@ class WebsocketTests(LiveServerTestCase):
         self.assertTrue(ws.connected)
         ws.send(self.message)
         result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         ws.close()
         self.assertFalse(ws.connected)
@@ -75,7 +85,7 @@ class WebsocketTests(LiveServerTestCase):
         result = publisher.fetch_message(request, self.facility, 'broadcast')
         self.assertEqual(result, self.message)
         # now access Redis store directly
-        self.assertEqual(publisher._connection.get('ws4redis:broadcast:' + self.facility), self.message)
+        self.assertEqual(publisher._connection.get(self.prefix + ':broadcast:' + self.facility), self.message)
 
     def test_subscribe_user(self):
         logged_in = self.client.login(username='john', password='secret')
@@ -90,6 +100,8 @@ class WebsocketTests(LiveServerTestCase):
         ws = create_connection(websocket_url, header=header)
         self.assertTrue(ws.connected)
         result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         ws.close()
         self.assertFalse(ws.connected)
@@ -109,7 +121,7 @@ class WebsocketTests(LiveServerTestCase):
         request.user = User.objects.get(username='john')
         result = publisher.fetch_message(request, self.facility, 'user')
         self.assertEqual(result, self.message)
-        request.user = None 
+        request.user = None
         result = publisher.fetch_message(request, self.facility, 'user')
         self.assertEqual(result, None)
 
@@ -126,6 +138,8 @@ class WebsocketTests(LiveServerTestCase):
         ws = create_connection(websocket_url, header=header)
         self.assertTrue(ws.connected)
         result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         ws.close()
         self.assertFalse(ws.connected)
@@ -165,6 +179,8 @@ class WebsocketTests(LiveServerTestCase):
         ws = create_connection(websocket_url, header=header)
         self.assertTrue(ws.connected)
         result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
         self.assertEqual(result, self.message)
         ws.close()
         self.assertFalse(ws.connected)
@@ -192,7 +208,10 @@ class WebsocketTests(LiveServerTestCase):
         websocket_url = self.live_server_url + u'/ws/foobar'
         response = requests.get(websocket_url)
         self.assertEqual(response.status_code, 400)
-        self.assertIn('upgrade to a websocket', response.content)
+        content = response.content
+        if six.PY3:
+            content = content.decode()
+        self.assertIn('upgrade to a websocket', content)
         response = requests.post(websocket_url, {})
         self.assertEqual(response.status_code, 400)
 
@@ -205,9 +224,9 @@ class WebsocketTests(LiveServerTestCase):
 
     def test_defining_multiple_publishers(self):
         pub1 = RedisPublisher(facility=self.facility, broadcast=True)
-        self.assertEqual(pub1._publishers, set(['ws4redis:broadcast:' + self.facility]))
+        self.assertEqual(pub1._publishers, set([self.prefix + ':broadcast:' + self.facility]))
         pub2 = RedisPublisher(facility=self.facility, users=['john'])
-        self.assertEqual(pub2._publishers, set(['ws4redis:user:john:' + self.facility]))
+        self.assertEqual(pub2._publishers, set([self.prefix + ':user:john:' + self.facility]))
 
     def test_forbidden_channel(self):
         websocket_url = self.websocket_base_url + u'?subscribe-broadcast&publish-broadcast'

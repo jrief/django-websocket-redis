@@ -9,6 +9,10 @@ from ws4redis.utf8validator import Utf8Validator
 from ws4redis.exceptions import WebSocketError, FrameTooLargeException
 
 
+if six.PY3:
+    xrange = range
+
+
 class WebSocket(object):
     __slots__ = ('_closed', 'stream', 'utf8validator', 'utf8validate_last')
 
@@ -23,6 +27,7 @@ class WebSocket(object):
         self._closed = False
         self.stream = Stream(wsgi_input)
         self.utf8validator = Utf8Validator()
+        self.utf8validate_last = None
 
     def __del__(self):
         try:
@@ -91,7 +96,10 @@ class WebSocket(object):
             return
         if len(payload) < 2:
             raise WebSocketError('Invalid close frame: {0} {1}'.format(header, payload))
-        code = struct.unpack('!H', str(payload[:2]))[0]
+        rv = payload[:2]
+        if six.PY2:
+            rv = str(rv)
+        code = struct.unpack('!H', rv[0])
         payload = payload[2:]
         if payload:
             validator = Utf8Validator()
@@ -127,7 +135,7 @@ class WebSocket(object):
         except socket_error:
             payload = ''
         except Exception:
-            # TODO log out this exception
+            logger.debug("{}: {}".format(type(e), six.text_type(e)))
             payload = ''
         if len(payload) != header.length:
             raise WebSocketError('Unexpected EOF reading frame payload')
@@ -180,11 +188,16 @@ class WebSocket(object):
                 raise WebSocketError("Unexpected opcode={0!r}".format(f_opcode))
             if opcode == self.OPCODE_TEXT:
                 self.validate_utf8(payload)
+                if six.PY3:
+                    payload = payload.decode()
             message += payload
             if header.fin:
                 break
         if opcode == self.OPCODE_TEXT:
-            self.validate_utf8(message)
+            if six.PY2:
+                self.validate_utf8(message)
+            else:
+                self.validate_utf8(message.encode())
             return message
         else:
             return bytearray(message)
@@ -307,6 +320,8 @@ class Header(object):
         mask = bytearray(self.mask)
         for i in xrange(self.length):
             payload[i] ^= mask[i % 4]
+        if six.PY3:
+            return bytes(payload)
         return str(payload)
 
     # it's the same operation
@@ -375,7 +390,10 @@ class Header(object):
         """
         first_byte = opcode
         second_byte = 0
-        extra = ''
+        if six.PY2:
+            extra = ''
+        else:
+            extra = b''
         if fin:
             first_byte |= cls.FIN_MASK
         if flags & cls.RSV0_MASK:
@@ -398,4 +416,6 @@ class Header(object):
         if mask:
             second_byte |= cls.MASK_MASK
             extra += mask
+        if six.PY3:
+            return bytes([first_byte, second_byte]) + extra
         return chr(first_byte) + chr(second_byte) + extra
