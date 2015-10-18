@@ -6,6 +6,7 @@ import django
 if django.VERSION[:2] >= (1, 7):
     django.setup()
 from django.conf import settings
+from django.contrib.auth import get_user
 from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
 from django.core.exceptions import PermissionDenied
 from django import http
@@ -49,14 +50,12 @@ class WebsocketWSGIServer(object):
     def process_request(self, request):
         request.session = None
         request.user = None
-        if 'django.contrib.sessions.middleware.SessionMiddleware' in settings.MIDDLEWARE_CLASSES:
+        session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
+        if session_key is not None:
             engine = import_module(settings.SESSION_ENGINE)
-            session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
-            if session_key:
-                request.session = engine.SessionStore(session_key)
-                if 'django.contrib.auth.middleware.AuthenticationMiddleware' in settings.MIDDLEWARE_CLASSES:
-                    from django.contrib.auth import get_user
-                    request.user = SimpleLazyObject(lambda: get_user(request))
+            request.session = engine.SessionStore(session_key)
+            request.user = SimpleLazyObject(lambda: get_user(request))
+
 
     def process_subscriptions(self, request):
         agreed_channels = []
