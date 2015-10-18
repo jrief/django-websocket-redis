@@ -7,6 +7,10 @@ DESCRIPTION = 'Websocket support for Django using Redis as datastore'
 CLASSIFIERS = [
     'Environment :: Web Environment',
     'Framework :: Django',
+    'Framework :: Django :: 1.5',
+    'Framework :: Django :: 1.6',
+    'Framework :: Django :: 1.7',
+    'Framework :: Django :: 1.8',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: MIT License',
     'Operating System :: OS Independent',
@@ -14,6 +18,8 @@ CLASSIFIERS = [
     'Topic :: Software Development :: Libraries :: Python Modules',
     'Development Status :: 4 - Beta',
     'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3.3',
+    'Programming Language :: Python :: 3.4',
 ]
 
 
