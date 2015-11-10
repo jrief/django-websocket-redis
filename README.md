@@ -33,7 +33,7 @@ Features
 * Optionally persiting messages, allowing server reboots and client reconnections.
 
 If unsure, if this proposed architecture is the correct approach on how to integrate Websockets with Django, then
-please read Roberto De Ioris article about
+please read Roberto De Ioris (BDFL of uWSGI) article about
 [Offloading Websockets and Server-Sent Events AKA “Combine them with Django safely”](http://uwsgi-docs.readthedocs.org/en/latest/articles/OffloadingWebsocketsAndSSE.html).
 
 Please also consider, that whichever alternative technology you use, you always need a message queue,
