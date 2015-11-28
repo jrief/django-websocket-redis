@@ -69,6 +69,9 @@ class RedisMessage(six.binary_type):
                 if value != settings.WS4REDIS_HEARTBEAT:
                     value = value.encode()
                     return super(RedisMessage, cls).__new__(cls, value)
+            elif isinstance(value, bytes):
+                if value != settings.WS4REDIS_HEARTBEAT.encode():
+                    return super(RedisMessage, cls).__new__(cls, value)
             elif isinstance(value, list):
                 if len(value) >= 2 and value[0] == b'message':
                     return super(RedisMessage, cls).__new__(cls, value[2])
