@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import sys
 import six
+from six.moves import http_client
 from redis import StrictRedis
 import django
 if django.VERSION[:2] >= (1, 7):
     django.setup()
 from django.conf import settings
 from django.contrib.auth import get_user
-from django.core.handlers.wsgi import WSGIRequest, logger, STATUS_CODE_TEXT
+from django.core.handlers.wsgi import WSGIRequest, logger
 from django.core.exceptions import PermissionDenied
 from django import http
 from django.utils.encoding import force_str
@@ -136,7 +137,7 @@ class WebsocketWSGIServer(object):
                 websocket.close(code=1001, message='Websocket Closed')
             else:
                 logger.warning('Starting late response on websocket')
-                status_text = STATUS_CODE_TEXT.get(response.status_code, 'UNKNOWN STATUS CODE')
+                status_text = http_client.responses.get(response.status_code, 'UNKNOWN STATUS CODE')
                 status = '{0} {1}'.format(response.status_code, status_text)
                 headers = response._headers.values()
                 if six.PY3:
