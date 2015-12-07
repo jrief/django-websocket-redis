@@ -103,14 +103,17 @@ class RedisStore(object):
         published, also be persisted in the Redis datastore. If unset, it defaults to the
         configuration settings ``WS4REDIS_EXPIRE``.
         """
+        publish_values = {}
         if expire is None:
             expire = self._expire
         if not isinstance(message, RedisMessage):
             raise ValueError('message object is not of type RedisMessage')
         for channel in self._publishers:
-            self._connection.publish(channel, message)
+            publish_value = self._connection.publish(channel, message)
+            publish_values[channel] = publish_value
             if expire > 0:
                 self._connection.setex(channel, expire, message)
+        return publish_values
 
     @staticmethod
     def get_prefix():
