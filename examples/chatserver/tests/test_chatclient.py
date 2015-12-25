@@ -5,10 +5,10 @@ import requests
 import six
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.sessions.backends.db import SessionStore
-from django.test import LiveServerTestCase, TestCase
+from django.test import LiveServerTestCase
 from django.test.client import RequestFactory
-from django.utils.importlib import import_module
+from importlib import import_module
+
 from websocket import create_connection, WebSocketException
 from ws4redis.django_runserver import application
 from ws4redis.publisher import RedisPublisher
