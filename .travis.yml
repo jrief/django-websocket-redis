@@ -16,9 +16,9 @@ branches:
     - master
 
 install:
-  - pip install -q Django==$DJANGO
   - pip install -r examples/requirements.txt
-  - python setup.py -q install
+  - pip install Django==$DJANGO
+  - python setup.py install
 
 services:
   - redis-server
