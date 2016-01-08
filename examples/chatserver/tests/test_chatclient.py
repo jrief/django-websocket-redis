@@ -186,6 +186,24 @@ class WebsocketTests(LiveServerTestCase):
         ws.close()
         self.assertFalse(ws.connected)
 
+    def test_number_of_receiver(self):
+        logged_in = self.client.login(username='john', password='secret')
+        self.assertTrue(logged_in, 'John is not logged in')
+        session_key = self.client.session.session_key
+        request = self.factory.get('/chat/')
+        request.session = self.client.session
+        audience = {'sessions': [SELF]}
+        publisher = RedisPublisher(request=request, facility=self.facility, **audience)
+        websocket_url = self.websocket_base_url + u'?subscribe-session'
+        header = ['Cookie: sessionid={0}'.format(session_key)]
+        ws = create_connection(websocket_url, header=header)
+        self.assertTrue(ws.connected)
+        listeners = publisher.publish_message(self.message, 10)
+        self.assertEqual(listeners['ws4redis:session:' + session_key + ':unittest'], 1)
+        ws.close()
+        listeners = publisher.publish_message(self.message, 10)
+        self.assertEqual(listeners['ws4redis:session:' + session_key + ':unittest'], 0)
+
     def test_publish_session(self):
         logged_in = self.client.login(username='mary', password='secret')
         self.assertTrue(logged_in, 'Mary is not logged in')
