@@ -14,6 +14,10 @@ messaging it uses the [Redis](http://redis.io/) datastore and in a production en
 intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiNX](http://nginx.com/)
 or [Apache](http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html) version 2.4.5 or later.
 
+New in 0.4.5
+------------
+* Added support for Python 3
+
 New in 0.4.4
 ------------
 * Added method ``release()`` to ``RedisSubscriber`` and calling this method each time a Websocket
