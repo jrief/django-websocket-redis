@@ -1,12 +1,27 @@
-import os
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from setuptools import setup, find_packages
 from ws4redis import __version__
+try:
+    from pypandoc import convert
+except ImportError:
+    import io
+
+    def convert(filename, fmt):
+        with io.open(filename, encoding='utf-8') as fd:
+            return fd.read()
 
 DESCRIPTION = 'Websocket support for Django using Redis as datastore'
 
 CLASSIFIERS = [
     'Environment :: Web Environment',
     'Framework :: Django',
+    'Framework :: Django :: 1.5',
+    'Framework :: Django :: 1.6',
+    'Framework :: Django :: 1.7',
+    'Framework :: Django :: 1.8',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: MIT License',
     'Operating System :: OS Independent',
@@ -14,13 +29,9 @@ CLASSIFIERS = [
     'Topic :: Software Development :: Libraries :: Python Modules',
     'Development Status :: 4 - Beta',
     'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3.3',
+    'Programming Language :: Python :: 3.4',
 ]
-
-
-def read(fname):
-    readme_file = os.path.join(os.path.dirname(__file__), fname)
-    return os.popen('[ -x "$(which pandoc 2>/dev/null)" ] && pandoc -t rst {0} || cat {0}'.format(readme_file)).read()
-
 
 setup(
     name='django-websocket-redis',
@@ -28,7 +39,7 @@ setup(
     author='Jacob Rief',
     author_email='jacob.rief@gmail.com',
     description=DESCRIPTION,
-    long_description=read('README.md'),
+    long_description=convert('README.md', 'rst'),
     url='https://github.com/jrief/django-websocket-redis',
     license='MIT',
     keywords=['django', 'websocket', 'redis'],

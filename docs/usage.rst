@@ -146,7 +146,7 @@ If the message shall be send to the currently logged in user, then you may use t
 
 	from ws4redis.redis_store import SELF
 
-	redis_publisher = RedisPublisher(facility='foobar', users=[SELF])
+	redis_publisher = RedisPublisher(facility='foobar', users=[SELF], request=request)
 
 Subscribe to Group Notification
 -------------------------------

@@ -5,10 +5,11 @@ import requests
 import six
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.sessions.backends.db import SessionStore
-from django.test import LiveServerTestCase, TestCase
+from django.test import LiveServerTestCase
 from django.test.client import RequestFactory
-from django.utils.importlib import import_module
+from importlib import import_module
+
+from django.core.servers.basehttp import WSGIServer
 from websocket import create_connection, WebSocketException
 from ws4redis.django_runserver import application
 from ws4redis.publisher import RedisPublisher
@@ -235,3 +236,40 @@ class WebsocketTests(LiveServerTestCase):
             self.fail('Did not reject channels')
         except WebSocketException:
             self.assertTrue(True)
+
+    def test_close_connection(self):
+
+        class Counter:
+            def __init__(self):
+                self.value = 0
+
+        counter = Counter()
+        old_handle_error = WSGIServer.handle_error
+
+        def handle_error(self, *args, **kwargs):
+            # we need a reference to an object for this to work not a simple variable
+            counter.value += 1
+            return old_handle_error(self, *args, **kwargs)
+
+        WSGIServer.handle_error = handle_error
+
+        statuses = [1000, 1001, 1002, 1003, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1015, ]
+        websocket_url = self.websocket_base_url + u'?subscribe-broadcast&publish-broadcast'
+        for status in statuses:
+            value_before = counter.value
+            ws = create_connection(websocket_url)
+            self.assertTrue(ws.connected)
+            ws.close(status)
+            self.assertFalse(ws.connected)
+            self.assertEqual(value_before, counter.value,
+                             'Connection error while closing with {}'.format(status))
+
+    def test_protocol_support(self):
+        protocol = 'unittestprotocol'
+        websocket_url = self.websocket_base_url + u'?subscribe-broadcast&publish-broadcast'
+        ws = create_connection(websocket_url, subprotocols=[protocol])
+        self.assertTrue(ws.connected)
+        self.assertIn('sec-websocket-protocol', ws.headers)
+        self.assertEqual(protocol, ws.headers['sec-websocket-protocol'])
+        ws.close()
+        self.assertFalse(ws.connected)

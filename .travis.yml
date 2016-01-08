@@ -8,17 +8,24 @@ python:
 env:
   - DJANGO=1.5.12 MIGRATE='true'
   - DJANGO=1.6.11 MIGRATE='true'
-  - DJANGO=1.7.7 MIGRATE='./manage.py migrate'
-  - DJANGO=1.8.5 MIGRATE='./manage.py migrate'
+  - DJANGO=1.7.11 MIGRATE='./manage.py migrate'
+  - DJANGO=1.8.8 MIGRATE='./manage.py migrate'
+  - DJANGO=1.9.1 MIGRATE='./manage.py migrate'
 
 branches:
   only:
     - master
 
+matrix:
+  exclude:
+    # Django 1.9 does not support python 3.3
+    - env: DJANGO=1.9.1 MIGRATE='./manage.py migrate'
+      python: 3.3
+
 install:
-  - pip install -q Django==$DJANGO
   - pip install -r examples/requirements.txt
-  - python setup.py -q install
+  - pip install Django==$DJANGO
+  - python setup.py install
 
 services:
   - redis-server
