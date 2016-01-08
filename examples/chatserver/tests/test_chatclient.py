@@ -264,3 +264,12 @@ class WebsocketTests(LiveServerTestCase):
             self.assertEqual(value_before, counter.value,
                              'Connection error while closing with {}'.format(status))
 
+    def test_protocol_support(self):
+        protocol = 'unittestprotocol'
+        websocket_url = self.websocket_base_url + u'?subscribe-broadcast&publish-broadcast'
+        ws = create_connection(websocket_url, subprotocols=[protocol])
+        self.assertTrue(ws.connected)
+        self.assertIn('sec-websocket-protocol', ws.headers)
+        self.assertEqual(protocol, ws.headers['sec-websocket-protocol'])
+        ws.close()
+        self.assertFalse(ws.connected)
