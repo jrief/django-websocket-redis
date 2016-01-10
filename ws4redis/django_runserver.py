@@ -51,7 +51,7 @@ class WebsocketRunServer(WebsocketWSGIServer):
             ('Sec-WebSocket-Accept', sec_ws_accept),
             ('Sec-WebSocket-Version', str(websocket_version))
         ]
-        if environ.get('HTTP_SEC_WEBSOCKET_PROTOCOL') != None:
+        if environ.get('HTTP_SEC_WEBSOCKET_PROTOCOL') is not None:
             headers.append('Sec-WebSocket-Protocol', environ.get('HTTP_SEC_WEBSOCKET_PROTOCOL'))
 
         logger.debug('WebSocket request accepted, switching protocols')
