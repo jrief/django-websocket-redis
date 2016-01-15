@@ -273,3 +273,8 @@ class WebsocketTests(LiveServerTestCase):
         self.assertEqual(protocol, ws.headers['sec-websocket-protocol'])
         ws.close()
         self.assertFalse(ws.connected)
+        ws = create_connection(websocket_url)
+        self.assertTrue(ws.connected)
+        self.assertNotIn('sec-websocket-protocol', ws.headers)
+        ws.close()
+        self.assertFalse(ws.connected)
