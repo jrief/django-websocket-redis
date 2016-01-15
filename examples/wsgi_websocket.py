@@ -1,6 +1,6 @@
 # entry point for the websocket loop
 import gevent.monkey
-import redis.connection
-redis.connection.socket = gevent.socket
+gevent.monkey.patch_thread()
+
 from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
 application = uWSGIWebsocketServer()

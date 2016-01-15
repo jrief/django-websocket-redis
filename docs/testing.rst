@@ -39,8 +39,9 @@ and then start the server
 	# start Django
 	./manage.py runserver
 
-Point a browser onto http://localhost:8000/admin/, login and add additional users. Enable their
-staff status, so that they can use the admin interface to log into the testing application.
+Point a browser onto http://localhost:8000/admin/, login as the 'admin' user using the password
+'secret' and add additional users. Enable their staff status, so that they can use the admin
+interface to log into the testing application.
 
 With http://localhost:8000/chat/ you can send messages to specific users, provided they are
 logged in. To log in as another user, use Django's admin interface.

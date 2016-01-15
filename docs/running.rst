@@ -197,9 +197,10 @@ Configuratin for uWSGI:
 
 Configuration section for Apache:
 
+.. code-block:: guess
+
 	<VirtualHost IPADDR:80>
-	    ProxyPass        /ws/   ws://127.0.0.1:9090/
-	    ProxyPassReverse /ws/   ws://127.0.0.1:9090/
+	    ProxyPass    /ws/    ws://127.0.0.1:9090/
 	</VirtualHost>
 
 

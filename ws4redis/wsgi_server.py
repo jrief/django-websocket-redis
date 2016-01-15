@@ -112,7 +112,9 @@ class WebsocketWSGIServer(object):
                             websocket.send(sendmsg)
                     else:
                         logger.error('Invalid file descriptor: {0}'.format(fd))
-                if private_settings.WS4REDIS_HEARTBEAT:
+                # Check again that the websocket is closed before sending the heartbeat,
+                # because the websocket can closed previously in the loop.
+                if private_settings.WS4REDIS_HEARTBEAT and not websocket.closed:
                     websocket.send(private_settings.WS4REDIS_HEARTBEAT)
         except WebSocketError as excpt:
             logger.warning('WebSocketError: {}'.format(excpt), exc_info=sys.exc_info())
