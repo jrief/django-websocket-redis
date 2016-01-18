@@ -10,7 +10,7 @@ Release History
 
 0.4.6
 -----
-* Added support for the Sec-WebSocket-Protocol header. Thanks to Eric Junge.
+* Added support for the Sec-WebSocket-Protocol header. Thanks to Erwin Junge.
 * Fixed bug in unpacking binary websocket protocol.
 
 0.4.5
