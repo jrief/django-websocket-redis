@@ -240,7 +240,7 @@ class WebsocketTests(LiveServerTestCase):
 
         callbacks = [denied_channels, 'chatserver.tests.denied_channels.denied_channels']
         for callback in callbacks:
-            private_settings.WS4REDIS_ALLOWED_CHANNELS = denied_channels
+            private_settings.WS4REDIS_ALLOWED_CHANNELS = callback
             try:
                 ws = create_connection(websocket_url, header=['Deny-Channels: YES'])
                 self.fail('Did not reject channels')
