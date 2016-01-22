@@ -72,7 +72,11 @@ Running Unit Tests
 
 Currently it is not possible to simulate more than one client at a time. Django's built in
 LiveServerTestCase_ can not handle more than one simultaneous open connection, and thus more
-sophisticated tests with more than one active Websockets are not possible.
+sophisticated tests with more than one active Websockets are not possible with that class.
+
+As an alternative, we provide ``ws4redis.tests_helpers.MultiThreadLiveServerTestCase``
+that handles more than one simultaneous open connection. You can check the tests in
+the directory ``examples`` to look how we test websockets with several browsers.
 
 
 Running Stress Tests
