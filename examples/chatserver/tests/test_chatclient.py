@@ -3,6 +3,7 @@ import os
 import time
 import requests
 import six
+import django
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import LiveServerTestCase
@@ -14,7 +15,11 @@ from websocket import create_connection, WebSocketException
 from ws4redis.django_runserver import application
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage, SELF
+from ws4redis.tests_helpers import MultiThreadLiveServerTestCase, static_application
 
+from selenium.webdriver.firefox.webdriver import WebDriver as FirefoxWebDriver
+from selenium.webdriver.chrome.webdriver import WebDriver as ChromeWebDriver
+from selenium.webdriver.common.keys import Keys
 
 if six.PY3:
     unichr = chr
@@ -278,3 +283,80 @@ class WebsocketTests(LiveServerTestCase):
         self.assertNotIn('sec-websocket-protocol', ws.headers)
         ws.close()
         self.assertFalse(ws.connected)
+
+class WebsocketBrowserTests(MultiThreadLiveServerTestCase):
+    fixtures = ['data.json']
+
+    @classmethod
+    def setUpClass(cls):
+        os.environ.update(DJANGO_LIVE_TEST_SERVER_ADDRESS="localhost:8000-8010,8080,9200-9300")
+        super(WebsocketBrowserTests, cls).setUpClass()
+        cls.server_thread.httpd.set_app(static_application)
+        cls.firefox_webdriver = FirefoxWebDriver()
+        cls.chrome_webdriver = ChromeWebDriver()
+        cls.webdrivers = (cls.firefox_webdriver, cls.chrome_webdriver,)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.firefox_webdriver.quit()
+        cls.chrome_webdriver.quit()
+        super(WebsocketBrowserTests, cls).tearDownClass()
+
+    def test_broadcast_chat(self):
+        # We can only use this test witj Django 1.9.
+        # This is because of commit https://github.com/django/django/commit/a7901c2e090d720ef
+        # which allows us to override part of the httpd server used during the tests, to replace it
+        # with one that supports multithreading.
+
+        # We explicitely do not support 1.10 because that override uses private functions, so this
+        # hack will need to be reviewed when 1.10 is out.
+
+        if not django.VERSION[0:2] == (1,9):
+            self.skipTest('This test is only valid for Django 1.9')
+
+        # Go to the main page, where the broadcast channel is there.
+        for webdriver in self.webdrivers:
+            webdriver.get(self.live_server_url)
+
+        # From The Tragedy of Hamlet, Prince of Denmark, by William Shakespeare
+        messages = (
+            (self.firefox_webdriver, 'Who\'s there?',),
+            (self.chrome_webdriver, 'Nay, answer me: stand, and unfold yourself.',),
+            (self.firefox_webdriver, 'Long live the king!',),
+            (self.chrome_webdriver, 'Bernardo?',),
+            (self.firefox_webdriver, 'He.',),
+            (self.chrome_webdriver, 'You come most carefully upon your hour.',),
+            (self.firefox_webdriver, 'Tis now struck twelve; get thee to bed, Francisco.',),
+            (self.chrome_webdriver, 'For this relief much thanks: \'tis bitter cold'),
+            (self.chrome_webdriver, 'And I am sick at heart.',),
+            (self.firefox_webdriver, 'Have you had quiet guard?',),
+            (self.chrome_webdriver, 'Not a mouse stirring.',),
+            (self.firefox_webdriver, 'Well, good night.',),
+            (self.firefox_webdriver, 'If you do meet Horatio and Marcellus,',),
+            (self.firefox_webdriver, 'The rivals of my watch, bid them make haste.',),
+            (self.chrome_webdriver, 'I think I hear them. Stand, ho!',),
+        )
+
+        # Check that we are correctly connected
+        time.sleep(5)
+        for webdriver in self.webdrivers:
+            billboard = webdriver.find_element_by_id('billboard')
+            message = 'Hello everybody'
+            text = billboard.text
+            self.assertEqual(True, message in text)
+
+        # Now we will send the messages
+        for webdriver, message in messages:
+            text_input = webdriver.find_element_by_id('text_message')
+            text_input.send_keys(message)
+            text_input.send_keys(Keys.RETURN)
+            text_input.clear()
+            time.sleep(1)
+
+            # Check that the message is present in BOTH browsers
+            for wd in self.webdrivers:
+                billboard = wd.find_element_by_id('billboard')
+                text = billboard.text
+                self.assertEqual(True, message in text)
+
+
