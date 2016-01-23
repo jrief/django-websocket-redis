@@ -189,7 +189,7 @@ now, the message “Hello World” is sent to all clients using the session key
 
 In this context the the magic item ``SELF`` refers to all clients owning the same session key.
 
-Get informations about published messages
+Get information about published messages
 -----------------------------------------
 `publish_message` method returns a dict giving the number of clients that received the message for
 each channel.
