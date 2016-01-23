@@ -86,6 +86,14 @@ class WebsocketWSGIServer(object):
             channels, echo_message = self.process_subscriptions(request)
             if callable(private_settings.WS4REDIS_ALLOWED_CHANNELS):
                 channels = list(private_settings.WS4REDIS_ALLOWED_CHANNELS(request, channels))
+            elif private_settings.WS4REDIS_ALLOWED_CHANNELS is not None:
+                try:
+                    mod, callback = private_settings.WS4REDIS_ALLOWED_CHANNELS.rsplit('.', 1)
+                    callback = getattr(import_module(mod), callback, None)
+                    if callable(callback):
+                        channels = list(callback(request, channels))
+                except AttributeError:
+                    pass
             websocket = self.upgrade_websocket(environ, start_response)
             logger.debug('Subscribed to channels: {0}'.format(', '.join(channels)))
             subscriber.set_pubsub_channels(request, channels)

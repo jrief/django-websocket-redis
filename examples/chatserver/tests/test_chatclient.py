@@ -11,10 +11,12 @@ from importlib import import_module
 
 from django.core.servers.basehttp import WSGIServer
 from websocket import create_connection, WebSocketException
+from ws4redis import settings as private_settings
 from ws4redis.django_runserver import application
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage, SELF
 
+from .denied_channels import denied_channels
 
 if six.PY3:
     unichr = chr
@@ -230,12 +232,22 @@ class WebsocketTests(LiveServerTestCase):
         self.assertEqual(pub2._publishers, set([self.prefix + ':user:john:' + self.facility]))
 
     def test_forbidden_channel(self):
+        private_settings.WS4REDIS_ALLOWED_CHANNELS = None
         websocket_url = self.websocket_base_url + u'?subscribe-broadcast&publish-broadcast'
-        try:
-            create_connection(websocket_url, header=['Deny-Channels: YES'])
-            self.fail('Did not reject channels')
-        except WebSocketException:
-            self.assertTrue(True)
+        ws = create_connection(websocket_url, header=['Deny-Channels: YES'])
+        self.assertTrue(True)  # Passes because all channels allowed.
+        ws.close()
+
+        callbacks = [denied_channels, 'chatserver.tests.denied_channels.denied_channels']
+        for callback in callbacks:
+            private_settings.WS4REDIS_ALLOWED_CHANNELS = callback
+            try:
+                ws = create_connection(websocket_url, header=['Deny-Channels: YES'])
+                self.fail('Did not reject channels')
+            except WebSocketException:
+                self.assertTrue(True)
+            finally:
+                ws.close()
 
     def test_close_connection(self):
 
