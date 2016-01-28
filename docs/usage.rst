@@ -61,12 +61,17 @@ and access the Websocket code:
 	    var ws4redis = WS4Redis({
 	        uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast&echo',
 	        receive_message: receiveMessage,
+	        connected: on_connected,
 	        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
 	    });
 
 	    // attach this function to an event handler on your site
 	    function sendMessage() {
 	        ws4redis.send_message('A message');
+	    }
+	    
+	    function on_connected() {
+	        ws4redis.send_message('Hello');
 	    }
 
 	    // receive a message though the websocket from the server
