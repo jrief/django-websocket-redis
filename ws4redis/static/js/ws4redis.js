@@ -51,6 +51,9 @@ function WS4Redis(options, $) {
 			missed_heartbeats = 0;
 			heartbeat_interval = setInterval(send_heartbeat, 5000);
 		}
+		if ($.type(opts.connected) === 'function') {
+			opts.connected();
+		}
 	}
 
 	function on_close(evt) {
@@ -74,7 +77,7 @@ function WS4Redis(options, $) {
 		if (opts.heartbeat_msg && evt.data === opts.heartbeat_msg) {
 			// reset the counter for missed heartbeats
 			missed_heartbeats = 0;
-		} else if (typeof opts.receive_message === 'function') {
+		} else if ($.type(opts.receive_message) === 'function') {
 			return opts.receive_message(evt.data);
 		}
 	}
