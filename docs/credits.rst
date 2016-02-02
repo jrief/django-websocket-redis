@@ -3,6 +3,7 @@
 =================
 Credits to Others
 =================
+
 When Jacob Kaplan-Moss gave his `keynote talk`_ on PyCon 2013 Canada, he mentioned the MeteorJS_
 framework as the next big step in web development.
 
@@ -29,8 +30,10 @@ I prefer AngularJS_, which in my humble opinion is by far the best JavaScript fr
 
 .. _AngularJS: http://angularjs.org/
 
+
 AngularJS
 =========
+
 is a MVC framework for the client with two-way data-binding. Two way data-binding is an automatic
 way of updating the view whenever the model changes, as well as updating the model whenever the view
 changes. Django users will immediately feel comfortable with AngularJS, since the concept of
@@ -47,8 +50,10 @@ duplicate this code.
 
 .. _django-angular: https://github.com/jrief/django-angular
 
+
 Current solutions
 =================
+
 For rendering server side data using HTML, and receiving client data through POST or
 XMLHttpRequests, **django-angular** works fine, but in order to update data on the client upon
 events triggered by the server, communication using a technology such as websockets must be provided
@@ -58,8 +63,10 @@ I tried out all of the current implementations to add functionality for websocke
 they all looked like makeshift solutions. Something I found specially disturbing, was the need for
 another framework running side by side with Django, during development.
 
+
 uWSGI
 =====
+
 Then I stumbled across a talk_ from Roberto De Ioris on EuroPython 2013.
 
 .. _talk: http://www.youtube.com/watch?v=qmdk5mVLsHM#t=580

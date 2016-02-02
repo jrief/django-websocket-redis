@@ -4,8 +4,17 @@
 Release History
 ===============
 
-0.4.5 (dev)
------------
+0.4.7 develop
+-------------
+
+
+0.4.6
+-----
+* Added support for the Sec-WebSocket-Protocol header. Thanks to Erwin Junge.
+* Fixed bug in unpacking binary websocket protocol.
+
+0.4.5
+-----
 * created 1 requirements file under ``examples/chatserver/requirements.txt``
 * renamed chatclient.py to test_chatclient.py - for django-nose testrunner
 * migrated example project to django 1.7

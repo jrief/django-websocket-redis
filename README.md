@@ -14,10 +14,17 @@ messaging it uses the [Redis](http://redis.io/) datastore and in a production en
 intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiNX](http://nginx.com/)
 or [Apache](http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html) version 2.4.5 or later.
 
-New in 0.4.4
+
+New in 0.4.5
 ------------
-* Added method ``release()`` to ``RedisSubscriber`` and calling this method each time a Websocket
-  closes, for whatever reason. This should avoid some reported memory issues.
+* Created 1 requirements file under ``examples/chatserver/requirements.txt``.
+* Renamed chatclient.py to test_chatclient.py - for django-nose testrunner.
+* Migrated example project to django 1.7.
+* Edited ``docs/testing.rst`` to show new changes for using example project.
+* Added support for Python 3.3 and 3.4.
+* Added support for Django-1.8
+* Removes the check for middleware by name.
+
 
 Features
 --------
