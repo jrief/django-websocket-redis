@@ -26,12 +26,13 @@ Example view:
 	    facility = 'unique-named-facility'
 	    audience = {'broadcast': True}
 	
-	def __init__(self):
-	    self.redis_publisher = RedisPublisher(facility=self.facility, **self.audience)
-	
-	def get(self, request)
-	    message = 'A message passed to all browsers listening on the named facility'
-	    self.redis_publisher.publish_message(message)
+	    def __init__(self, *args, **kwargs):
+	        super(MyTypicalView, self).init(*args, **kwargs)
+	        self.redis_publisher = RedisPublisher(facility=self.facility, **self.audience)
+
+	    def get(self, request)
+	        message = 'A message passed to all browsers listening on the named facility'
+	        self.redis_publisher.publish_message(message)
 
 For further options, refer to the reference:
 
