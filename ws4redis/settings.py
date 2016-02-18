@@ -37,18 +37,6 @@ WS4REDIS_HEARTBEAT = getattr(settings, 'WS4REDIS_HEARTBEAT', None)
 
 
 """
-If set, this callback function is called right after the initialization of the Websocket.
-This function can be used to restrict the subscription/publishing channels for the current client.
-As its first parameter, it takes the current ``request`` object.
-The second parameter is a list of desired subscription channels.
-This callback function shall return a list of allowed channels or throw a ``PermissionDenied``
-exception.
-Remember that this function is not allowed to perform any blocking requests, such as accessing the
-database!
-"""
-WS4REDIS_ALLOWED_CHANNELS = getattr(settings, 'WS4REDIS_ALLOWED_CHANNELS', None)
-
-"""
 If set, this callback function is called instead of the default process_request function in WebsocketWSGIServer.
 This function can be used to enforce custom authentication flow. i.e. JWT
 """

@@ -14,6 +14,14 @@ class RedisSubscriber(RedisStore):
         self._subscription = None
         super(RedisSubscriber, self).__init__(connection)
 
+    def allowed_channels(self, request, channels):
+        """
+        Can be used to restrict the subscription/publishing channels for the current client. This callback
+        function shall return a list of allowed channels or throw a ``PermissionDenied`` exception. Remember
+        that this function is not allowed to perform any blocking requests, such as accessing the database!
+        """
+        return channels
+
     def parse_response(self):
         """
         Parse a message response sent by the Redis datastore on a subscribed channel.
@@ -73,4 +81,3 @@ class RedisSubscriber(RedisStore):
         if self._subscription and self._subscription.subscribed:
             self._subscription.unsubscribe()
             self._subscription.reset()
-
