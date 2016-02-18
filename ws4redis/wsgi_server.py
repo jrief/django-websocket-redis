@@ -43,8 +43,6 @@ class WebsocketWSGIServer(object):
                 matches = [pattern.match(facility)]
                 if list(filter(None, matches)):
                     comps = str(substr).split('.')
-                    module = import_module('.'.join(comps[:-1]))
-                    subcls = getattr(module, comps[-1])
                     break
             else:
                 # Found no matching subscribers, raise error
@@ -53,8 +51,8 @@ class WebsocketWSGIServer(object):
             # Fallback to legacy WS4REDIS_SUBSCRIBER
             logger.warn('Deprecation Warning: Setting WS4REDIS_SUBSCRIBER may be removed in a future version.')
             comps = str(private_settings.WS4REDIS_SUBSCRIBER).split('.')
-            module = import_module('.'.join(comps[:-1]))
-            subcls = getattr(module, comps[-1])
+        module = import_module('.'.join(comps[:-1]))
+        subcls = getattr(module, comps[-1])
         self.possible_channels = subcls.subscription_channels + subcls.publish_channels
         return subcls(self._redis_connection)
 
