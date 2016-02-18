@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import six
+import re
 from six.moves import http_client
 from redis import StrictRedis
 import django
@@ -31,12 +32,31 @@ class WebsocketWSGIServer(object):
         """
         redis_connection can be overriden by a mock object.
         """
-        comps = str(private_settings.WS4REDIS_SUBSCRIBER).split('.')
-        module = import_module('.'.join(comps[:-1]))
-        Subscriber = getattr(module, comps[-1])
-        self.possible_channels = Subscriber.subscription_channels + Subscriber.publish_channels
+        self._subscribers = [(re.compile(p), s) for p,s in private_settings.WS4REDIS_SUBSCRIBERS.items()]
         self._redis_connection = redis_connection and redis_connection or StrictRedis(**private_settings.WS4REDIS_CONNECTION)
-        self.Subscriber = Subscriber
+
+    def build_subscriber(self, request):
+        if self._subscribers:
+            # Lookup subscriber class from facility string
+            facility = request.path_info.replace(settings.WEBSOCKET_URL, '', 1)
+            for pattern, substr in self._subscribers:
+                matches = [pattern.match(facility)]
+                if list(filter(None, matches)):
+                    comps = str(substr).split('.')
+                    module = import_module('.'.join(comps[:-1]))
+                    subcls = getattr(module, comps[-1])
+                    break
+            else:
+                # Found no matching subscribers, raise error
+                raise HandshakeError('Unknown facility: %s' % facility)
+        else:
+            # Fallback to legacy WS4REDIS_SUBSCRIBER
+            logger.warn('Deprecation Warning: Setting WS4REDIS_SUBSCRIBER may be removed in a future version.')
+            comps = str(private_settings.WS4REDIS_SUBSCRIBER).split('.')
+            module = import_module('.'.join(comps[:-1]))
+            subcls = getattr(module, comps[-1])
+        self.possible_channels = subcls.subscription_channels + subcls.publish_channels
+        return subcls(self._redis_connection)
 
     def assure_protocol_requirements(self, environ):
         if environ.get('REQUEST_METHOD') != 'GET':
@@ -57,7 +77,6 @@ class WebsocketWSGIServer(object):
             request.session = engine.SessionStore(session_key)
             request.user = SimpleLazyObject(lambda: get_user(request))
 
-
     def process_subscriptions(self, request):
         agreed_channels = []
         echo_message = False
@@ -68,17 +87,17 @@ class WebsocketWSGIServer(object):
             elif param == 'echo':
                 echo_message = True
         return agreed_channels, echo_message
-
+        
     def __call__(self, environ, start_response):
         """
         Hijack the main loop from the original thread and listen on events on the Redis
         and the Websocket filedescriptors.
         """
         websocket = None
-        subscriber = self.Subscriber(self._redis_connection)
+        request = WSGIRequest(environ)
+        subscriber = self.build_subscriber(request)
         try:
             self.assure_protocol_requirements(environ)
-            request = WSGIRequest(environ)
             if callable(private_settings.WS4REDIS_PROCESS_REQUEST):
                 private_settings.WS4REDIS_PROCESS_REQUEST(request)
             else:

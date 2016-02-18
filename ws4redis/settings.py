@@ -24,6 +24,7 @@ WS4REDIS_EXPIRE = getattr(settings, 'WS4REDIS_EXPIRE', 3600)
 Replace the subscriber class by a customized version.
 """
 WS4REDIS_SUBSCRIBER = getattr(settings, 'WS4REDIS_SUBSCRIBER', 'ws4redis.subscriber.RedisSubscriber')
+WS4REDIS_SUBSCRIBERS = getattr(settings, 'WS4REDIS_SUBSCRIBERS', {'.*':'ws4redis.subscriber.RedisSubscriber'})
 
 """
 This set the magic string to recognize heartbeat messages. If set, this message string is ignored
