@@ -1,60 +1,44 @@
 # -*- coding: utf-8 -*-
-import sys
-import six
-import re
+"""
+Django-Redsox Project 2016
+"""
+import re, six, sys
 from six.moves import http_client
 from redis import StrictRedis
 import django
-if django.VERSION[:2] >= (1, 7):
-    django.setup()
+django.setup()
+
+from django import http
 from django.conf import settings
 from django.contrib.auth import get_user
-from django.core.handlers.wsgi import WSGIRequest, logger
 from django.core.exceptions import PermissionDenied
-from django import http
+from django.core.handlers.wsgi import WSGIRequest, logger
 from django.utils.encoding import force_str
 from django.utils.functional import SimpleLazyObject
+from importlib import import_module
 from redsocks import settings as private_settings
 from redsocks.redis_store import RedisMessage
 from redsocks.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
-try:
-    # django >= 1.8 && python >= 2.7
-    # https://docs.djangoproject.com/en/1.8/releases/1.7/#django-utils-dictconfig-django-utils-importlib
-    from importlib import import_module
-except ImportError:
-    # RemovedInDjango19Warning: django.utils.importlib will be removed in Django 1.9.
-    from django.utils.importlib import import_module
-
 
 class WebsocketWSGIServer(object):
     def __init__(self, redis_connection=None):
-        """
-        redis_connection can be overriden by a mock object.
-        """
         self._subscribers = [(re.compile(p), s) for p,s in private_settings.REDSOCKS_SUBSCRIBERS.items()]
         self._redis_connection = redis_connection and redis_connection or StrictRedis(**private_settings.REDSOCKS_CONNECTION)
 
     def build_subscriber(self, request):
-        if self._subscribers:
-            # Lookup subscriber class from facility string
-            facility = request.path_info.replace(settings.WEBSOCKET_URL, '', 1)
-            for pattern, substr in self._subscribers:
-                matches = [pattern.match(facility)]
-                if list(filter(None, matches)):
-                    comps = str(substr).split('.')
-                    break
-            else:
-                # Found no matching subscribers, raise error
-                raise HandshakeError('Unknown facility: %s' % facility)
-        else:
-            # Fallback to legacy REDSOCKS_SUBSCRIBER
-            logger.warn('Deprecation Warning: Setting REDSOCKS_SUBSCRIBER may be removed in a future version.')
-            comps = str(private_settings.REDSOCKS_SUBSCRIBER).split('.')
-        module = import_module('.'.join(comps[:-1]))
-        subcls = getattr(module, comps[-1])
-        self.possible_channels = subcls.subscription_channels + subcls.publish_channels
-        return subcls(self._redis_connection)
+        # Lookup subscriber class from facility string
+        facility = request.path_info.replace(settings.WEBSOCKET_URL, '', 1)
+        for pattern, substr in self._subscribers:
+            matches = [pattern.match(facility)]
+            if list(filter(None, matches)):
+                comps = str(substr).split('.')
+                module = import_module('.'.join(comps[:-1]))
+                subcls = getattr(module, comps[-1])
+                self.possible_channels = subcls.subscription_channels + subcls.publish_channels
+                return subcls(self._redis_connection)
+        # Found no matching subscribers, raise error
+        raise HandshakeError('Unknown facility: %s' % facility)
 
     def assure_protocol_requirements(self, environ):
         if environ.get('REQUEST_METHOD') != 'GET':
