@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# django-websocket-redis documentation build configuration file, created by
+# django-redsocks documentation build configuration file, created by
 # sphinx-quickstart on Fri Dec 13 09:43:01 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -19,7 +19,7 @@ import datetime
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.append(os.path.abspath('..'))
-from ws4redis import __version__
+from redsocks import __version__
 sys.path.append(os.path.abspath(os.path.join('..', 'examples')))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'chatserver.settings'
 from django.conf import settings
@@ -47,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'django-websocket-redis'
+project = u'django-redsocks'
 copyright = datetime.date.today().strftime(u'Copyright %Y, Jacob Rief')
 
 # The version info for the project you're documenting, acts as replacement for
@@ -171,7 +171,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'django-websocket-redisdoc'
+htmlhelp_basename = 'django-redsocksdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -190,7 +190,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'django-websocket-redis.tex', u'django-websocket-redis Documentation',
+  ('index', 'django-redsocks.tex', u'django-redsocks Documentation',
    u'Jacob Rief', 'manual'),
 ]
 
@@ -220,7 +220,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'django-websocket-redis', u'django-websocket-redis Documentation',
+    ('index', 'django-redsocks', u'django-redsocks Documentation',
      [u'Jacob Rief'], 1)
 ]
 
@@ -234,8 +234,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'django-websocket-redis', u'django-websocket-redis Documentation',
-   u'Jacob Rief', 'django-websocket-redis', 'One line description of project.',
+  ('index', 'django-redsocks', u'django-redsocks Documentation',
+   'django-redsocks', 'One line description of project.',
    'Miscellaneous'),
 ]
 

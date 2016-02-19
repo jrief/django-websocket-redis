@@ -31,7 +31,7 @@ As usual, this command shall only be used for development.
 The ``runserver`` command is a monkey patched version of the original Django main loop and works
 similar to it. If an incoming request is of type WSGI, everything works as usual. However, if the
 patched handler detects an incoming request wishing to open a WebSocket, then the Django main
-loop is hijacked by **ws4redis**. This separate loop then waits until ``select`` notifies that some
+loop is hijacked by **redsocks**. This separate loop then waits until ``select`` notifies that some
 data is available for further processing, or by the WebSocket itself, or by the Redis message queue.
 This hijacked main loop finishes when the WebSocket is closed or when an error occurs.
 
@@ -55,7 +55,7 @@ normals requests, modify the Python starter module ``wsgi.py`` to
 	os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myapp.settings')
 	from django.conf import settings
 	from django.core.wsgi import get_wsgi_application
-	from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
+	from redsocks.uwsgi_runserver import uWSGIWebsocketServer
 	
 	_django_app = get_wsgi_application()
 	_websocket_app = uWSGIWebsocketServer()
@@ -153,7 +153,7 @@ and one for the WebSocket loop, say ``wsgi_websocket.py``
 	import redis.connection
 	redis.connection.socket = gevent.socket
 	os.environ.update(DJANGO_SETTINGS_MODULE='my_app.settings')
-	from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
+	from redsocks.uwsgi_runserver import uWSGIWebsocketServer
 	application = uWSGIWebsocketServer()
 
 Start those two applications as separate uWSGI instances
@@ -178,7 +178,7 @@ Django with WebSockets for Redis behind Apache-2.4 using uWSGI
 ==============================================================
 
 Mike Martinka <mike.martinka@ntrepidcorp.com> reported this configuration, which allows to run
-**ws4redis** with Apache-2.4 and later.
+**redsocks** with Apache-2.4 and later.
 
 Configuratin for uWSGI:
 

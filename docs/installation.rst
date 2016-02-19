@@ -24,17 +24,17 @@ Check if Redis is up and accepting connections
 	$ redis-cli ping
 	PONG
 
-Install **Django Websocket for Redis**. The latest stable release can be found on PyPI
+Install **Django Redsocks**. The latest stable release can be found on PyPI
 
 .. code-block:: bash
 
-	pip install django-websocket-redis
+	pip install django-redsocks
 
 or the newest development version from github
 
 .. code-block:: bash
 
-	pip install -e git+https://github.com/jrief/django-websocket-redis#egg=django-websocket-redis
+	pip install -e git+https://github.com/mjs7231/django-redsocks#egg=django-redsocks
 
 **Websocket for Redis** does not define any database models. It can therefore be installed without
 any database synchronization.
@@ -52,13 +52,13 @@ Dependencies
 
 Configuration
 =============
-Add ``"ws4redis"`` to your project's ``INSTALLED_APPS`` setting
+Add ``"redsocks"`` to your project's ``INSTALLED_APPS`` setting
 
 .. code-block:: python
 
 	INSTALLED_APPS = (
 	    ...
-	    'ws4redis',
+	    'redsocks',
 	    ...
 	)
 
@@ -73,7 +73,7 @@ override these values
 
 .. code-block:: python
 
-	WS4REDIS_CONNECTION = {
+	REDSOCKS_CONNECTION = {
 	    'host': 'redis.example.com',
 	    'port': 16379,
 	    'db': 17,
@@ -82,7 +82,7 @@ override these values
 
 .. note:: Specify only the values, which deviate from the default.
 
-**Websocket for Redis** can be configured with ``WS4REDIS_EXPIRE``, to additionally persist messages
+**Websocket for Redis** can be configured with ``REDSOCKS_EXPIRE``, to additionally persist messages
 published on the message queue. This is advantageous in situations, where clients shall be able
 to access the published information after reconnecting the websocket, for instance after a page
 is reloaded.
@@ -92,7 +92,7 @@ of being published on the message queue
 
 .. code-block:: python
 
-	WS4REDIS_EXPIRE = 7200
+	REDSOCKS_EXPIRE = 7200
 
 **Websocket for Redis** can prefix each entry in the datastore with a string. By default, this
 is empty. If the same Redis connection is used to store other kinds of data, in order to avoid name
@@ -100,21 +100,21 @@ clashes you're encouraged to prefix these entries with a unique string, say
 
 .. code-block:: python
 
-	WS4REDIS_PREFIX = 'ws'
+	REDSOCKS_PREFIX = 'ws'
 
-Override ``ws4redis.store.RedisStore`` with a customized class, in case you need an alternative
+Override ``redsocks.store.RedisStore`` with a customized class, in case you need an alternative
 implementation of that class
 
 .. code-block:: python
 
-	WS4REDIS_SUBSCRIBER = 'myapp.redis_store.RedisSubscriber'
+	REDSOCKS_SUBSCRIBER = 'myapp.redis_store.RedisSubscriber'
 
 This directive is required during development and ignored in production environments. It overrides
 Django's internal main loop and adds a URL dispatcher in front of the request handler
 
 .. code-block:: python
 
-	WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+	WSGI_APPLICATION = 'redsocks.django_runserver.application'
 
 Ensure that your template context contains at least these processors:
 
@@ -124,12 +124,12 @@ Ensure that your template context contains at least these processors:
 	    ...
 	    'django.contrib.auth.context_processors.auth',
 	    'django.core.context_processors.static',
-	    'ws4redis.context_processors.default',
+	    'redsocks.context_processors.default',
 	    ...
 	)
 
 **Websocket for Redis** allows each client to subscribe and to publish on every possible
-channel. To restrict and control access, the ``WS4REDIS_ALLOWED_CHANNELS`` options should
+channel. To restrict and control access, the ``REDSOCKS_ALLOWED_CHANNELS`` options should
 be set to a callback function anywhere inside your project. See the example and warnings in
 :ref:`SafetyConsiderations`.
 
@@ -189,7 +189,7 @@ make sure its monkey patched with gevent.
 
 .. warning:: **Never** store session data in the database in combination with *Websockets for Redis*!
 
-.. _github: https://github.com/jrief/django-websocket-redis
+.. _github: https://github.com/mjs7231/django-redsocks
 .. _Django: http://djangoproject.com/
 .. _Python client for Redis: https://pypi.python.org/pypi/redis/
 .. _uWSGI: http://projects.unbit.it/uwsgi/
