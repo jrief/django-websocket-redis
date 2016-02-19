@@ -14,9 +14,9 @@ from django.core.exceptions import PermissionDenied
 from django import http
 from django.utils.encoding import force_str
 from django.utils.functional import SimpleLazyObject
-from ws4redis import settings as private_settings
-from ws4redis.redis_store import RedisMessage
-from ws4redis.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
+from redsocks import settings as private_settings
+from redsocks.redis_store import RedisMessage
+from redsocks.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
 try:
     # django >= 1.8 && python >= 2.7
@@ -32,8 +32,8 @@ class WebsocketWSGIServer(object):
         """
         redis_connection can be overriden by a mock object.
         """
-        self._subscribers = [(re.compile(p), s) for p,s in private_settings.WS4REDIS_SUBSCRIBERS.items()]
-        self._redis_connection = redis_connection and redis_connection or StrictRedis(**private_settings.WS4REDIS_CONNECTION)
+        self._subscribers = [(re.compile(p), s) for p,s in private_settings.REDSOCKS_SUBSCRIBERS.items()]
+        self._redis_connection = redis_connection and redis_connection or StrictRedis(**private_settings.REDSOCKS_CONNECTION)
 
     def build_subscriber(self, request):
         if self._subscribers:
@@ -48,9 +48,9 @@ class WebsocketWSGIServer(object):
                 # Found no matching subscribers, raise error
                 raise HandshakeError('Unknown facility: %s' % facility)
         else:
-            # Fallback to legacy WS4REDIS_SUBSCRIBER
-            logger.warn('Deprecation Warning: Setting WS4REDIS_SUBSCRIBER may be removed in a future version.')
-            comps = str(private_settings.WS4REDIS_SUBSCRIBER).split('.')
+            # Fallback to legacy REDSOCKS_SUBSCRIBER
+            logger.warn('Deprecation Warning: Setting REDSOCKS_SUBSCRIBER may be removed in a future version.')
+            comps = str(private_settings.REDSOCKS_SUBSCRIBER).split('.')
         module = import_module('.'.join(comps[:-1]))
         subcls = getattr(module, comps[-1])
         self.possible_channels = subcls.subscription_channels + subcls.publish_channels
@@ -96,8 +96,8 @@ class WebsocketWSGIServer(object):
         subscriber = self.build_subscriber(request)
         try:
             self.assure_protocol_requirements(environ)
-            if callable(private_settings.WS4REDIS_PROCESS_REQUEST):
-                private_settings.WS4REDIS_PROCESS_REQUEST(request)
+            if callable(private_settings.REDSOCKS_PROCESS_REQUEST):
+                private_settings.REDSOCKS_PROCESS_REQUEST(request)
             else:
                 self.process_request(request)
             channels, echo_message = self.process_subscriptions(request)
@@ -130,8 +130,8 @@ class WebsocketWSGIServer(object):
                         logger.error('Invalid file descriptor: {0}'.format(fd))
                 # Check again that the websocket is closed before sending the heartbeat,
                 # because the websocket can closed previously in the loop.
-                if private_settings.WS4REDIS_HEARTBEAT and not websocket.closed:
-                    websocket.send(private_settings.WS4REDIS_HEARTBEAT)
+                if private_settings.REDSOCKS_HEARTBEAT and not websocket.closed:
+                    websocket.send(private_settings.REDSOCKS_HEARTBEAT)
         except WebSocketError as excpt:
             logger.warning('WebSocketError: {}'.format(excpt), exc_info=sys.exc_info())
             response = http.HttpResponse(status=1001, content='Websocket Closed')

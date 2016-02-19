@@ -10,5 +10,5 @@ redis.connection.socket = gevent.socket
 sys.path[0:0] = [os.path.abspath('..'), os.path.abspath('../examples')]
 os.environ.update(DJANGO_SETTINGS_MODULE='chatserver.settings')
 
-from ws4redis.uwsgi_runserver import uWSGIWebsocketServer
+from redsocks.uwsgi_runserver import uWSGIWebsocketServer
 application = uWSGIWebsocketServer()

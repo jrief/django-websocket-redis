@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import uwsgi
 import gevent.select
-from ws4redis.exceptions import WebSocketError
-from ws4redis.wsgi_server import WebsocketWSGIServer
+from redsocks.exceptions import WebSocketError
+from redsocks.wsgi_server import WebsocketWSGIServer
 
 
 class uWSGIWebsocket(object):

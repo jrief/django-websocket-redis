@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import six
 import warnings
-from ws4redis import settings
+from redsocks import settings
 
 
 """
@@ -37,7 +37,7 @@ def _wrap_groups(groups, request):
     result = set()
     for g in groups:
         if g is SELF and request and request.user and request.user.is_authenticated():
-            result.update(request.session.get('ws4redis:memberof', []))
+            result.update(request.session.get('redsocks:memberof', []))
         else:
             result.add(g)
     return result
@@ -66,18 +66,18 @@ class RedisMessage(six.binary_type):
     def __new__(cls, value):
         if six.PY3:
             if isinstance(value, str):
-                if value != settings.WS4REDIS_HEARTBEAT:
+                if value != settings.REDSOCKS_HEARTBEAT:
                     value = value.encode()
                     return super(RedisMessage, cls).__new__(cls, value)
             elif isinstance(value, bytes):
-                if value != settings.WS4REDIS_HEARTBEAT.encode():
+                if value != settings.REDSOCKS_HEARTBEAT.encode():
                     return super(RedisMessage, cls).__new__(cls, value)
             elif isinstance(value, list):
                 if len(value) >= 2 and value[0] == b'message':
                     return super(RedisMessage, cls).__new__(cls, value[2])
         else:
             if isinstance(value, six.string_types):
-                if value != settings.WS4REDIS_HEARTBEAT:
+                if value != settings.REDSOCKS_HEARTBEAT:
                     return six.binary_type.__new__(cls, value)
             elif isinstance(value, list):
                 if len(value) >= 2 and value[0] == 'message':
@@ -90,7 +90,7 @@ class RedisStore(object):
     Abstract base class to control publishing and subscription for messages to and from the Redis
     datastore.
     """
-    _expire = settings.WS4REDIS_EXPIRE
+    _expire = settings.REDSOCKS_EXPIRE
 
     def __init__(self, connection):
         self._connection = connection
@@ -101,7 +101,7 @@ class RedisStore(object):
         Publish a ``message`` on the subscribed channel on the Redis datastore.
         ``expire`` sets the time in seconds, on how long the message shall additionally of being
         published, also be persisted in the Redis datastore. If unset, it defaults to the
-        configuration settings ``WS4REDIS_EXPIRE``.
+        configuration settings ``REDSOCKS_EXPIRE``.
         """
         if expire is None:
             expire = self._expire
@@ -114,7 +114,7 @@ class RedisStore(object):
 
     @staticmethod
     def get_prefix():
-        return settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
+        return settings.REDSOCKS_PREFIX and '{0}:'.format(settings.REDSOCKS_PREFIX) or ''
 
     def _get_message_channels(self, request=None, facility='{facility}', broadcast=False,
                               groups=(), users=(), sessions=()):
@@ -133,7 +133,7 @@ class RedisStore(object):
             # message is delivered to all groups the currently logged in user belongs to
             warnings.warn('Wrap groups=True into a list or tuple using SELF', DeprecationWarning)
             channels.extend('{prefix}group:{0}:{facility}'.format(g, prefix=prefix, facility=facility)
-                            for g in request.session.get('ws4redis:memberof', []))
+                            for g in request.session.get('redsocks:memberof', []))
         elif isinstance(groups, basestring):
             # message is delivered to the named group
             warnings.warn('Wrap a single group into a list or tuple', DeprecationWarning)

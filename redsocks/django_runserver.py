@@ -11,8 +11,8 @@ from django.conf import settings
 from django.core.management.commands import runserver
 from django.utils.six.moves import socketserver
 from django.utils.encoding import force_str
-from ws4redis.websocket import WebSocket
-from ws4redis.wsgi_server import WebsocketWSGIServer, HandshakeError, UpgradeRequiredError
+from redsocks.websocket import WebSocket
+from redsocks.wsgi_server import WebsocketWSGIServer, HandshakeError, UpgradeRequiredError
 
 util._hoppish = {}.__contains__
 

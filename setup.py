@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from setuptools import setup, find_packages
-from ws4redis import __version__
+from redsocks import __version__
 try:
     from pypandoc import convert
 except ImportError:

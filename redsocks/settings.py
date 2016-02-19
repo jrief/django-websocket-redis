@@ -3,7 +3,7 @@ from django.conf import settings
 
 WEBSOCKET_URL = getattr(settings, 'WEBSOCKET_URL', '/ws/')
 
-WS4REDIS_CONNECTION = getattr(settings, 'WS4REDIS_CONNECTION', {
+REDSOCKS_CONNECTION = getattr(settings, 'REDSOCKS_CONNECTION', {
     'host': 'localhost',
     'port': 6379,
     'db': 0,
@@ -13,31 +13,31 @@ WS4REDIS_CONNECTION = getattr(settings, 'WS4REDIS_CONNECTION', {
 """
 A string to prefix elements in the Redis datastore, to avoid naming conflicts with other services.
 """
-WS4REDIS_PREFIX = getattr(settings, 'WS4REDIS_PREFIX', None)
+REDSOCKS_PREFIX = getattr(settings, 'REDSOCKS_PREFIX', None)
 
 """
 The time in seconds, items shall be persisted by the Redis datastore.
 """
-WS4REDIS_EXPIRE = getattr(settings, 'WS4REDIS_EXPIRE', 3600)
+REDSOCKS_EXPIRE = getattr(settings, 'REDSOCKS_EXPIRE', 3600)
 
 """
 Replace the subscriber class by a customized version.
 """
-WS4REDIS_SUBSCRIBER = getattr(settings, 'WS4REDIS_SUBSCRIBER', 'ws4redis.subscriber.RedisSubscriber')
-WS4REDIS_SUBSCRIBERS = getattr(settings, 'WS4REDIS_SUBSCRIBERS', {'.*':'ws4redis.subscriber.RedisSubscriber'})
+REDSOCKS_SUBSCRIBER = getattr(settings, 'REDSOCKS_SUBSCRIBER', 'redsocks.subscriber.RedisSubscriber')
+REDSOCKS_SUBSCRIBERS = getattr(settings, 'REDSOCKS_SUBSCRIBERS', {'.*':'redsocks.subscriber.RedisSubscriber'})
 
 """
 This set the magic string to recognize heartbeat messages. If set, this message string is ignored
 by the server and also shall be ignored on the client.
 
-If WS4REDIS_HEARTBEAT is not None, the server sends at least every 4 seconds a heartbeat message.
+If REDSOCKS_HEARTBEAT is not None, the server sends at least every 4 seconds a heartbeat message.
 It is then up to the client to decide, what to do with these messages.
 """
-WS4REDIS_HEARTBEAT = getattr(settings, 'WS4REDIS_HEARTBEAT', None)
+REDSOCKS_HEARTBEAT = getattr(settings, 'REDSOCKS_HEARTBEAT', None)
 
 
 """
 If set, this callback function is called instead of the default process_request function in WebsocketWSGIServer.
 This function can be used to enforce custom authentication flow. i.e. JWT
 """
-WS4REDIS_PROCESS_REQUEST = getattr(settings, 'WS4REDIS_PROCESS_REQUEST', None)
+REDSOCKS_PROCESS_REQUEST = getattr(settings, 'REDSOCKS_PROCESS_REQUEST', None)

@@ -1,9 +1,9 @@
 #-*- coding: utf-8 -*-
 from redis import ConnectionPool, StrictRedis
-from ws4redis import settings
-from ws4redis.redis_store import RedisStore
+from redsocks import settings
+from redsocks.redis_store import RedisStore
 
-redis_connection_pool = ConnectionPool(**settings.WS4REDIS_CONNECTION)
+redis_connection_pool = ConnectionPool(**settings.REDSOCKS_CONNECTION)
 
 
 class RedisPublisher(RedisStore):
@@ -37,7 +37,7 @@ class RedisPublisher(RedisStore):
         if audience in ('group', 'any',):
             try:
                 if request.user.is_authenticated():
-                    groups = request.session['ws4redis:memberof']
+                    groups = request.session['redsocks:memberof']
                     channels.extend('{prefix}group:{0}:{facility}'.format(g, prefix=prefix, facility=facility)
                                 for g in groups)
             except (KeyError, AttributeError):
