@@ -1,53 +1,38 @@
 ###############################################################################
-##
 ##  Copyright 2011-2013 Tavendo GmbH
-##
-##  Note:
-##
-##  This code is a Python implementation of the algorithm
-##
-##            "Flexible and Economical UTF-8 Decoder"
-##
+##  Note: This code is a Python implementation of the algorithm
+##    'Flexible and Economical UTF-8 Decoder'
 ##  by Bjoern Hoehrmann
-##
-##       bjoern@hoehrmann.de
-##       http://bjoern.hoehrmann.de/utf-8/decoder/dfa/
+##    bjoern@hoehrmann.de
+##    http://bjoern.hoehrmann.de/utf-8/decoder/dfa/
 ##
 ##  Licensed under the Apache License, Version 2.0 (the "License");
 ##  you may not use this file except in compliance with the License.
 ##  You may obtain a copy of the License at
-##
-##      http://www.apache.org/licenses/LICENSE-2.0
+##  http://www.apache.org/licenses/LICENSE-2.0
 ##
 ##  Unless required by applicable law or agreed to in writing, software
 ##  distributed under the License is distributed on an "AS IS" BASIS,
 ##  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
-##
 ###############################################################################
-
 import six
-
 if six.PY3:
     xrange = range
 
-## use Cython implementation of UTF8 validator if available
-##
+# Use Cython implementation of UTF8 validator if available
 try:
     from wsaccel.utf8validator import Utf8Validator
 except:
     ## fallback to pure Python implementation
 
     class Utf8Validator:
+        """ Incremental UTF-8 validator with constant memory consumption (minimal
+            state). Implements the algorithm "Flexible and Economical UTF-8 Decoder"
+            by Bjoern Hoehrmann (http://bjoern.hoehrmann.de/utf-8/decoder/dfa/).
         """
-        Incremental UTF-8 validator with constant memory consumption (minimal
-        state).
-
-        Implements the algorithm "Flexible and Economical UTF-8 Decoder" by
-        Bjoern Hoehrmann (http://bjoern.hoehrmann.de/utf-8/decoder/dfa/).
-        """
-
+        
         ## DFA transitions
         UTF8VALIDATOR_DFA = [
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  # 00..1f
@@ -65,7 +50,6 @@ except:
             1,2,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,3,1,1,1,1,1,1,  # s5..s6
             1,3,1,1,1,1,1,3,1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,  # s7..s8
         ]
-
         UTF8_ACCEPT = 0
         UTF8_REJECT = 1
 
@@ -76,62 +60,44 @@ except:
             self.reset()
 
         def decode(self, b):
-            """
-            Eat one UTF-8 octet, and validate on the fly.
-
-            Returns UTF8_ACCEPT when enough octets have been consumed, in which case
-            self.codepoint contains the decoded Unicode code point.
-
-            Returns UTF8_REJECT when invalid UTF-8 was encountered.
-
-            Returns some other positive integer when more octets need to be eaten.
+            """ Eat one UTF-8 octet, and validate on the fly.
+                Returns UTF8_ACCEPT when enough octets have been consumed, in which case
+                self.codepoint contains the decoded Unicode code point.
+                Returns UTF8_REJECT when invalid UTF-8 was encountered.
+                Returns some other positive integer when more octets need to be eaten.
             """
             type = Utf8Validator.UTF8VALIDATOR_DFA[b]
-
             if self.state != Utf8Validator.UTF8_ACCEPT:
                 self.codepoint = (b & 0x3f) | (self.codepoint << 6)
             else:
                 self.codepoint = (0xff >> type) & b
-
             self.state = Utf8Validator.UTF8VALIDATOR_DFA[256 + self.state * 16 + type]
-
             return self.state
 
         def reset(self):
-            """
-            Reset validator to start new incremental UTF-8 decode/validation.
-            """
+            """ Reset validator to start new incremental UTF-8 decode/validation. """
             self.state = Utf8Validator.UTF8_ACCEPT
             self.codepoint = 0
             self.i = 0
 
         def validate(self, ba):
+            """ Incrementally validate a chunk of bytes provided as string.
+                Will return a quad (valid?, endsOnCodePoint?, currentIndex, totalIndex).
+                As soon as an octet is encountered which renders the octet sequence
+                invalid, a quad with valid? == False is returned. currentIndex returns
+                the index within the currently consumed chunk, and totalIndex the
+                index within the total consumed sequence that was the point of bail out.
+                When valid? == True, currentIndex will be len(ba) and totalIndex the
+                total amount of consumed bytes.
             """
-            Incrementally validate a chunk of bytes provided as string.
-
-            Will return a quad (valid?, endsOnCodePoint?, currentIndex, totalIndex).
-
-            As soon as an octet is encountered which renders the octet sequence
-            invalid, a quad with valid? == False is returned. currentIndex returns
-            the index within the currently consumed chunk, and totalIndex the
-            index within the total consumed sequence that was the point of bail out.
-            When valid? == True, currentIndex will be len(ba) and totalIndex the
-            total amount of consumed bytes.
-            """
-
             if not isinstance(ba, six.text_type):
                 ba = ba.decode()
             l = len(ba)
-
             for i in xrange(l):
                 ## optimized version of decode(), since we are not interested in actual code points
-
                 self.state = Utf8Validator.UTF8VALIDATOR_DFA[256 + (self.state << 4) + Utf8Validator.UTF8VALIDATOR_DFA[ord(ba[i])]]
-
                 if self.state == Utf8Validator.UTF8_REJECT:
                     self.i += i
                     return False, False, i, self.i
-
             self.i += l
-
             return True, self.state == Utf8Validator.UTF8_ACCEPT, l, self.i

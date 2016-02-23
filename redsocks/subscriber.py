@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth import get_user
 from django.utils.functional import SimpleLazyObject
 from importlib import import_module
-from redsocks.redis_store import RedisStore, SELF
+from redsocks.redisstore import RedisStore, SELF
 
 
 class RedisSubscriber(RedisStore):

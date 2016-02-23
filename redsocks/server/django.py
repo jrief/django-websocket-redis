@@ -18,26 +18,29 @@ util._hoppish = {}.__contains__
 class DjangoWebsocketServer(WSGIWebsocketServer):
     WS_GUID = b'258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
     WS_VERSIONS = ('13', '8', '7')
+    
+    def _assert_websocket_requirements(self, websocket_version, key):
+        # check websocket version
+        if not websocket_version:
+            raise UpgradeRequiredError()
+        if websocket_version not in self.WS_VERSIONS:
+            raise HandshakeError('Unsupported WebSocket Version: {0}'.format(websocket_version))
+        # check websocket security key - 5.2.1 (3)
+        if not key:
+            raise HandshakeError('Sec-WebSocket-Key header is missing/empty')
+        try:
+            keylen = len(base64.b64decode(key))
+            assert keylen == 16, TypeError()
+        except TypeError:
+            raise HandshakeError('Invalid key: {0}'.format(key))
 
     def upgrade_websocket(self, environ, start_response):
         """ Attempt to upgrade the socket environ['wsgi.input'] into a websocket enabled connection. """
         websocket_version = environ.get('HTTP_SEC_WEBSOCKET_VERSION', '')
-        if not websocket_version:
-            raise UpgradeRequiredError
-        elif websocket_version not in self.WS_VERSIONS:
-            raise HandshakeError('Unsupported WebSocket Version: {0}'.format(websocket_version))
         key = environ.get('HTTP_SEC_WEBSOCKET_KEY', '').strip()
-        if not key:
-            raise HandshakeError('Sec-WebSocket-Key header is missing/empty')
-        try:
-            key_len = len(base64.b64decode(key))
-        except TypeError:
-            raise HandshakeError('Invalid key: {0}'.format(key))
-        if key_len != 16:
-            raise HandshakeError('Invalid key: {0}'.format(key))  # 5.2.1 (3)
+        self._assert_websocket_requirements(websocket_version, key)
         sec_ws_accept = base64.b64encode(hashlib.sha1(six.b(key) + self.WS_GUID).digest())
-        if six.PY3:
-            sec_ws_accept = sec_ws_accept.decode('ascii')
+        sec_ws_accept = sec_ws_accept.decode('ascii') if six.PY3 else sec_ws_accept
         headers = [
             ('Upgrade', 'websocket'),
             ('Connection', 'Upgrade'),

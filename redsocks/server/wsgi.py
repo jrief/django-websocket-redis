@@ -15,7 +15,7 @@ from django.core.handlers.wsgi import WSGIRequest, logger
 from django.utils.encoding import force_str
 from importlib import import_module
 from redsocks import settings as private_settings
-from redsocks.redis_store import RedisMessage
+from redsocks.redisstore import RedisMessage
 from redsocks.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
 
@@ -25,7 +25,7 @@ class WSGIWebsocketServer(object):
         self._subscribers = [(re.compile(p), s) for p,s in private_settings.REDSOCKS_SUBSCRIBERS.items()]
         self._redis_connection = redis_connection and redis_connection or StrictRedis(**private_settings.REDSOCKS_CONNECTION)
 
-    def build_subscriber(self, request):
+    def _find_subscriber(self, request):
         # Lookup subscriber class from facility string
         facility = request.path_info.replace(settings.WEBSOCKET_URL, '', 1)
         for pattern, substr in self._subscribers:
@@ -39,7 +39,7 @@ class WSGIWebsocketServer(object):
         # Found no matching subscribers, raise error
         raise HandshakeError('Unknown facility: %s' % facility)
 
-    def assure_protocol_requirements(self, environ):
+    def _assert_protocol_requirements(self, environ):
         if environ.get('REQUEST_METHOD') != 'GET':
             raise HandshakeError('HTTP method must be a GET')
         if environ.get('SERVER_PROTOCOL') != 'HTTP/1.1':
@@ -62,9 +62,9 @@ class WSGIWebsocketServer(object):
         """ Hijack the main loop and listen on events on the Redis and the Websocket fds. """
         websocket = None
         request = WSGIRequest(environ)
-        subscriber = self.build_subscriber(request)
+        subscriber = self._find_subscriber(request)
         try:
-            self.assure_protocol_requirements(environ)
+            self._assert_protocol_requirements(environ)
             subscriber.process_request(request)
             channels, echo_message = self.process_subscriptions(request)
             channels = subscriber.allowed_channels(request, channels)
