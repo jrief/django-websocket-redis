@@ -2,26 +2,25 @@
 """
 Django-Redsox Project 2016
 """
-import re, six, sys
-from six.moves import http_client
-from redis import StrictRedis
 import django
 django.setup()
 
+import re, six, sys
+from six.moves import http_client
+from redis import StrictRedis
 from django import http
 from django.conf import settings
-from django.contrib.auth import get_user
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest, logger
 from django.utils.encoding import force_str
-from django.utils.functional import SimpleLazyObject
 from importlib import import_module
 from redsocks import settings as private_settings
 from redsocks.redis_store import RedisMessage
 from redsocks.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
 
 
-class WebsocketWSGIServer(object):
+class WSGIWebsocketServer(object):
+    
     def __init__(self, redis_connection=None):
         self._subscribers = [(re.compile(p), s) for p,s in private_settings.REDSOCKS_SUBSCRIBERS.items()]
         self._redis_connection = redis_connection and redis_connection or StrictRedis(**private_settings.REDSOCKS_CONNECTION)
@@ -43,21 +42,10 @@ class WebsocketWSGIServer(object):
     def assure_protocol_requirements(self, environ):
         if environ.get('REQUEST_METHOD') != 'GET':
             raise HandshakeError('HTTP method must be a GET')
-
         if environ.get('SERVER_PROTOCOL') != 'HTTP/1.1':
             raise HandshakeError('HTTP server protocol must be 1.1')
-
         if environ.get('HTTP_UPGRADE', '').lower() != 'websocket':
             raise HandshakeError('Client does not wish to upgrade to a websocket')
-
-    def process_request(self, request):
-        request.session = None
-        request.user = None
-        session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
-        if session_key is not None:
-            engine = import_module(settings.SESSION_ENGINE)
-            request.session = engine.SessionStore(session_key)
-            request.user = SimpleLazyObject(lambda: get_user(request))
 
     def process_subscriptions(self, request):
         agreed_channels = []
@@ -71,19 +59,13 @@ class WebsocketWSGIServer(object):
         return agreed_channels, echo_message
         
     def __call__(self, environ, start_response):
-        """
-        Hijack the main loop from the original thread and listen on events on the Redis
-        and the Websocket filedescriptors.
-        """
+        """ Hijack the main loop and listen on events on the Redis and the Websocket fds. """
         websocket = None
         request = WSGIRequest(environ)
         subscriber = self.build_subscriber(request)
         try:
             self.assure_protocol_requirements(environ)
-            if callable(private_settings.REDSOCKS_PROCESS_REQUEST):
-                private_settings.REDSOCKS_PROCESS_REQUEST(request)
-            else:
-                self.process_request(request)
+            subscriber.process_request(request)
             channels, echo_message = self.process_subscriptions(request)
             channels = subscriber.allowed_channels(request, channels)
             websocket = self.upgrade_websocket(environ, start_response)
@@ -104,6 +86,7 @@ class WebsocketWSGIServer(object):
                 for fd in ready:
                     if fd == websocket_fd:
                         recvmsg = RedisMessage(websocket.receive())
+                        print('recvmsg: %s' % recvmsg)
                         if recvmsg:
                             subscriber.publish_message(recvmsg)
                     elif fd == redis_fd:

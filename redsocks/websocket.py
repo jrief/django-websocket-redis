@@ -278,11 +278,9 @@ class WebSocket(object):
 
 
 class Stream(object):
+    """ Wraps the handler's socket/rfile attributes and makes it in to a file like
+        object that can be read from/written to by the lower level websocket api.
     """
-    Wraps the handler's socket/rfile attributes and makes it in to a file like
-    object that can be read from/written to by the lower level websocket api.
-    """
-
     __slots__ = ('read', 'write', 'fileno')
 
     def __init__(self, wsgi_input):

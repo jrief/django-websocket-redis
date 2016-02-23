@@ -5,10 +5,9 @@ from django.dispatch import receiver
 
 @receiver(user_logged_in)
 def store_groups_in_session(sender, user, request, **kwargs):
-    """
-    When a user logs in, fetch its groups and store them in the users session.
-    This is required by redsocks, since fetching groups accesses the database, which is a blocking
-    operation and thus not allowed from within the websocket loop.
+    """ When a user logs in, fetch its groups and store them in the users session.
+        This is required by redsocks, since fetching groups accesses the database, which
+        is a blocking operation and thus not allowed from within the websocket loop.
     """
     if hasattr(user, 'groups'):
         request.session['redsocks:memberof'] = [g.name for g in user.groups.all()]
