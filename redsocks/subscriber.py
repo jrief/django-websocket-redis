@@ -12,7 +12,7 @@ class RedisSubscriber(RedisStore):
     publish_channels = ['publish-session', 'publish-group', 'publish-user', 'publish-broadcast']
 
     def __init__(self, connection):
-        self._subscription = None
+        self.subscription = None
         super(RedisSubscriber, self).__init__(connection)
 
     def allowed_channels(self, request, channels):
@@ -33,51 +33,50 @@ class RedisSubscriber(RedisStore):
 
     def parse_response(self):
         """ Parse a message response sent by the Redis datastore on a subscribed channel. """
-        return self._subscription.parse_response()
+        return self.subscription.parse_response()
 
     def set_pubsub_channels(self, request, channels):
         """ Initialize the channels used for publishing and subscribing messages through the message queue. """
         facility = request.path_info.replace(settings.WEBSOCKET_URL, '', 1)
         # initialize publishers
         audience = {
-            'users': 'publish-user' in channels and [SELF] or [],
-            'groups': 'publish-group' in channels and [SELF] or [],
-            'sessions': 'publish-session' in channels and [SELF] or [],
+            'users': [SELF] if 'publish-user' in channels else [],
+            'groups': [SELF] if 'publish-group' in channels else [],
+            'sessions': [SELF] if 'publish-session' in channels else [],
             'broadcast': 'publish-broadcast' in channels,
         }
-        self._publishers = set()
-        for key in self._get_message_channels(request=request, facility=facility, **audience):
-            self._publishers.add(key)
+        self.publishers = set()
+        for channel in self._iter_channels(facility, request, **audience):
+            self.publishers.add(channel)
         # initialize subscribers
         audience = {
-            'users': 'subscribe-user' in channels and [SELF] or [],
-            'groups': 'subscribe-group' in channels and [SELF] or [],
-            'sessions': 'subscribe-session' in channels and [SELF] or [],
+            'users': [SELF] if 'subscribe-user' in channels else [],
+            'groups': [SELF] if 'subscribe-group' in channels else [],
+            'sessions': [SELF] if 'subscribe-session' in channels else [],
             'broadcast': 'subscribe-broadcast' in channels,
         }
-        self._subscription = self._connection.pubsub()
-        for key in self._get_message_channels(request=request, facility=facility, **audience):
-            self._subscription.subscribe(key)
+        self.subscription = self.client.pubsub()
+        for channel in self._iter_channels(facility, request, **audience):
+            self.subscription.subscribe(channel)
 
     def send_persited_messages(self, websocket):
         """ This method is called immediately after a websocket is openend by the client, so that
             persisted messages can be sent back to the client upon connection.
         """
-        for channel in self._subscription.channels:
-            message = self._connection.get(channel)
+        # TODO: REMOVE THIS FUNCTION?
+        for channel in self.subscription.channels:
+            message = self.client.get(channel)
             if message:
                 websocket.send(message)
 
     def get_file_descriptor(self):
-        """ Returns the file descriptor used for passing to the select call when listening
-            on the message queue.
-        """
-        return self._subscription.connection and self._subscription.connection._sock.fileno()
+        """ Return file descriptor used for select call when listening on message queue. """
+        return self.subscription.connection and self.subscription.connection._sock.fileno()
 
     def release(self):
         """ New implementation to free up Redis subscriptions when websockets close. This prevents
             memory sap when Redis Output Buffer and Output Lists build when websockets are abandoned.
         """
-        if self._subscription and self._subscription.subscribed:
-            self._subscription.unsubscribe()
-            self._subscription.reset()
+        if self.subscription and self.subscription.subscribed:
+            self.subscription.unsubscribe()
+            self.subscription.reset()

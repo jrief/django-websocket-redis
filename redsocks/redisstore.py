@@ -1,88 +1,43 @@
 # -*- coding: utf-8 -*-
-import six, warnings
+import six
 from redsocks import settings
 
-# A type instance to handle the special case, when a request shall refer
-# to itself, or as a user, or as a group.
+# refers to self as a user or group.
 SELF = type('SELF_TYPE', (object,), {})()
 
 
-def _wrap_users(users, request):
-    """ Returns a list with the given list of users and/or the currently logged in user, if the list
-        contains the magic item SELF.
-    """
-    result = set()
-    for u in users:
-        if u is SELF and request and request.user and request.user.is_authenticated():
-            result.add(request.user.get_username())
-        else:
-            result.add(u)
-    return result
-
-
-def _wrap_groups(groups, request):
-    """ Returns a list of groups for the given list of groups and/or the current logged in user, if
-        the list contains the magic item SELF. Note that this method bypasses Django's own group
-        resolution, which requires a database query and thus is unsuitable for coroutines. Therefore
-        the membership is takes from the session store, which is filled by a signal handler, while
-        the users logs in.
-    """
-    result = set()
-    for g in groups:
-        if g is SELF and request and request.user and request.user.is_authenticated():
-            result.update(request.session.get('redsocks:memberof', []))
-        else:
-            result.add(g)
-    return result
-
-
-def _wrap_sessions(sessions, request):
-    """ Returns a list of session keys for the given lists of sessions and/or the session key of the
-        current logged in user, if the list contains the magic item SELF.
-    """
-    result = set()
-    for s in sessions:
-        if s is SELF and request:
-            result.add(request.session.session_key)
-        else:
-            result.add(s)
-    return result
-
-
 class RedisMessage(six.binary_type):
-    """ A class wrapping messages to be send and received through RedisStore. This class behaves like
-        a normal string class, but silently discards heartbeats and converts messages received from
-        Redis.
+    """ Wraps messages to be sent and received through RedisStore. Behaves like a normal string
+        class, but silently discards heartbeats and converts messages received from Redis.
     """
     def __new__(cls, value):
         if six.PY3:
-            if isinstance(value, str):
-                if value != settings.REDSOCKS_HEARTBEAT:
-                    value = value.encode()
-                    return super(RedisMessage, cls).__new__(cls, value)
-            elif isinstance(value, bytes):
-                if value != settings.REDSOCKS_HEARTBEAT.encode():
-                    return super(RedisMessage, cls).__new__(cls, value)
-            elif isinstance(value, list):
-                if len(value) >= 2 and value[0] == b'message':
-                    return super(RedisMessage, cls).__new__(cls, value[2])
+            if isinstance(value, str) and value != settings.REDSOCKS_HEARTBEAT:
+                return super(RedisMessage, cls).__new__(cls, value.encode())
+            elif isinstance(value, bytes) and value != settings.REDSOCKS_HEARTBEAT.encode():
+                return super(RedisMessage, cls).__new__(cls, value)
+            elif isinstance(value, list) and len(value) >= 2 and value[0] == b'message':
+                return super(RedisMessage, cls).__new__(cls, value[2])
         else:
-            if isinstance(value, six.string_types):
-                if value != settings.REDSOCKS_HEARTBEAT:
-                    return six.binary_type.__new__(cls, value)
-            elif isinstance(value, list):
-                if len(value) >= 2 and value[0] == 'message':
-                    return six.binary_type.__new__(cls, value[2])
+            if isinstance(value, six.string_types) and value != settings.REDSOCKS_HEARTBEAT:
+                return six.binary_type.__new__(cls, value)
+            elif isinstance(value, list) and len(value) >= 2 and value[0] == 'message':
+                return six.binary_type.__new__(cls, value[2])
         return None
 
 
 class RedisStore(object):
     """ Abstract base class to control publishing and subscription for messages to and from Redis. """
-    _expire = settings.REDSOCKS_EXPIRE
 
-    def __init__(self, connection):
-        self._connection = connection
-        self._publishers = set()
+    def __init__(self, client):
+        self.client = client
+        self.publishers = set()
+        
+    @property
+    def prefix(self):
+        if settings.REDSOCKS_PREFIX:
+            return '%s:' % settings.REDSOCKS_PREFIX
+        return ''
 
     def publish_message(self, message, expire=None):
         """ Publish a message on the subscribed channel on the Redis datastore.
@@ -90,75 +45,55 @@ class RedisStore(object):
             published, also be persisted in the Redis datastore. If unset, it defaults to the
             configuration settings REDSOCKS_EXPIRE.
         """
-        if expire is None:
-            expire = self._expire
         if not isinstance(message, RedisMessage):
-            raise ValueError('message object is not of type RedisMessage')
-        for channel in self._publishers:
-            self._connection.publish(channel, message)
+            raise ValueError('Message object is not of type RedisMessage')
+        expire = expire or settings.REDSOCKS_EXPIRE
+        for channel in self.publishers:
+            self.client.publish(channel, message)
             if expire > 0:
-                self._connection.setex(channel, expire, message)
+                self.client.setex(channel, expire, message)
 
-    @staticmethod
-    def get_prefix():
-        return settings.REDSOCKS_PREFIX and '{0}:'.format(settings.REDSOCKS_PREFIX) or ''
-
-    def _get_message_channels(self, request=None, facility='{facility}', broadcast=False,
-            groups=(), users=(), sessions=()):
-        prefix = self.get_prefix()
-        kwargs = dict(prefix=prefix, facility=facility)
-        channels = []
-        
-        # handle broadcast (to every subscriber listening on the named facility)
+    def _channel(self, facility, broadcast=False, user=None, group=None, session=None):
+        """ Return channel name with format {prefix}:{audience}:{facility}. """
         if broadcast is True:
-            channels.append('{prefix}broadcast:{facility}'.format(**kwargs))
+            return '%sbroadcast:%s' % (self.prefix, facility)
+        for key, value in [('user',user), ('group',group), ('session',session)]:
+            if value is not None:
+                return '%s%s:%s' % (self.prefix, key, facility)
+        raise Exception('Must specify broadcast, session, user, or group.')
 
-        # handle group messaging
-        if isinstance(groups, (list, tuple)):
-            # message is delivered to all listed groups
-            channels.extend('{prefix}group:{0}:{facility}'.format(g, **kwargs)
-                for g in _wrap_groups(groups, request))
-        elif groups is True and request and request.user and request.user.is_authenticated():
-            # message is delivered to all groups the currently logged in user belongs to
-            warnings.warn('Wrap groups=True into a list or tuple using SELF', DeprecationWarning)
-            channels.extend('{prefix}group:{0}:{facility}'.format(g, **kwargs)
-                for g in request.session.get('redsocks:memberof', []))
-        elif isinstance(groups, six.string_types):
-            # message is delivered to the named group
-            warnings.warn('Wrap a single group into a list or tuple', DeprecationWarning)
-            channels.append('{prefix}group:{0}:{facility}'.format(groups, **kwargs))
-        elif not isinstance(groups, bool):
-            raise ValueError('Argument `groups` must be a list or tuple')
-
-        # handle user messaging
-        if isinstance(users, (list, tuple)):
-            # message is delivered to all listed users
-            channels.extend('{prefix}user:{0}:{facility}'.format(u, **kwargs)
-                for u in _wrap_users(users, request))
-        elif users is True and request and request.user and request.user.is_authenticated():
-            # message is delivered to browser instances of the currently logged in user
-            warnings.warn('Wrap users=True into a list or tuple using SELF', DeprecationWarning)
-            channels.append('{prefix}user:{0}:{facility}'.format(request.user.get_username(), **kwargs))
-        elif isinstance(users, six.string_types):
-            # message is delivered to the named user
-            warnings.warn('Wrap a single user into a list or tuple', DeprecationWarning)
-            channels.append('{prefix}user:{0}:{facility}'.format(users, **kwargs))
-        elif not isinstance(users, bool):
-            raise ValueError('Argument `users` must be a list or tuple')
-
-        # handle session messaging
-        if isinstance(sessions, (list, tuple)):
-            # message is delivered to all browsers instances listed in sessions
-            channels.extend('{prefix}session:{0}:{facility}'.format(s, **kwargs)
-                for s in _wrap_sessions(sessions, request))
-        elif sessions is True and request and request.session:
-            # message is delivered to browser instances owning the current session
-            warnings.warn('Wrap a single session key into a list or tuple using SELF', DeprecationWarning)
-            channels.append('{prefix}session:{0}:{facility}'.format(request.session.session_key, **kwargs))
-        elif isinstance(sessions, six.string_types):
-            # message is delivered to the named user
-            warnings.warn('Wrap a single session key into a list or tuple', DeprecationWarning)
-            channels.append('{prefix}session:{0}:{facility}'.format(sessions, **kwargs))
-        elif not isinstance(sessions, bool):
-            raise ValueError('Argument `sessions` must be a list or tuple')
-        return channels
+    def _iter_channels(self, facility, request=None, broadcast=False, users=(), groups=(), sessions=()):
+        # check audience was passed as a string
+        if isinstance(sessions, six.string_types): sessions = (sessions,)
+        if isinstance(users, six.string_types): users = (users,)
+        if isinstance(groups, six.string_types): groups = (groups,)
+        # iterate broadcast, user, group, session channels
+        if broadcast is True:
+            yield self._channel(facility, broadcast=True)
+        for user in self._iter_users(users, request):
+            yield self._channel(facility, user=user)
+        for group in self._iter_groups(groups, request):
+            yield self._channel(facility, group=group)
+        for session in self._iter_sessions(sessions, request):
+            yield self._channel(facility, session=session)
+        
+    def _iter_users(self, users, request):
+        for user in users:
+            if user is SELF and request and request.user and request.user.is_authenticated():
+                yield request.user.get_username()
+                continue
+            yield user
+            
+    def _iter_groups(self, groups, request):
+        for group in groups:
+            if group is SELF and request and request.user and request.user.is_authenticated():
+                yield request.session.get('redsocks:memberof', [])
+                continue
+            yield group
+            
+    def _iter_sessions(self, sessions, request):
+        for session in sessions:
+            if session is SELF and request:
+                yield request.session.session_key
+                continue
+            yield session

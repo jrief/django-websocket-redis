@@ -10,10 +10,10 @@ class RedisPublisher(RedisStore):
     
     def __init__(self, **kwargs):
         """ Initialize the channels for publishing messages through the message queue. """
-        connection = StrictRedis(connection_pool=redis_connection_pool)
-        super(RedisPublisher, self).__init__(connection)
-        for key in self._get_message_channels(**kwargs):
-            self._publishers.add(key)
+        client = StrictRedis(connection_pool=redis_connection_pool)
+        super(RedisPublisher, self).__init__(client)
+        for channel in self._iter_channels(**kwargs):
+            self.publishers.add(channel)
 
     def fetch_message(self, request, facility, audience='any'):
         """ Fetch the first message available for the given facility and audience, if it has been
@@ -22,25 +22,19 @@ class RedisPublisher(RedisStore):
             the audience to check for the message. Must be one of 'broadcast', 'group', 'user',
             'session' or 'any'. The default is any, which means to check for all possible audiences.
         """
-        prefix = self.get_prefix()
-        kwargs = dict(prefix=prefix, facility=facility)
+        # create list of channels to look for a message
         channels = []
-        if audience in ('session', 'any'):
-            if request and request.session:
-                channels.append('{prefix}session:{0}:{facility}'.format(request.session.session_key, **kwargs))
-        if audience in ('user', 'any'):
-            if request and request.user and request.user.is_authenticated():
-                channels.append('{prefix}user:{0}:{facility}'.format(request.user.get_username(), **kwargs))
-        if audience in ('group', 'any'):
-            try:
-                if request.user.is_authenticated():
-                    groups = request.session['redsocks:memberof']
-                    channels.extend('{prefix}group:{0}:{facility}'.format(g, **kwargs) for g in groups)
-            except (KeyError, AttributeError):
-                pass
+        if audience in ('session', 'any') and request and request.session:
+            channels.append(self._channel(facility, session=request.session.session_key))
+        if audience in ('user', 'any') and request and request.user and request.user.is_authenticated():
+            channels.append(self._channel(facility, user=request.user.get_username()))
+        if audience in ('group', 'any') and request and request.user and request.user.is_authenticated():
+            groups = request.session.get('redsocks:memberof', [])
+            channels += [self._channel(facility, group=group) for group in groups]
         if audience in ('broadcast', 'any'):
-            channels.append('{prefix}broadcast:{facility}'.format(**kwargs))
+            channels.append(self._channel(facility, broadcast=True))
+        # return the first message found
         for channel in channels:
-            message = self._connection.get(channel)
+            message = self.store.get(channel)
             if message:
                 return message
