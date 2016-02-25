@@ -6,20 +6,20 @@ from django.core.servers.basehttp import WSGIServer, WSGIRequestHandler
 from django.core.wsgi import get_wsgi_application
 from django.utils.encoding import force_str
 from django.utils.six.moves import socketserver
-from redsocks.server.wsgi import HandshakeError, UpgradeRequiredError
-from redsocks.server.wsgi import WSGIWebsocketServer
-from redsocks.websocket import WebSocket
+from redsocks.exceptions import HandshakeError, UpgradeRequiredError
+from redsocks.runserver.websocket import WebSocket
+from redsocks.uwsgiserver import uWSGIWebsocketServer
 from wsgiref import util
 
 log = logging.getLogger('django.request')
 util._hoppish = {}.__contains__
 
 
-class DjangoWebsocketServer(WSGIWebsocketServer):
+class DjangoWebsocketServer(uWSGIWebsocketServer):
     WS_GUID = b'258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
     WS_VERSIONS = ('13', '8', '7')
     
-    def _assert_websocket_requirements(self, websocket_version, key):
+    def assert_websocket_requirements(self, websocket_version, key):
         # check websocket version
         if not websocket_version:
             raise UpgradeRequiredError()
@@ -38,7 +38,7 @@ class DjangoWebsocketServer(WSGIWebsocketServer):
         """ Attempt to upgrade the socket environ['wsgi.input'] into a websocket enabled connection. """
         websocket_version = environ.get('HTTP_SEC_WEBSOCKET_VERSION', '')
         key = environ.get('HTTP_SEC_WEBSOCKET_KEY', '').strip()
-        self._assert_websocket_requirements(websocket_version, key)
+        self.assert_websocket_requirements(websocket_version, key)
         sec_ws_accept = base64.b64encode(hashlib.sha1(six.b(key) + self.WS_GUID).digest())
         sec_ws_accept = sec_ws_accept.decode('ascii') if six.PY3 else sec_ws_accept
         headers = [

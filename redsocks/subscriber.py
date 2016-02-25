@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
+from django import http
 from django.conf import settings
-from django.contrib.auth import get_user
-from django.utils.functional import SimpleLazyObject
-from importlib import import_module
+from django.core.exceptions import PermissionDenied
 from redsocks.redisstore import RedisStore, SELF
+from redsocks.exceptions import WebSocketError, HandshakeError, UpgradeRequiredError
+from redsocks import log
+
+DEFAULT_CHANNELS = [
+    'subscribe-session', 'subscribe-group', 'subscribe-user', 'subscribe-broadcast',
+    'publish-session', 'publish-group', 'publish-user', 'publish-broadcast',
+]
 
 
 class RedisSubscriber(RedisStore):
@@ -17,24 +23,18 @@ class RedisSubscriber(RedisStore):
 
     def allowed_channels(self, request, channels):
         """ Can be used to restrict the subscription/publishing channels for the current client. This callback
-            function shall return a list of allowed channels or throw a ``PermissionDenied`` exception. Remember
-            that this function is not allowed to perform any blocking requests, such as accessing the database!
+            function shall return a list of allowed channels or throw a PermissionDenied exception.
         """
-        return channels
-
-    def process_request(self, request):
-        request.session = None
-        request.user = None
-        session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
-        if session_key is not None:
-            engine = import_module(settings.SESSION_ENGINE)
-            request.session = engine.SessionStore(session_key)
-            request.user = SimpleLazyObject(lambda: get_user(request))
+        return [c for c in channels if c in DEFAULT_CHANNELS]
+        
+    def get_file_descriptor(self):
+        """ Return file descriptor used for select call when listening on message queue. """
+        return self.subscription.connection and self.subscription.connection._sock.fileno()
 
     def parse_response(self):
         """ Parse a message response sent by the Redis datastore on a subscribed channel. """
         return self.subscription.parse_response()
-
+        
     def set_pubsub_channels(self, request, channels):
         """ Initialize the channels used for publishing and subscribing messages through the message queue. """
         facility = request.path_info.replace(settings.WEBSOCKET_URL, '', 1)
@@ -59,21 +59,29 @@ class RedisSubscriber(RedisStore):
         for channel in self._iter_channels(facility, request, **audience):
             self.subscription.subscribe(channel)
 
-    def send_persited_messages(self, websocket):
-        """ This method is called immediately after a websocket is openend by the client, so that
-            persisted messages can be sent back to the client upon connection.
-        """
-        # TODO: REMOVE THIS FUNCTION?
+    def on_connect(self, request, websocket):
+        """ This method is called immediately after a websocket is openend by the client. """
+        # Send persisted messages upon connect..
         for channel in self.subscription.channels:
             message = self.client.get(channel)
             if message:
                 websocket.send(message)
+                
+    def on_receive_message(self, request, websocket, message):
+        return message
+        
+    def on_send_message(self, request, websocket, message):
+        return message
+        
+    def on_error(self, request, websocket, err):
+        log.error('Error: %s', err, exc_info=err)
+        if isinstance(err, WebSocketError): return http.HttpResponse(status=1001, content='Websocket closed.')
+        if isinstance(err, UpgradeRequiredError): return http.HttpResponseBadRequest(status=426, content=err)
+        if isinstance(err, HandshakeError): return http.HttpResponseBadRequest(content=err)
+        if isinstance(err, PermissionDenied): return http.HttpResponseForbidden(content=err)
+        return http.HttpResponseServerError(content=err)
 
-    def get_file_descriptor(self):
-        """ Return file descriptor used for select call when listening on message queue. """
-        return self.subscription.connection and self.subscription.connection._sock.fileno()
-
-    def release(self):
+    def on_disconnect(self, request, websocket):
         """ New implementation to free up Redis subscriptions when websockets close. This prevents
             memory sap when Redis Output Buffer and Output Lists build when websockets are abandoned.
         """
