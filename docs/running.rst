@@ -210,6 +210,10 @@ Django with WebSockets for Redis as a stand alone uWSGI server in emperor mode
 In this configuration the **uWSGI** server owns both main loops. To distinguish WebSockets from
 normal requests, use uWSGI's `internal routing`_ capabilities.
 
+.. note:: The internal routing capabilities of uWSGI is dependent on the Perl Compatible Regular Expressions
+	(PCRE) library. Make sure that your uWSGI was built with PCRE support if you plan to run in emperor mode.
+	Please refer to the :ref:`PCRE Support` section below for more information.
+
 First create the two applications, ``wsgi_django.py`` and ``wsgi_websocket.py`` using the same code
 as in the above example. These are the two entry points for uWSGI. Then create these three
 ini-files, one for the emperor, say ``uwsgi.ini``:
@@ -290,3 +294,16 @@ onto a Content Delivery Network, such as Amazon S3.
 .. _internal routing: https://uwsgi.readthedocs.org/en/latest/InternalRouting.html
 .. _deliver static files: https://uwsgi.readthedocs.org/en/latest/InternalRouting.html?highlight=routing#static
 .. _replace a webserver: http://uwsgi-docs.readthedocs.org/en/latest/HTTP.html#can-i-use-uwsgi-s-http-capabilities-in-production
+
+
+.. _PCRE Support:
+
+PCRE Support
+------------
+If you encounter the error message ``!!! no internal routing support, rebuild with pcre support !!!``
+in the logs/console when running in emperor mode, that means you were lacking the PCRE libraries
+when you first installed uWSGI. You will need to rebuild the uWSGI binaries. To do that uninstall uWSGI, and
+then download the ``libpcre3`` and ``libpcre3-dev`` libraries using your system's package management tool.
+Once finished, reinstall uWSGI. Credits to this `post`_.
+
+.. _post: http://stackoverflow.com/a/22645915/4284628
