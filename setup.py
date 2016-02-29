@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from setuptools import setup, find_packages
-from ws4redis import __version__
+from redsocks import __version__
 try:
     from pypandoc import convert
 except ImportError:
@@ -34,13 +34,13 @@ CLASSIFIERS = [
 ]
 
 setup(
-    name='django-websocket-redis',
+    name='django-redsocks',
     version=__version__,
     author='Jacob Rief',
     author_email='jacob.rief@gmail.com',
     description=DESCRIPTION,
     long_description=convert('README.md', 'rst'),
-    url='https://github.com/jrief/django-websocket-redis',
+    url='https://github.com/mjs7231/django-redsocks',
     license='MIT',
     keywords=['django', 'websocket', 'redis'],
     platforms=['OS Independent'],

@@ -69,7 +69,7 @@ client. This can be configured using the special setting:
 
 .. code-block:: python
 
-	WS4REDIS_HEARTBEAT = '--heartbeat--'
+	REDSOCKS_HEARTBEAT = '--heartbeat--'
 
 The purpose of this setting is twofold. During processing, the server ignores incoming messages
 containing this magic string. Additionally the Websocket server sends a message with that magic
@@ -77,5 +77,5 @@ string to the client, about every four seconds. The above client code awaits the
 least every five seconds, and if too many were not received, it closes the connection and tries
 to reestablish it.
 
-By default the setting ``WS4REDIS_HEARTBEAT`` is ``None``, which means that heartbeat messages are
+By default the setting ``REDSOCKS_HEARTBEAT`` is ``None``, which means that heartbeat messages are
 neither expected nor sent.

@@ -100,7 +100,7 @@ Scalability
 
 One of the nice features of Redis is its infinite scalability. If one Redis server can't handle its
 workload, interconnect it with another one and all events and messages are mirrored across this
-network. Since **django-websocket-redis** can be deployed multiple times and as self-contained
+network. Since **django-redsocks** can be deployed multiple times and as self-contained
 Django applications, this configuration can scale infinitely, just interconnect the Redis servers
 to each other.
 

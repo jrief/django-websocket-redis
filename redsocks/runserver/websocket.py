@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 # This code was generously pilfered from https://bitbucket.org/Jeffrey/gevent-websocket
 # written by Jeffrey Gelens (http://noppo.pro/) and licensed under the Apache License, Version 2.0
-import six
-import struct
-from socket import error as socket_error
+import six, struct
 from django.core.handlers.wsgi import logger
-from ws4redis.utf8validator import Utf8Validator
-from ws4redis.exceptions import WebSocketError, FrameTooLargeException
-
-
-if six.PY3:
-    xrange = range
+from redsocks.exceptions import WebSocketError, FrameTooLargeException
+from redsocks.runserver.utf8validator import Utf8Validator
+from socket import error as socket_error
+if six.PY3: xrange = range
 
 
 class WebSocket(object):
@@ -37,9 +33,8 @@ class WebSocket(object):
             pass
 
     def _decode_bytes(self, bytestring):
-        """
-        Internal method used to convert the utf-8 encoded bytestring into unicode.
-        If the conversion fails, the socket will be closed.
+        """ Internal method used to convert the utf-8 encoded bytestring into unicode.
+            If the conversion fails, the socket will be closed.
         """
         if not bytestring:
             return u''
@@ -50,9 +45,7 @@ class WebSocket(object):
             raise
 
     def _encode_bytes(self, text):
-        """
-        :returns: The utf-8 byte string equivalent of `text`.
-        """
+        """ returns The utf-8 byte string equivalent of text. """
         if isinstance(text, six.binary_type):
             return text
         if not isinstance(text, six.text_type):
@@ -60,9 +53,7 @@ class WebSocket(object):
         return text.encode('utf-8')
 
     def _is_valid_close_code(self, code):
-        """
-        :returns: Whether the returned close code is a valid hybi return code.
-        """
+        """ returns Whether the returned close code is a valid hybi return code. """
         if code < 1000:
             return False
         if 1004 <= code <= 1006:
@@ -77,7 +68,7 @@ class WebSocket(object):
         return True
 
     def get_file_descriptor(self):
-        """Return the file descriptor for the given websocket"""
+        """ Return the file descriptor for the given websocket. """
         return self.stream.fileno
 
     @property
@@ -85,11 +76,9 @@ class WebSocket(object):
         return self._closed
 
     def handle_close(self, header, payload):
-        """
-        Called when a close frame has been decoded from the stream.
-
-        :param header: The decoded `Header`.
-        :param payload: The bytestring payload associated with the close frame.
+        """ Called when a close frame has been decoded from the stream.
+            header: The decoded Header.
+            payload: The bytestring payload associated with the close frame.
         """
         if not payload:
             self.close(1000, None)
@@ -118,13 +107,9 @@ class WebSocket(object):
         pass
 
     def read_frame(self):
-        """
-        Block until a full frame has been read from the socket.
-
-        This is an internal method as calling this will not cleanup correctly
-        if an exception is called. Use `receive` instead.
-
-        :return: The header and payload as a tuple.
+        """ Block until a full frame has been read from the socket. This is an internal
+            method as calling this will not cleanup correctly if an exception is called.
+            Use receive instead. Returns The header and payload as a tuple.
         """
         header = Header.decode_header(self.stream)
         if header.flags:
@@ -135,8 +120,8 @@ class WebSocket(object):
             payload = self.stream.read(header.length)
         except socket_error:
             payload = ''
-        except Exception:
-            logger.debug("{}: {}".format(type(e), six.text_type(e)))
+        except Exception as err:
+            logger.debug("{}: {}".format(type(err), six.text_type(err)))
             payload = ''
         if len(payload) != header.length:
             raise WebSocketError('Unexpected EOF reading frame payload')
@@ -147,18 +132,14 @@ class WebSocket(object):
     def validate_utf8(self, payload):
         # Make sure the frames are decodable independently
         self.utf8validate_last = self.utf8validator.validate(payload)
-
         if not self.utf8validate_last[0]:
-            raise UnicodeError("Encountered invalid UTF-8 while processing "
-                               "text message at payload octet index "
-                               "{0:d}".format(self.utf8validate_last[3]))
+            raise UnicodeError('Encountered invalid UTF-8 while processing text message '
+                'at payload octet index {0:d}'.format(self.utf8validate_last[3]))
 
     def read_message(self):
-        """
-        Return the next text or binary message from the socket.
-
-        This is an internal method as calling this will not cleanup correctly
-        if an exception is called. Use `receive` instead.
+        """ Return the next text or binary message from the socket.
+            This is an internal method as calling this will not cleanup correctly
+            if an exception is called. Use `receive` instead.
         """
         opcode = None
         message = ""
@@ -204,9 +185,8 @@ class WebSocket(object):
             return bytearray(message)
 
     def receive(self):
-        """
-        Read and return a message from the stream. If `None` is returned, then
-        the socket is considered closed/errored.
+        """ Read and return a message from the stream. If `None` is returned, then
+            the socket is considered closed/errored.
         """
         if self._closed:
             raise WebSocketError("Connection is already closed")
@@ -223,15 +203,11 @@ class WebSocket(object):
             raise e
 
     def flush(self):
-        """
-        Flush a websocket. In this implementation intentionally it does nothing.
-        """
+        """ Flush a websocket. In this implementation intentionally it does nothing. """
         pass
 
     def send_frame(self, message, opcode):
-        """
-        Send a frame over the websocket with message as its payload
-        """
+        """ Send a frame over the websocket with message as its payload """
         if self._closed:
             raise WebSocketError("Connection is already closed")
         if opcode == self.OPCODE_TEXT:
@@ -245,9 +221,7 @@ class WebSocket(object):
             raise WebSocketError("Socket is dead")
 
     def send(self, message, binary=False):
-        """
-        Send a frame over the websocket with message as its payload
-        """
+        """ Send a frame over the websocket with message as its payload """
         if binary is None:
             binary = not isinstance(message, six.string_types)
         opcode = self.OPCODE_BINARY if binary else self.OPCODE_TEXT
@@ -257,10 +231,9 @@ class WebSocket(object):
             raise WebSocketError("Socket is dead")
 
     def close(self, code=1000, message=''):
-        """
-        Close the websocket and connection, sending the specified code and
-        message.  The underlying socket object is _not_ closed, that is the
-        responsibility of the initiator.
+        """ Close the websocket and connection, sending the specified code and
+            message.  The underlying socket object is _not_ closed, that is the
+            responsibility of the initiator.
         """
         try:
             message = self._encode_bytes(message)
@@ -278,11 +251,9 @@ class WebSocket(object):
 
 
 class Stream(object):
+    """ Wraps the handler's socket/rfile attributes and makes it in to a file like
+        object that can be read from/written to by the lower level websocket api.
     """
-    Wraps the handler's socket/rfile attributes and makes it in to a file like
-    object that can be read from/written to by the lower level websocket api.
-    """
-
     __slots__ = ('read', 'write', 'fileno')
 
     def __init__(self, wsgi_input):
@@ -335,11 +306,9 @@ class Header(object):
 
     @classmethod
     def decode_header(cls, stream):
-        """
-        Decode a WebSocket header.
-
-        :param stream: A file like object that can be 'read' from.
-        :returns: A `Header` instance.
+        """ Decode a WebSocket header.
+            stream: A file like object that can be 'read' from.
+            returns A Header instance.
         """
         read = stream.read
         data = read(2)
@@ -379,15 +348,13 @@ class Header(object):
 
     @classmethod
     def encode_header(cls, fin, opcode, mask, length, flags):
-        """
-        Encodes a WebSocket header.
-
-        :param fin: Whether this is the final frame for this opcode.
-        :param opcode: The opcode of the payload, see `OPCODE_*`
-        :param mask: Whether the payload is masked.
-        :param length: The length of the frame.
-        :param flags: The RSV* flags.
-        :return: A bytestring encoded header.
+        """ Encodes a WebSocket header.
+            fin: Whether this is the final frame for this opcode.
+            opcode: The opcode of the payload, see `OPCODE_*`
+            mask: Whether the payload is masked.
+            length: The length of the frame.
+            flags: The RSV* flags.
+            returns A bytestring encoded header.
         """
         first_byte = opcode
         second_byte = 0

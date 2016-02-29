@@ -17,7 +17,7 @@ no hooks for adding server side logics. The latter must reside inside the Django
 as the communication engine between those two.
 
 A reason one might need to debug inside the Websocket loop, is, because the subscriber was
-overridden using the configuration setting ``WS4REDIS_SUBSCRIBER``. Therefore, one of the aims of
+overridden using the configuration setting ``REDSOCKS_SUBSCRIBER``. Therefore, one of the aims of
 this project is to facilitate the entry level for debugging. During development, hence the server
 is started with ``./manage.py runserver``, this is achieved by hijacking the Django loop. Then the
 connection is kept open, until the client closes the Websocket.
@@ -47,7 +47,7 @@ keys
 
 	redis 127.0.0.1:6379> keys *
 
-Gives a list of all keys used in Redis. If a ``WS4REDIS_PREFIX`` is specified in ``settings.py``,
+Gives a list of all keys used in Redis. If a ``REDSOCKS_PREFIX`` is specified in ``settings.py``,
 this prefixing string can be used to limit the keys to those used by **Websocket for Redis**.
 
 If, for instance you're interested into all messages available for broadcast, then invoke:
@@ -82,7 +82,7 @@ This returns the data available for the browser owning the session-id
 subscribe
 ---------
 If **Websocket for Redis** is configured to not cache published data, no data buckets are filled.
-This is the case, when the configuration option ``WS4REDIS_EXPIRE`` is set to zero or None. In such
+This is the case, when the configuration option ``REDSOCKS_EXPIRE`` is set to zero or None. In such
 a situation, the Redis commands ``keys`` and ``get`` won't give you any information. But you can
 subscribe for listening to a named channel:
 

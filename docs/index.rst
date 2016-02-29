@@ -1,4 +1,4 @@
-.. django-websocket-redis documentation master file
+.. django-redsocks documentation master file
 
 ===============================================================
 Websockets for Django applications using Redis as message queue
@@ -39,5 +39,5 @@ Indices and tables
 .. _NGiNX: http://nginx.com/
 .. _uWSGI: http://uwsgi-docs.readthedocs.org/en/latest/WebSockets.html
 .. _Redis datastore: http://redis.io/
-.. _Github: https://github.com/jrief/django-websocket-redis
-.. _Issue Tracker: https://github.com/jrief/django-websocket-redis/issues
+.. _Github: https://github.com/mjs7231/django-redsocks
+.. _Issue Tracker: https://github.com/mjs7231/django-redsocks/issues

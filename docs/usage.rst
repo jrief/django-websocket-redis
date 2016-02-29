@@ -8,7 +8,7 @@ Using Websockets for Redis
 and vice versa. Each websocket is identified by the part of the URL which follows the prefix
 ``/ws/``. Use different uniform locators to distinguish between unrelated communication channels.
 
-.. note:: The prefix ``/ws/`` is specified using the configuration setting ``WEBSOCKET_URL`` and
+.. note:: The prefix ``/ws/`` is specified using the configuration setting ``REDSOCKS_URL`` and
           can be changed to whatever is appropriate.
 
 Client side
@@ -51,27 +51,27 @@ Include the client code in your template:
 
 .. code-block:: html
 
-	<script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/redsocks.js"></script>
 
 and access the Websocket code:
 
 .. code-block:: javascript
 
 	jQuery(document).ready(function($) {
-	    var ws4redis = WS4Redis({
-	        uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast&echo',
+	    var redsocks = Redsocket({
+	        uri: '{{REDSOCKS_URI}}foobar?subscribe-broadcast&publish-broadcast&echo',
 	        receive_message: receiveMessage,
 	        connected: on_connected,
-	        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+	        heartbeat_msg: {{ REDSOCKS_HEARTBEAT }}
 	    });
 
 	    // attach this function to an event handler on your site
 	    function sendMessage() {
-	        ws4redis.send_message('A message');
+	        redsocks.send_message('A message');
 	    }
 	    
 	    function on_connected() {
-	        ws4redis.send_message('Hello');
+	        redsocks.send_message('Hello');
 	    }
 
 	    // receive a message though the websocket from the server
@@ -99,7 +99,7 @@ and the Django loop must pass through the message queue.
 RedisSubscriber
 ---------------
 In the Websocket loop, the message queue is controlled by the class ``RedisSubscriber``, which can
-be replaced using the configuration directive ``WS4REDIS_SUBSCRIBER``.
+be replaced using the configuration directive ``REDSOCKS_SUBSCRIBER``.
 
 RedisPublisher
 --------------
@@ -117,8 +117,8 @@ message to all clients listening on the named facility, referred here as ``fooba
 
 .. code-block:: python
 
-	from ws4redis.publisher import RedisPublisher
-	from ws4redis.redis_store import RedisMessage
+	from redsocks.publisher import RedisPublisher
+	from redsocks.redis_store import RedisMessage
 
 	redis_publisher = RedisPublisher(facility='foobar', broadcast=True)
 	message = RedisMessage('Hello World')
@@ -149,7 +149,7 @@ If the message shall be send to the currently logged in user, then you may use t
 
 .. code-block:: python
 
-	from ws4redis.redis_store import SELF
+	from redsocks.redis_store import SELF
 
 	redis_publisher = RedisPublisher(facility='foobar', users=[SELF], request=request)
 
@@ -239,7 +239,7 @@ Persisting messages
 -------------------
 If a client connects to a Redis channel for the first time, or if he reconnects after a page reload,
 he might be interested in the current message, previously published on that channel. If the
-configuration settings ``WS4REDIS_EXPIRE`` is set to a positive value, **Websocket for Redis**
+configuration settings ``REDSOCKS_EXPIRE`` is set to a positive value, **Websocket for Redis**
 persists the current message in its key-value store. This message then is retrieved and sent to
 the client, immediately after he connects to the server.
 
@@ -280,6 +280,6 @@ When using this callback function, Websockets opened by a non-authenticated user
 **403 - Response Forbidden** error.
 
 To enable this function in your application, use the configuration directive
-``WS4REDIS_ALLOWED_CHANNELS``.
+``REDSOCKS_ALLOWED_CHANNELS``.
 
 .. note:: This function must not perform any blocking requests, such as accessing the database!

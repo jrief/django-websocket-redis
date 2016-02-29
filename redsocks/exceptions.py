@@ -4,24 +4,20 @@ from django.http import BadHeaderError
 
 
 class WebSocketError(socket_error):
-    """
-    Raised when an active websocket encounters a problem.
-    """
+    """ Raised when an active websocket encounters a problem. """
+    pass
 
 
 class FrameTooLargeException(WebSocketError):
-    """
-    Raised if a received frame is too large.
-    """
+    """ Raised if a received frame is too large. """
+    pass
 
 
 class HandshakeError(BadHeaderError):
-    """
-    Raised if an error occurs during protocol handshake.
-    """
+    """ Raised if an error occurs during protocol handshake. """
+    pass
 
 
 class UpgradeRequiredError(HandshakeError):
-    """
-    Raised if protocol must be upgraded.
-    """
+    """ Raised if protocol must be upgraded. """
+    pass
