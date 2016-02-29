@@ -8,7 +8,7 @@ from django.utils.encoding import force_str
 from django.utils.six.moves import socketserver
 from redsocks.exceptions import HandshakeError, UpgradeRequiredError
 from redsocks.runserver.websocket import WebSocket
-from redsocks.uwsgiserver import uWSGIWebsocketServer
+from redsocks.server import uWSGIWebsocketServer
 from wsgiref import util
 
 log = logging.getLogger('django.request')
