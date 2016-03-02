@@ -178,10 +178,10 @@ class WebSocket(object):
                     raise WebSocketError("Unexpected frame with opcode=0")
             elif f_opcode == self.OPCODE_PING:
                 self.handle_ping(header, payload)
-                continue
+                return
             elif f_opcode == self.OPCODE_PONG:
                 self.handle_pong(header, payload)
-                continue
+                return
             elif f_opcode == self.OPCODE_CLOSE:
                 self.handle_close(header, payload)
                 return
