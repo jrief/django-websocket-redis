@@ -140,7 +140,7 @@ websockets. Change into the ``examples`` directory and start a sample chat serve
 
 .. code-block:: bash
 
-	./manage.py syncdb
+	./manage.py migrate
 	... create database tables
 	... answer the questions
 	./manage.py runserver
