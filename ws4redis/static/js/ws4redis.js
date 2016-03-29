@@ -3,6 +3,7 @@ function WS4Redis(options, $) {
 	'use strict';
 	var opts, ws, deferred, timer, attempts = 1;
 	var heartbeat_interval = null, missed_heartbeats = 0;
+	var status_callback = null, connected = false;
 
 	if (this === undefined)
 		return new WS4Redis(options, $);
@@ -11,6 +12,8 @@ function WS4Redis(options, $) {
 	if ($ === undefined)
 		$ = jQuery;
 	opts = $.extend({ heartbeat_msg: null }, options);
+	if (opts.status_callback && typeof opts.status_callback === 'function')
+		status_callback = opts.status_callback;
 	connect(opts.uri);
 
 	function connect(uri) {
@@ -47,6 +50,9 @@ function WS4Redis(options, $) {
 		// new connection, reset attemps counter
 		attempts = 1;
 		deferred.resolve();
+		connected = true;
+		if (status_callback)
+			status_callback(true);
 		if (opts.heartbeat_msg && heartbeat_interval === null) {
 			missed_heartbeats = 0;
 			heartbeat_interval = setInterval(send_heartbeat, 5000);
@@ -58,6 +64,12 @@ function WS4Redis(options, $) {
 
 	function on_close(evt) {
 		console.log("Connection closed!");
+		// only call the callback if the status has changed (this event also
+		// fires when a connection attempt fails)
+		if (status_callback && connected) {
+			connected = false;
+			status_callback(false);
+		}
 		if (!timer) {
 			// try to reconnect
 			var interval = generateInteval(attempts);
