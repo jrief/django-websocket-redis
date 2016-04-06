@@ -90,7 +90,7 @@ and access the Websocket code:
 	    }
 	});
 
-If you want to close the connection explicitly, you could call *ws4redis.close()*. This way, the client will not perform reconnection attempts.
+If you want to close the connection explicitly, you could call **ws4redis.close()**. This way, the client will not perform reconnection attempts.
 
 This example shows how to configure a Websocket for bidirectional communication.
 
