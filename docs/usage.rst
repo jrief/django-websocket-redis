@@ -94,7 +94,7 @@ If you want to close the connection explicitly, you could call **ws4redis.close(
 
 This example shows how to configure a Websocket for bidirectional communication.
 
-.. **note**:: A client wishing to trigger events on the server side, shall use XMLHttpRequests (Ajax),
+.. note:: A client wishing to trigger events on the server side, shall use XMLHttpRequests (Ajax),
           as they are much more suitable, rather than messages sent via Websockets. The main purpose
           for Websockets is to communicate asynchronously from the server to the client.
 
