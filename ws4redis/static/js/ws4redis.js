@@ -136,19 +136,19 @@ function WS4Redis(options, $) {
 	};
 	
 	function is_connecting() {
-		return ws.readyState == 0;	
+		return ws && ws.readyState === 0;	
 	}
 	
 	function is_connected() {
-		return ws.readyState == 1;	
+		return ws && ws.readyState === 1;	
 	}
 	
 	function is_closing() {
-		return ws.readyState == 2;	
+		return ws && ws.readyState === 2;	
 	}
 
 	function is_closed() {
-		return ws.readyState == 3;	
+		return ws && ws.readyState === 3;	
 	}
 	
 	
@@ -160,8 +160,8 @@ function WS4Redis(options, $) {
 		}
 	}
 	
-	this.is_connecting = function () { is_connecting(); } 
-	this.is_connected = function () { is_connected(); }
-	this.is_closing = function () { is_closing(); }
-	this.is_closed = function () { is_closed(); }
+	this.is_connecting = is_connecting; 
+	this.is_connected = is_connected;
+	this.is_closing = is_closing;
+	this.is_closed = is_closed;
 }
