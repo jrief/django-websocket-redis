@@ -42,8 +42,8 @@ A minimal client in pure JavaScript
 	    ws.send(msg);
 	}
 
-Client JavaScript depending on jQuery
--------------------------------------
+Client JavaScript depending on jQuery (recommended)
+---------------------------------------------------
 When using jQuery, clients can reconnect on broken Websockets. Additionally the client awaits for
 heartbeat messages and reconnects if too many of them were missed.
 
@@ -60,8 +60,10 @@ and access the Websocket code:
 	jQuery(document).ready(function($) {
 	    var ws4redis = WS4Redis({
 	        uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast&echo',
-	        receive_message: receiveMessage,
+	        connecting: on_connecting,
 	        connected: on_connected,
+	        receive_message: receiveMessage,
+	        disconnected: on_disconnected,
 	        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
 	    });
 
@@ -70,8 +72,16 @@ and access the Websocket code:
 	        ws4redis.send_message('A message');
 	    }
 	    
+	    function on_connecting() {
+	        alert('Websocket is connecting...');
+	    }
+	    
 	    function on_connected() {
 	        ws4redis.send_message('Hello');
+	    }
+	    
+	    function on_disconnected(evt) {
+	        alert('Websocket was disconnected: ' + JSON.stringify(evt));
 	    }
 
 	    // receive a message though the websocket from the server
@@ -79,6 +89,8 @@ and access the Websocket code:
 	        alert('Message from Websocket: ' + msg);
 	    }
 	});
+
+If you want to close the connection explicitly, you could call **ws4redis.close()**. This way, the client will not perform reconnection attempts.
 
 This example shows how to configure a Websocket for bidirectional communication.
 
