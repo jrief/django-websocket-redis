@@ -7,7 +7,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Django Websocket Redis</title>
-	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+{#	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">#}
+	<link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -36,7 +37,9 @@
 				<ul class="nav navbar-nav navbar-right">
 					<li class="dropdown" style="margin-right: 12em;">
 					{% if request.user.is_authenticated %}
-						<a class="dropdown-toggle" href="#" data-toggle="dropdown">{{ request.user.get_full_name }} <span class="caret"></span></a>
+
+                        <h1> {{ request.user.username }}</h1>
+						<a class="dropdown-toggle" href="#" data-toggle="dropdown">{{ request.user.username }} <span class="caret"></span></a>
 						<div class="dropdown-menu" style="padding:1em;">
 							<form class="form" action="{% url 'logout' %}" method="post">{% csrf_token %}
 								<input type="hidden" name="next" value="{{ request.get_full_path }}" />
@@ -92,8 +95,11 @@
 		</div>
 		{% endblock main_content %}
 	</div>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js" type="text/javascript"></script>
+
+{#    <script src="https://code.jquery.com/jquery-1.12.3.min.js" ></script>#}
+{#    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>#}
+    <script src="{{ STATIC_URL }}js/jquery.min.js" type="text/javascript" ></script>
+    <script src="{{ STATIC_URL }}js/bootstrap.min.js" type="text/javascript" ></script>
 	<script src="{{ STATIC_URL }}js/ws4redis.js" type="text/javascript"></script>
 	{% block script_panel %}{% endblock %}
 	<a href="https://github.com/jrief/django-websocket-redis" class="hidden-xs">

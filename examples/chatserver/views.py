@@ -31,6 +31,7 @@ class UserChatView(TemplateView):
     def post(self, request, *args, **kwargs):
         redis_publisher = RedisPublisher(facility='foobar', users=[request.POST.get('user')])
         message = RedisMessage(request.POST.get('message'))
+        print 'message == ', message
         redis_publisher.publish_message(message)
         return HttpResponse('OK')
 

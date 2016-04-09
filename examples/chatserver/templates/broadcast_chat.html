@@ -4,6 +4,8 @@
 
 {% block introduction %}
 <p>Point a second browser onto this URL and check for message synchronization.</p>
+    <h1> WEBSOCKET_URI == {{ WEBSOCKET_URI }}</h1>
+    <h1> WS4REDIS_HEARTBEAT == {{ WS4REDIS_HEARTBEAT }}</h1>
 {% endblock introduction %}
 
 {% block script_panel %}
@@ -21,6 +23,7 @@ jQuery(document).ready(function($) {
 		if (event.keyCode === 13) {
 			event.preventDefault();
 			ws4redis.send_message($('#text_message').val());
+            $("#text_message").val('')
 		}
 	});
 
