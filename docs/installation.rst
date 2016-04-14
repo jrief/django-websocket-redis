@@ -142,6 +142,15 @@ channel. To restrict and control access, the ``WS4REDIS_ALLOWED_CHANNELS`` optio
 be set to a callback function anywhere inside your project. See the example and warnings in
 :ref:`SafetyConsiderations`.
 
+Running Websockets in Cross Domains
+-----------------------------------
+In case you wish to listen to websocket connections in a cross domain (websocket domain name != site domain name), use the setting WEBSOCKET_HOST. However, it is mandatory to provide the Django setting SESSION_COOKIE_DOMAIN in order to tell Django to use the some cookie for both domains. If WEBSOCKET_HOST is not provided, it will be used the site domain (request.get_host()).
+
+.. code-block:: python
+
+	WEBSOCKET_HOST = 'ws.myapp.com' # Change this according to your needs.
+	SESSION_COOKIE_DOMAIN = '.myapp.com' # Change this according to your needs.
+
 Check your Installation
 -----------------------
 With **Websockets for Redis** your Django application has immediate access to code written for
