@@ -3,6 +3,12 @@ from django.conf import settings
 
 WEBSOCKET_URL = getattr(settings, 'WEBSOCKET_URL', '/ws/')
 
+"""
+The host addres that will be listening for Websocket connections. If not provided,
+it will be used the same host as of the site.
+"""
+WEBSOCKET_HOST = getattr(settings, 'WEBSOCKET_HOST', None)
+
 WS4REDIS_CONNECTION = getattr(settings, 'WS4REDIS_CONNECTION', {
     'host': 'localhost',
     'port': 6379,
