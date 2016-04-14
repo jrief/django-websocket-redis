@@ -14,6 +14,8 @@ Release History
 
 0.4.7
 -----
+* Adding support to run websockets in cross domains (setting WEBSOCKET_HOST).
+
 Improvements to the javascript API:
 
 * Performing reconnection attempts when the first connection (on instantiation) fails.
