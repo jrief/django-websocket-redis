@@ -2,6 +2,7 @@
 import six
 import warnings
 from ws4redis import settings
+from ws4redis._compat import is_authenticated
 
 
 """
@@ -18,7 +19,7 @@ def _wrap_users(users, request):
     """
     result = set()
     for u in users:
-        if u is SELF and request and request.user and request.user.is_authenticated():
+        if u is SELF and is_authenticated(request):
             result.add(request.user.get_username())
         else:
             result.add(u)
@@ -36,7 +37,7 @@ def _wrap_groups(groups, request):
     """
     result = set()
     for g in groups:
-        if g is SELF and request and request.user and request.user.is_authenticated():
+        if g is SELF and is_authenticated(request):
             result.update(request.session.get('ws4redis:memberof', []))
         else:
             result.add(g)
@@ -129,7 +130,7 @@ class RedisStore(object):
             # message is delivered to all listed groups
             channels.extend('{prefix}group:{0}:{facility}'.format(g, prefix=prefix, facility=facility)
                             for g in _wrap_groups(groups, request))
-        elif groups is True and request and request.user and request.user.is_authenticated():
+        elif groups is True and is_authenticated(request):
             # message is delivered to all groups the currently logged in user belongs to
             warnings.warn('Wrap groups=True into a list or tuple using SELF', DeprecationWarning)
             channels.extend('{prefix}group:{0}:{facility}'.format(g, prefix=prefix, facility=facility)
@@ -146,7 +147,7 @@ class RedisStore(object):
             # message is delivered to all listed users
             channels.extend('{prefix}user:{0}:{facility}'.format(u, prefix=prefix, facility=facility)
                             for u in _wrap_users(users, request))
-        elif users is True and request and request.user and request.user.is_authenticated():
+        elif users is True and is_authenticated(request):
             # message is delivered to browser instances of the currently logged in user
             warnings.warn('Wrap users=True into a list or tuple using SELF', DeprecationWarning)
             channels.append('{prefix}user:{0}:{facility}'.format(request.user.get_username(), prefix=prefix, facility=facility))

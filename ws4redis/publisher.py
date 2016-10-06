@@ -2,6 +2,7 @@
 from redis import ConnectionPool, StrictRedis
 from ws4redis import settings
 from ws4redis.redis_store import RedisStore
+from ws4redis._compat import is_authenticated
 
 redis_connection_pool = ConnectionPool(**settings.WS4REDIS_CONNECTION)
 
@@ -32,11 +33,11 @@ class RedisPublisher(RedisStore):
             if request and request.session:
                 channels.append('{prefix}session:{0}:{facility}'.format(request.session.session_key, prefix=prefix, facility=facility))
         if audience in ('user', 'any',):
-            if request and request.user and request.user.is_authenticated():
+            if is_authenticated(request):
                 channels.append('{prefix}user:{0}:{facility}'.format(request.user.get_username(), prefix=prefix, facility=facility))
         if audience in ('group', 'any',):
             try:
-                if request.user.is_authenticated():
+                if is_authenticated(request):
                     groups = request.session['ws4redis:memberof']
                     channels.extend('{prefix}group:{0}:{facility}'.format(g, prefix=prefix, facility=facility)
                                 for g in groups)
