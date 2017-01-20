@@ -4,15 +4,13 @@ from ws4redis import settings
 from ws4redis.redis_store import RedisStore
 from ws4redis._compat import is_authenticated
 
-redis_connection_pool = ConnectionPool(**settings.WS4REDIS_CONNECTION)
-
 
 class RedisPublisher(RedisStore):
     def __init__(self, **kwargs):
         """
         Initialize the channels for publishing messages through the message queue.
         """
-        connection = StrictRedis(connection_pool=redis_connection_pool)
+        connection = StrictRedis(**settings.WS4REDIS_CONNECTION)
         super(RedisPublisher, self).__init__(connection)
         for key in self._get_message_channels(**kwargs):
             self._publishers.add(key)
