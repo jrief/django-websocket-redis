@@ -3,14 +3,23 @@ from redis import ConnectionPool, StrictRedis
 from ws4redis import settings
 from ws4redis.redis_store import RedisStore
 from ws4redis._compat import is_authenticated
+from redis.connection import UnixDomainSocketConnection
 
+if 'unix_socket_path' in settings.WS4REDIS_CONNECTION:
+    # rename 'unix_socket_path' to 'path' and pass as args
+    conn_args = dict(settings.WS4REDIS_CONNECTION,
+            path=settings.WS4REDIS_CONNECTION['unix_socket_path'])
+    del conn_args['unix_socket_path']
+    pool = ConnectionPool(connection_class=UnixDomainSocketConnection, **conn_args)
+else:
+    redis_connection_pool = ConnectionPool(**settings.WS4REDIS_CONNECTION)
 
 class RedisPublisher(RedisStore):
     def __init__(self, **kwargs):
         """
         Initialize the channels for publishing messages through the message queue.
         """
-        connection = StrictRedis(**settings.WS4REDIS_CONNECTION)
+        connection = StrictRedis(connection_pool=redis_connection_pool)
         super(RedisPublisher, self).__init__(connection)
         for key in self._get_message_channels(**kwargs):
             self._publishers.add(key)
