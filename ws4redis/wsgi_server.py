@@ -58,7 +58,6 @@ class WebsocketWSGIServer(object):
             request.session = engine.SessionStore(session_key)
             request.user = SimpleLazyObject(lambda: get_user(request))
 
-
     def process_subscriptions(self, request):
         agreed_channels = []
         echo_message = False

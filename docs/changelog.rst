@@ -6,7 +6,7 @@ Release History
 
 0.4.8
 -----
-* Support Redis connections over Unix Domain Socket
+* Support Redis connections over Unix Domain Sockets.
 
 0.4.7
 -----
