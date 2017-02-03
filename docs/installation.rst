@@ -82,6 +82,15 @@ override these values
 
 .. note:: Specify only the values, which deviate from the default.
 
+If your Redis instance is accessed via a Unix Domain Socket, you can configure that as well:
+
+.. code-block:: python
+
+	WS4REDIS_CONNECTION = {
+	    'unix_socket_path': '/tmp/redis.sock',
+	    'db': 5
+	}
+
 **Websocket for Redis** can be configured with ``WS4REDIS_EXPIRE``, to additionally persist messages
 published on the message queue. This is advantageous in situations, where clients shall be able
 to access the published information after reconnecting the websocket, for instance after a page

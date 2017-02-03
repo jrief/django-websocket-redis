@@ -4,6 +4,10 @@
 Release History
 ===============
 
+0.4.8
+-----
+* Support Redis connections over Unix Domain Socket
+
 0.4.7
 -----
 Improvements to the javascript API:
