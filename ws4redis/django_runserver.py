@@ -64,7 +64,7 @@ class WebsocketRunServer(WebsocketWSGIServer):
         return select.select(rlist, wlist, xlist, timeout)
 
 
-def run(addr, port, wsgi_handler, ipv6=False, threading=False):
+def run(addr, port, wsgi_handler, ipv6=False, threading=False, **kwargs):
     """
     Function to monkey patch the internal Django command: manage.py runserver
     """
