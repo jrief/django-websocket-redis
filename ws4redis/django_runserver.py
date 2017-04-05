@@ -2,11 +2,11 @@
 import six
 import base64
 import select
+import logging
 from hashlib import sha1
 from wsgiref import util
 from django.core.wsgi import get_wsgi_application
 from django.core.servers.basehttp import WSGIServer, WSGIRequestHandler
-from django.core.handlers.wsgi import logger
 from django.conf import settings
 from django.core.management.commands import runserver
 from django.utils.six.moves import socketserver
@@ -15,6 +15,7 @@ from ws4redis.websocket import WebSocket
 from ws4redis.wsgi_server import WebsocketWSGIServer, HandshakeError, UpgradeRequiredError
 
 util._hoppish = {}.__contains__
+logger = logging.getLogger('django.request')
 
 
 class WebsocketRunServer(WebsocketWSGIServer):

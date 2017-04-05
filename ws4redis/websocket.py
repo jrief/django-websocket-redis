@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 # This code was generously pilfered from https://bitbucket.org/Jeffrey/gevent-websocket
 # written by Jeffrey Gelens (http://noppo.pro/) and licensed under the Apache License, Version 2.0
+import logging
 import six
 import struct
 from socket import error as socket_error
-from django.core.handlers.wsgi import logger
 from ws4redis.utf8validator import Utf8Validator
 from ws4redis.exceptions import WebSocketError, FrameTooLargeException
 
+logger = logging.getLogger('django.request')
 
 if six.PY3:
     xrange = range
