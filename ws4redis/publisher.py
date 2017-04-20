@@ -10,7 +10,7 @@ if 'unix_socket_path' in settings.WS4REDIS_CONNECTION:
     conn_args = dict(settings.WS4REDIS_CONNECTION,
             path=settings.WS4REDIS_CONNECTION['unix_socket_path'])
     del conn_args['unix_socket_path']
-    pool = ConnectionPool(connection_class=UnixDomainSocketConnection, **conn_args)
+    redis_connection_pool = ConnectionPool(connection_class=UnixDomainSocketConnection, **conn_args)
 else:
     redis_connection_pool = ConnectionPool(**settings.WS4REDIS_CONNECTION)
 
