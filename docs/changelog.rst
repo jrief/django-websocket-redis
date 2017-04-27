@@ -4,6 +4,10 @@
 Release History
 ===============
 
+0.5.0
+-----
+* Support for Django-1.11.
+
 0.4.8
 -----
 * Support Redis connections over Unix Domain Sockets.
