@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+import logging
 import six
 import base64
 import select
@@ -15,6 +16,8 @@ from ws4redis.websocket import WebSocket
 from ws4redis.wsgi_server import WebsocketWSGIServer, HandshakeError, UpgradeRequiredError
 
 util._hoppish = {}.__contains__
+logger = logging.getLogger('django.request')
+
 logger = logging.getLogger('django.request')
 
 
