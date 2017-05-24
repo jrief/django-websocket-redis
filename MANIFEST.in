@@ -3,3 +3,4 @@ include README.md
 include setup.py
 recursive-include ws4redis *.py
 recursive-include ws4redis/static *
+recursive-include docs Makefile conf.py requirements.txt *.rst *.png
