@@ -29,6 +29,12 @@ except ImportError:
     # RemovedInDjango19Warning: django.utils.importlib will be removed in Django 1.9.
     from django.utils.importlib import import_module
 
+try:
+    # django >= 1.7
+    from django.utils.module_loading import import_string
+except ImportError:
+    # django >= 1.5
+    from django.utils.module_loading import import_by_path as import_string
 
 class WebsocketWSGIServer(object):
     def __init__(self, redis_connection=None):
@@ -87,7 +93,9 @@ class WebsocketWSGIServer(object):
         try:
             self.assure_protocol_requirements(environ)
             request = WSGIRequest(environ)
-            if callable(private_settings.WS4REDIS_PROCESS_REQUEST):
+            if isinstance(private_settings.WS4REDIS_PROCESS_REQUEST, six.string_types):
+                import_string(private_settings.WS4REDIS_PROCESS_REQUEST)(request)
+            elif callable(private_settings.WS4REDIS_PROCESS_REQUEST):
                 private_settings.WS4REDIS_PROCESS_REQUEST(request)
             else:
                 self.process_request(request)
