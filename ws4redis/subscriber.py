@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import warnings
 from django.conf import settings
 from ws4redis.redis_store import RedisStore, SELF
 
@@ -48,15 +49,31 @@ class RedisSubscriber(RedisStore):
         for key in self._get_message_channels(request=request, facility=facility, **audience):
             self._subscription.subscribe(key)
 
+    def channel_connected(self, channel, request):
+        """
+        Hook for sub-classes. Called just before persisted messages are sent.
+        """
+        pass
+
     def send_persited_messages(self, websocket):
+        warnings.warn('send_persited_messages has been replaced by send_persisted messages', DeprecationWarning)
+        return self.send_persisted_messages(websocket)
+
+    def send_persisted_messages(self, websocket, request):
         """
         This method is called immediately after a websocket is openend by the client, so that
         persisted messages can be sent back to the client upon connection.
         """
         for channel in self._subscription.channels:
-            message = self._connection.get(channel)
-            if message:
-                websocket.send(message)
+            self.channel_connected(channel, request)
+
+            self._connection.rpush(channel, '{0}:{1}'.format(0, 'ws4redis_internal'))
+            while True:
+                message = self.get_persisted_message(channel)
+                if message:
+                    websocket.send(message)
+                else:
+                    break
 
     def get_file_descriptor(self):
         """

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import six
+import time
+import math
 import warnings
 from ws4redis import settings
 from ws4redis._compat import is_authenticated
@@ -111,7 +113,29 @@ class RedisStore(object):
         for channel in self._publishers:
             self._connection.publish(channel, message)
             if expire > 0:
-                self._connection.setex(channel, expire, message)
+                self.persist_message(channel, message, expire)
+
+    def persist_message(self, channel, message, expire):
+        expire_time = math.ceil(time.time() + expire)
+        self._connection.rpush(channel, '{0}:{1}'.format(expire_time, message))
+        if self._connection.ttl(channel) < expire:
+            self._connection.expire(channel, expire)
+
+    def get_persisted_message(self, channel):
+        """
+        Returns a message which is not expired from the channel. There is no contract about
+        the order in which messages are returned.
+        """
+        while True:
+            queue_value = self._connection.lpop(channel)
+            if queue_value is None:
+                return None
+            expire_time, message = queue_value.split(':', 1)
+            if float(expire_time) > time.time():
+                self._connection.rpush(channel, queue_value)
+                return message
+            elif expire_time == '0':
+                return None
 
     @staticmethod
     def get_prefix():
