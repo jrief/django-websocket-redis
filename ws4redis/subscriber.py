@@ -48,7 +48,7 @@ class RedisSubscriber(RedisStore):
         for key in self._get_message_channels(request=request, facility=facility, **audience):
             self._subscription.subscribe(key)
 
-    def send_persited_messages(self, websocket):
+    def send_persisted_messages(self, websocket):
         """
         This method is called immediately after a websocket is openend by the client, so that
         persisted messages can be sent back to the client upon connection.
@@ -57,6 +57,9 @@ class RedisSubscriber(RedisStore):
             message = self._connection.get(channel)
             if message:
                 websocket.send(message)
+
+    # for backwards compatibility: remove on major version upgrade (v1)
+    send_persited_messages = send_persisted_messages
 
     def get_file_descriptor(self):
         """
