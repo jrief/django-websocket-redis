@@ -14,8 +14,7 @@ Release History
 
 0.4.7
 -----
-
-Instalation settings:
+Installation settings:
 
 * Adding support to run websockets in cross domains (setting WEBSOCKET_HOST).
 
