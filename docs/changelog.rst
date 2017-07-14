@@ -4,6 +4,12 @@
 Release History
 ===============
 
+0.5.1
+-----
+Installation settings:
+
+* Adding support to run websockets in cross domains (setting WEBSOCKET_HOST).
+
 0.5.0
 -----
 * Support for Django-1.11.
@@ -14,10 +20,6 @@ Release History
 
 0.4.7
 -----
-Installation settings:
-
-* Adding support to run websockets in cross domains (setting WEBSOCKET_HOST).
-
 Improvements to the javascript API:
 
 * Performing reconnection attempts when the first connection (on instantiation) fails.
