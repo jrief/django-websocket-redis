@@ -15,10 +15,12 @@ intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiN
 or [Apache](http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html) version 2.4.5 or later.
 
 
-New in 0.4.6
+New in 0.5.1
 ------------
-* Added support for the Sec-WebSocket-Protocol header. Thanks to Erwin Junge.
-* Fixed bug in unpacking binary websocket protocol.
+Installation settings:
+
+* Adding support to run websockets in cross domains (setting WEBSOCKET_HOST).
+
 
 
 Features
