@@ -162,7 +162,7 @@ class WebSocket(object):
         if an exception is called. Use `receive` instead.
         """
         opcode = None
-        message = ""
+        message = None
         while True:
             header, payload = self.read_frame()
             f_opcode = header.opcode
@@ -192,6 +192,8 @@ class WebSocket(object):
                 self.validate_utf8(payload)
                 if six.PY3:
                     payload = payload.decode()
+            if message is None:
+                message = six.text_type() if opcode == self.OPCODE_TEXT else six.binary_type()
             message += payload
             if header.fin:
                 break
