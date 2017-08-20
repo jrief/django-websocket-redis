@@ -15,15 +15,12 @@ intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiN
 or [Apache](http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html) version 2.4.5 or later.
 
 
-New in 0.4.5
+New in 0.5.1
 ------------
-* Created 1 requirements file under ``examples/chatserver/requirements.txt``.
-* Renamed chatclient.py to test_chatclient.py - for django-nose testrunner.
-* Migrated example project to django 1.7.
-* Edited ``docs/testing.rst`` to show new changes for using example project.
-* Added support for Python 3.3 and 3.4.
-* Added support for Django-1.8
-* Removes the check for middleware by name.
+Installation settings:
+
+* Adding support to run websockets in cross domains (setting WEBSOCKET_HOST).
+
 
 
 Features
