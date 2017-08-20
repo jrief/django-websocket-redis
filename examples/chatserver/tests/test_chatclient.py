@@ -3,6 +3,8 @@ import os
 import time
 import requests
 import six
+import django
+import unittest
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import LiveServerTestCase
@@ -290,3 +292,20 @@ class WebsocketTests(LiveServerTestCase):
         self.assertNotIn('sec-websocket-protocol', ws.headers)
         ws.close()
         self.assertFalse(ws.connected)
+
+    @unittest.skipIf(django.VERSION < (1, 8), reason='Binary websockets not supported below Django 1.8')
+    def test_binary_message_publish_broadcast(self):
+        message = RedisMessage(b'\x00\x12\xaa')
+        websocket_url = self.websocket_base_url + u'?publish-broadcast'
+        ws = create_connection(websocket_url)
+        self.assertTrue(ws.connected)
+        ws.send_binary(message)
+        ws.close()
+        self.assertFalse(ws.connected)
+        publisher = RedisPublisher()
+        request = self.factory.get('/chat/')
+
+        result = publisher.fetch_message(request, self.facility, 'broadcast')
+        self.assertEqual(result, message)
+        # now access Redis store directly
+        self.assertEqual(publisher._connection.get(self.prefix + ':broadcast:' + self.facility), message)
