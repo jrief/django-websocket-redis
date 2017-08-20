@@ -146,7 +146,9 @@ class WebsocketWSGIServer(object):
                     self._websockets.remove(websocket)
         except WebSocketError as excpt:
             logger.warning('WebSocketError: {}'.format(excpt), exc_info=sys.exc_info())
-            response = http.HttpResponse(status=1001, content='Websocket Closed')
+            response = http.HttpResponse(content='Websocket Closed')
+            # bypass status code validation in HttpResponse constructor -- necessary for Django v1.11
+            response.status_code = 1001
         except UpgradeRequiredError as excpt:
             logger.info('Websocket upgrade required')
             response = http.HttpResponseBadRequest(status=426, content=excpt)
