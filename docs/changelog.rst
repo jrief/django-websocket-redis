@@ -4,6 +4,14 @@
 Release History
 ===============
 
+0.5.1
+-----
+* Allow WS4REDIS_PROCESS_REQUEST to be a string.
+* Renamed spelling error: send_persited_messages -> send_persisted_messages.
+* Fix: Handle binary messages in Python 3.
+* Fix: Websocket closed status code compatibility with Django v1.11.
+* Fix: Support for Unix Domain Sockets.
+
 0.5.0
 -----
 * Support for Django-1.11.
