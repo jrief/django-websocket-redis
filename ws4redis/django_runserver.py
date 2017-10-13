@@ -6,7 +6,7 @@ import logging
 from hashlib import sha1
 from wsgiref import util
 from django.core.wsgi import get_wsgi_application
-from django.core.servers.basehttp import WSGIServer, WSGIRequestHandler
+from django.core.servers.basehttp import WSGIServer, ServerHandler as _ServerHandler, WSGIRequestHandler as _WSGIRequestHandler
 from django.conf import settings
 from django.core.management.commands import runserver
 from django.utils.six.moves import socketserver
@@ -18,9 +18,44 @@ util._hoppish = {}.__contains__
 logger = logging.getLogger('django.request')
 
 
+class ServerHandler(_ServerHandler):
+    http_version = str("1.1")
+
+class WSGIRequestHandler(_WSGIRequestHandler):
+    protocol_version = 'HTTP/1.1'
+
+    def handle(self):
+        """Handle multiple requests if necessary."""
+        self.close_connection = 1
+
+        self.handle_one_request()
+
+    def handle_one_request(self):
+        """Copy of WSGIRequestHandler.handle(), but with different ServerHandler"""
+        """Copy of WSGIRequestHandler, but with different ServerHandler"""
+
+        self.raw_requestline = self.rfile.readline(65537)
+        if len(self.raw_requestline) > 65536:
+            self.requestline = ''
+            self.request_version = ''
+            self.command = ''
+            self.send_error(414)
+            return
+
+        if not self.parse_request():  # An error code has been sent, just exit
+            return
+
+        handler = ServerHandler(
+            self.rfile, self.wfile, self.get_stderr(), self.get_environ()
+        )
+        handler.request_handler = self      # backpointer for logging
+        handler.run(self.server.get_app())
+
+
 class WebsocketRunServer(WebsocketWSGIServer):
     WS_GUID = b'258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
     WS_VERSIONS = ('13', '8', '7')
+    protocol_version = "HTTP/1.1"
 
     def upgrade_websocket(self, environ, start_response):
         """
