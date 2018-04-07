@@ -111,14 +111,14 @@ clashes you're encouraged to prefix these entries with a unique string, say
 
 	WS4REDIS_PREFIX = 'ws'
 
-Override ``ws4redis.store.RedisStore`` with a customized class, in case you need an alternative
-implementation of that class
+By default, ``ws4redis.subscriber.RedisSubscriber`` is used to listen to websocket messages. In case you
+need an alternative implementation, extend ``w4redis.redis_store.RedisStore`` 
 
 .. code-block:: python
 
-	WS4REDIS_SUBSCRIBER = 'myapp.redis_store.RedisSubscriber'
+	WS4REDIS_SUBSCRIBER = 'myapp.subscriber.RedisSubscriber'
 
-This directive is required during development and ignored in production environments. It overrides
+The following directive is required during development and ignored in production environments. It overrides
 Django's internal main loop and adds a URL dispatcher in front of the request handler
 
 .. code-block:: python
