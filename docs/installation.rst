@@ -91,10 +91,10 @@ If your Redis instance is accessed via a Unix Domain Socket, you can configure t
 	    'db': 5
 	}
 
-**Websocket for Redis** can be configured with ``WS4REDIS_EXPIRE``, to additionally persist messages
-published on the message queue. This is advantageous in situations, where clients shall be able
-to access the published information after reconnecting the websocket, for instance after a page
-is reloaded.
+**Websocket for Redis** can be configured with ``WS4REDIS_EXPIRE``, to persist messages
+published on the message queue for extended periods of time. This is advantageous in situations, 
+where clients shall be able to access the published information after reconnecting the websocket, 
+for instance after a page is reloaded.
 
 This directive sets the number in seconds, each received message is persisted by Redis, additionally
 of being published on the message queue
@@ -102,6 +102,9 @@ of being published on the message queue
 .. code-block:: python
 
 	WS4REDIS_EXPIRE = 7200
+
+The default value is 3600. To turn off persistence, set this value to 0 and messages will expire 
+immediate after (trying) to dispatch to the Websocket.
 
 **Websocket for Redis** can prefix each entry in the datastore with a string. By default, this
 is empty. If the same Redis connection is used to store other kinds of data, in order to avoid name
