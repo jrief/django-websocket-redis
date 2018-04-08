@@ -132,7 +132,10 @@ Ensure that your template context contains at least these processors:
 	TEMPLATE_CONTEXT_PROCESSORS = (
 	    ...
 	    'django.contrib.auth.context_processors.auth',
-	    'django.core.context_processors.static',
+	    # Django <=1.8:
+	    'django.core.context_processors.static',  
+	    # Django >= 1.9:
+	    # 'django.template.context_processors.static',  
 	    'ws4redis.context_processors.default',
 	    ...
 	)
