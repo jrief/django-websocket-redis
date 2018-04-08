@@ -180,7 +180,7 @@ Django with WebSockets for Redis behind Apache-2.4 using uWSGI
 Mike Martinka <mike.martinka@ntrepidcorp.com> reported this configuration, which allows to run
 **ws4redis** with Apache-2.4 and later.
 
-Configuratin for uWSGI:
+Configuration for uWSGI:
 
 .. code-block:: ini
 
