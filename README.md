@@ -15,17 +15,6 @@ intended to work under [uWSGI](http://projects.unbit.it/uwsgi/) and behind [NGiN
 or [Apache](http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html) version 2.4.5 or later.
 
 
-New in 0.4.5
-------------
-* Created 1 requirements file under ``examples/chatserver/requirements.txt``.
-* Renamed chatclient.py to test_chatclient.py - for django-nose testrunner.
-* Migrated example project to django 1.7.
-* Edited ``docs/testing.rst`` to show new changes for using example project.
-* Added support for Python 3.3 and 3.4.
-* Added support for Django-1.8
-* Removes the check for middleware by name.
-
-
 Features
 --------
 * Largely scalable for Django applications with many hundreds of open websocket connections.
@@ -47,6 +36,10 @@ Please also consider, that whichever alternative technology you use, you always 
 so that the Django application can “talk” to the browser. This is because the only link between the browser and
 the server is through the Websocket and thus, by definition a long living connection. For scalability reasons you
 can't start a Django server thread for each of these connections.
+
+Release History
+---------------
+Refer to [changelog.rst](docs/changelog.rst)
 
 Build status
 ------------
