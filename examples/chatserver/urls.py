@@ -31,7 +31,7 @@ elif DJANGO_VERSION < (2, 0):
         url(r'^userchat/$', UserChatView.as_view(), name='user_chat'),
         url(r'^groupchat/$', GroupChatView.as_view(), name='group_chat'),
         url(r'^accounts/', include('django.contrib.auth.urls')),
-        url(r'^admin/', include(admin.site.urls)),
+        url(r'^admin/', admin.site.urls),
         url(r'^$', RedirectView.as_view(url=reverse_lazy('broadcast_chat'))),
     ]
 else:
@@ -40,6 +40,6 @@ else:
         path('userchat/', UserChatView.as_view(), name='user_chat'),
         path('groupchat/', GroupChatView.as_view(), name='group_chat'),
         path('accounts/', include('django.contrib.auth.urls')),
-        path('admin/', include(admin.site.urls)),
+        path('admin/', admin.site.urls),
         path('', RedirectView.as_view(url=reverse_lazy('broadcast_chat'))),
     ]
