@@ -3,9 +3,10 @@ from django import VERSION as DJANGO_VERSION
 from django.conf.urls import include
 if DJANGO_VERSION < (1, 10):
     from django.conf.urls import url, patterns
+    from django.core.urlresolvers import reverse_lazy
 else:
     from django.conf.urls import url
-from django.core.urlresolvers import reverse_lazy
+    from django.urls import reverse_lazy
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import RedirectView
 from django.contrib import admin
