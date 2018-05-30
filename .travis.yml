@@ -22,9 +22,36 @@ branches:
 
 matrix:
   exclude:
-    # Django 1.9 does not support python 3.4
+    - env: DJANGO=1.5.12 MIGRATE='./manage.py migrate'
+      python: 3.4
+    - env: DJANGO=1.5.12 MIGRATE='./manage.py migrate'
+      python: 3.5
+    - env: DJANGO=1.5.12 MIGRATE='./manage.py migrate'
+      python: 3.6
+    - env: DJANGO=1.6.11 MIGRATE='./manage.py migrate'
+      python: 3.4
+    - env: DJANGO=1.6.11 MIGRATE='./manage.py migrate'
+      python: 3.5
+    - env: DJANGO=1.6.11 MIGRATE='./manage.py migrate'
+      python: 3.6
+    - env: DJANGO=1.7.11 MIGRATE='./manage.py migrate'
+      python: 3.4
+    - env: DJANGO=1.7.11 MIGRATE='./manage.py migrate'
+      python: 3.5
+    - env: DJANGO=1.7.11 MIGRATE='./manage.py migrate'
+      python: 3.6
+    - env: DJANGO=1.8.19 MIGRATE='./manage.py migrate'
+      python: 3.4
+    - env: DJANGO=1.8.19 MIGRATE='./manage.py migrate'
+      python: 3.5
+    - env: DJANGO=1.8.19 MIGRATE='./manage.py migrate'
+      python: 3.6
     - env: DJANGO=1.9.13 MIGRATE='./manage.py migrate'
       python: 3.4
+    - env: DJANGO=1.9.13 MIGRATE='./manage.py migrate'
+      python: 3.5
+    - env: DJANGO=1.9.13 MIGRATE='./manage.py migrate'
+      python: 3.6
     - env: DJANGO=2.0.5 MIGRATE='./manage.py migrate'
       python: 2.7
 
