@@ -22,17 +22,17 @@ branches:
 
 matrix:
   exclude:
-    - env: DJANGO=1.5.12 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.5.12 MIGRATE='true'
       python: 3.4
-    - env: DJANGO=1.5.12 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.5.12 MIGRATE='true'
       python: 3.5
-    - env: DJANGO=1.5.12 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.5.12 MIGRATE='true'
       python: 3.6
-    - env: DJANGO=1.6.11 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.6.11 MIGRATE='true'
       python: 3.4
-    - env: DJANGO=1.6.11 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.6.11 MIGRATE='true'
       python: 3.5
-    - env: DJANGO=1.6.11 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.6.11 MIGRATE='true'
       python: 3.6
     - env: DJANGO=1.7.11 MIGRATE='./manage.py migrate'
       python: 3.4
