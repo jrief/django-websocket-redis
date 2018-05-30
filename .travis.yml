@@ -12,7 +12,7 @@ env:
   - DJANGO=1.7.11 MIGRATE='./manage.py migrate'
   - DJANGO=1.8.19 MIGRATE='./manage.py migrate'
   - DJANGO=1.9.13 MIGRATE='./manage.py migrate'
-  - DJANGO=1.10.9 MIGRATE='./manage.py migrate'
+  - DJANGO=1.10.8 MIGRATE='./manage.py migrate'
   - DJANGO=1.11.13 MIGRATE='./manage.py migrate'
   - DJANGO=2.0.5 MIGRATE='./manage.py migrate'
 
