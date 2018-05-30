@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import VERSION as DJANGO_VERSION
 from django.conf.urls import include
-if DJANGO_VERSION < (1, 11):
+if DJANGO_VERSION < (1, 10):
     from django.conf.urls import url, patterns
 else:
     from django.urls import url
@@ -13,7 +13,7 @@ from .views import BroadcastChatView, UserChatView, GroupChatView
 admin.autodiscover()
 
 
-if DJANGO_VERSION < (1, 11):
+if DJANGO_VERSION < (1, 10):
     urlpatterns = patterns('',
         url(r'^chat/$', BroadcastChatView.as_view(), name='broadcast_chat'),
         url(r'^userchat/$', UserChatView.as_view(), name='user_chat'),
