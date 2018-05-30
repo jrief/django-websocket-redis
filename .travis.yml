@@ -7,12 +7,12 @@ python:
   - 3.6
 
 env:
-  - DJANGO=1.7.11 MIGRATE='./manage.py migrate'
-  - DJANGO=1.8.19 MIGRATE='./manage.py migrate'
-  - DJANGO=1.9.13 MIGRATE='./manage.py migrate'
-  - DJANGO=1.10.8 MIGRATE='./manage.py migrate'
-  - DJANGO=1.11.13 MIGRATE='./manage.py migrate'
-  - DJANGO=2.0.5 MIGRATE='./manage.py migrate'
+  - DJANGO=1.7.11
+  - DJANGO=1.8.19
+  - DJANGO=1.9.13
+  - DJANGO=1.10.8
+  - DJANGO=1.11.13
+  - DJANGO=2.0.5
 
 branches:
   only:
@@ -20,25 +20,25 @@ branches:
 
 matrix:
   exclude:
-    - env: DJANGO=1.7.11 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.7.11
       python: 3.4
-    - env: DJANGO=1.7.11 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.7.11
       python: 3.5
-    - env: DJANGO=1.7.11 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.7.11
       python: 3.6
-    - env: DJANGO=1.8.19 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.8.19
       python: 3.4
-    - env: DJANGO=1.8.19 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.8.19
       python: 3.5
-    - env: DJANGO=1.8.19 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.8.19
       python: 3.6
-    - env: DJANGO=1.9.13 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.9.13
       python: 3.4
-    - env: DJANGO=1.9.13 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.9.13
       python: 3.5
-    - env: DJANGO=1.9.13 MIGRATE='./manage.py migrate'
+    - env: DJANGO=1.9.13
       python: 3.6
-    - env: DJANGO=2.0.5 MIGRATE='./manage.py migrate'
+    - env: DJANGO=2.0.5
       python: 2.7
 
 install:
@@ -53,4 +53,4 @@ before_script:
   - pip freeze
 
 script:
-  - cd examples && $MIGRATE && ./manage.py test chatserver --settings=chatserver.tests.settings
+  - cd examples && ./manage.py migrate && ./manage.py test chatserver --settings=chatserver.tests.settings
