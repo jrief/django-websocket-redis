@@ -4,6 +4,10 @@
 Release History
 ===============
 
+0.5.2
+-----
+* Fix issue #206: Safari websocket problem on runserver.
+
 0.5.1
 -----
 * Allow WS4REDIS_PROCESS_REQUEST to be a string.

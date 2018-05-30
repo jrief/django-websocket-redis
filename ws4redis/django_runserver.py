@@ -21,6 +21,7 @@ logger = logging.getLogger('django.request')
 class ServerHandler(_ServerHandler):
     http_version = str("1.1")
 
+
 class WSGIRequestHandler(_WSGIRequestHandler):
     protocol_version = 'HTTP/1.1'
 
