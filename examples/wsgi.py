@@ -1,5 +1,10 @@
-# test uWSGI with low traffic:
+# Django with Websocket for Redis under a single uWSGI server 
+# (for sites with low traffic)
+# 
 # uwsgi --virtualenv /path/to/virtualenv --http :9090 --gevent 100 --http-websockets --module wsgi
+#
+# See: http://django-websocket-redis.readthedocs.io/en/latest/running.html#django-with-websockets-for-redis-as-a-stand-alone-uwsgi-server
+
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
