@@ -206,6 +206,16 @@ now, the message “Hello World” is sent to all clients using the session key
 
 In this context the the magic item ``SELF`` refers to all clients owning the same session key.
 
+Pipeline Message Publication
+---------------------------------
+If publishing to many channels (users, groups, sessions) within one call to the publish_message method consider using the pipeline_publish_message method instead to save round trips to the Redis store.
+
+.. code-block:: python
+
+    redis_publisher = RedisPublisher(facility='foobar', users=['john', 'mary', 'joe', 'sue', 'sally','bobby', 'fred', 'james', 'chris', 'joseph'])
+    message = RedisMessage('Hello World')
+    redis_publisher.pipeline_publish_message(message)
+
 Publish for Broadcast, User, Group and Session
 ----------------------------------------------
 A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?publish-broadcast``,
