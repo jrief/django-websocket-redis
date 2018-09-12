@@ -216,6 +216,8 @@ If publishing to many channels (users, groups, sessions) within one call to the 
     message = RedisMessage('Hello World')
     redis_publisher.pipeline_publish_message(message)
 
+A traditional publish_message call with 10 users above would make 20 network round trips to Redis.  The pipeline_publish_message method, however, only makes 1 network round trip to Redis to push a single message to the 10 users.
+
 Publish for Broadcast, User, Group and Session
 ----------------------------------------------
 A Websocket initialized with the URL ``ws://www.example.com/ws/foobar?publish-broadcast``,
