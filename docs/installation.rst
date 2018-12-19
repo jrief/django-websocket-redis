@@ -82,6 +82,15 @@ override these values
 
 .. note:: Specify only the values, which deviate from the default.
 
+If your Redis instance requires a SSL connection, set the ``ssl`` flag to ``True``: 
+
+.. code-block:: python
+
+	WS4REDIS_CONNECTION = {
+	    ...
+	    'ssl': True
+	}
+
 If your Redis instance is accessed via a Unix Domain Socket, you can configure that as well:
 
 .. code-block:: python
