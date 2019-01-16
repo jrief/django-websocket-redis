@@ -1,167 +1,215 @@
 /**
- * options.uri - > The Websocket URI
- * options.connected -> Callback called after the websocket is connected.
- * options.connecting -> Callback called when the websocket is connecting.
- * options.disconnected -> Callback called after the websocket is disconnected.
- * options.receive_message -> Callback called when a message is received from the websocket.
- * options.heartbeat_msg -> String to identify the heartbeat message.
- * $ -> JQuery instance.
- */
-function WS4Redis(options, $) {
-	'use strict';
-	var opts, ws, deferred, timer, attempts = 1, must_reconnect = true;
-	var heartbeat_interval = null, missed_heartbeats = 0;
+  * options & defaults
+    - maxAttempts: 50,
+    - mustReconnect: true,
+    - uri: null,
+    - heartbeatMsg: null,
+    - maxMissedHeartbeats: 5,
+    - heartbeatLapse: 5000,
+    - autoConnect: true,
+    - receiveMessage (notification, evt) {
+        console.log('ws4redis receive message', evt)
+      },
+    - connecting () {
+        console.log('ws4redis connecting...')
+      },
+    - connected () {
+        console.log('ws4redis connected')
+      },
+    - reconnecting (attempts, time, e) {
+        console.log('ws4redis Reconnect attept ' + attempts + ' on ' + time, e)
+      },
+    - error (evt) {
+        console.error('ws4redis error', evt)
+      },
+    - heartbeatTimeout (e) {
+        console.error('ws4redis heartbeat timeot, closing', e)
+      },
+    - disconnected (evt) {
+        console.error('disconnected', evt)
+      }
+*/
 
-	if (this === undefined)
-		return new WS4Redis(options, $);
-	if (options.uri === undefined)
-		throw new Error('No Websocket URI in options');
-	if ($ === undefined)
-		$ = jQuery;
-	opts = $.extend({ heartbeat_msg: null }, options);
-	connect(opts.uri);
+const generateInteval = function (k) {
+  const max = 30 * 1000
+  const interval = (Math.pow(2, k) - 1) * 1000
+  return interval > max ? max : interval // Math.random() * <- for randomly factor
+}
 
-	function connect(uri) {
-		try {
-			if (ws && (is_connecting() || is_connected())) {
-				console.log("Websocket is connecting or already connected.");
-				return;
-			}
-			
-			if ($.type(opts.connecting) === 'function') {
-				opts.connecting();
-			}
-			
-			console.log("Connecting to " + uri + " ...");
-			deferred = $.Deferred();
-			ws = new WebSocket(uri);
-			ws.onopen = on_open;
-			ws.onmessage = on_message;
-			ws.onerror = on_error;
-			ws.onclose = on_close;
-			timer = null;
-		} catch (err) {
-			try_to_reconnect();
-			deferred.reject(new Error(err));
-		}
-	}
+class WS4Redis {
+  constructor (options) {
+    // Retrofix options params:
+    if (options.receive_message) {
+      options.receiveMessage = options.receive_message
+      delete options.receive_message
+    }
+    if (options.heartbeat_msg) {
+      options.heartbeatMsg = options.heartbeat_msg
+      delete options.heartbeat_msg
+    }
 
-	function try_to_reconnect() {
-		if (must_reconnect && !timer) {
-			// try to reconnect
-			console.log('Reconnecting...');
-			var interval = generate_inteval(attempts);
-			timer = setTimeout(function() {
-				attempts++;
-				connect(ws.url);
-			}, interval);
-		}
-	}
-	
-	function send_heartbeat() {
-		try {
-			missed_heartbeats++;
-			if (missed_heartbeats > 3)
-				throw new Error("Too many missed heartbeats.");
-			ws.send(opts.heartbeat_msg);
-		} catch(e) {
-			clearInterval(heartbeat_interval);
-			heartbeat_interval = null;
-			console.warn("Closing connection. Reason: " + e.message);
-			if ( !is_closing() && !is_closed() ) {
-				ws.close();
-			}
-		}
-	}
+    const self = this
+    self.options = Object.assign({
+      maxAttempts: 50,
+      mustReconnect: true,
+      uri: null,
+      heartbeatMsg: null,
+      maxMissedHeartbeats: 5,
+      heartbeatLapse: 5000,
+      autoConnect: true,
+      receiveMessage (notification, evt) {
+        console.log('ws4redis receive message', evt)
+      },
+      connecting () {
+        console.log('ws4redis connecting...')
+      },
+      connected () {
+        console.log('ws4redis connected')
+      },
+      reconnecting (attempts, time, e) {
+        console.log('ws4redis Reconnect attept ' + attempts + ' on ' + time, e)
+      },
+      error (evt) {
+        console.error('ws4redis error', evt)
+      },
+      heartbeatTimeout (e) {
+        console.error('ws4redis heartbeat timeot, closing', e)
+      },
+      disconnected (evt) {
+        console.error('disconnected', evt)
+      }
+    }, options)
+    self.attempts = 0
+    self.ws = null
+    self.timer = null
+    self.heartbeatInterval = null
+    self.missedHeartbeats = 0
+    self.forcedClose = false
 
-	function on_open() {
-		console.log('Connected!');
-		// new connection, reset attemps counter
-		attempts = 1;
-		deferred.resolve();
-		if (opts.heartbeat_msg && heartbeat_interval === null) {
-			missed_heartbeats = 0;
-			heartbeat_interval = setInterval(send_heartbeat, 5000);
-		}
-		if ($.type(opts.connected) === 'function') {
-			opts.connected();
-		}
-	}
+    if (!self.options.uri) { throw new Error('No Websocket URI in options') }
 
-	function on_close(evt) {
-		console.log("Connection closed!");
-		if ($.type(opts.disconnected) === 'function') {
-			opts.disconnected(evt);
-		}
-		try_to_reconnect();
-	}
+    if (self.options.autoConnect) {
+      self.connect()
+    }
+  }
 
-	function on_error(evt) {
-		console.error("Websocket connection is broken!");
-		deferred.reject(new Error(evt));
-	}
+  connect () {
+    const self = this
+    try {
+      if (self.ws && (self.isConnecting() || self.isConnected())) {
+        console.warn('Websocket is connecting or already connected.')
+        return
+      }
 
-	function on_message(evt) {
-		if (opts.heartbeat_msg && evt.data === opts.heartbeat_msg) {
-			// reset the counter for missed heartbeats
-			missed_heartbeats = 0;
-		} else if ($.type(opts.receive_message) === 'function') {
-			return opts.receive_message(evt.data);
-		}
-	}
+      if (typeof self.options.connecting === 'function') {
+        self.options.connecting()
+      }
 
-	// this code is borrowed from http://blog.johnryding.com/post/78544969349/
-	//
-	// Generate an interval that is randomly between 0 and 2^k - 1, where k is
-	// the number of connection attmpts, with a maximum interval of 30 seconds,
-	// so it starts at 0 - 1 seconds and maxes out at 0 - 30 seconds
-	function generate_inteval(k) {
-		var maxInterval = (Math.pow(2, k) - 1) * 1000;
+      const ws = new WebSocket(self.options.uri)
+      ws.onopen = function () {
+        self.attempts = 1
 
-		// If the generated interval is more than 30 seconds, truncate it down to 30 seconds.
-		if (maxInterval > 30*1000) {
-			maxInterval = 30*1000;
-		}
+        if (self.options.heartbeatMsg && self.heartbeatInterval === null) {
+          self.missedHeartbeats = 0
+          self.heartbeatInterval = setInterval(function () {
+            self.sendHeartbeat()
+          }, self.options.heartbeatLapse)
+        }
+        if (typeof self.options.connected === 'function') {
+          self.options.connected()
+        }
+      }
+      ws.onmessage = function (evt) {
+        if (self.options.heartbeatMsg && evt.data === self.options.heartbeatMsg) {
+          self.missedHeartbeats = 0
+        } else if (typeof self.options.receiveMessage === 'function') {
+          return self.options.receiveMessage(evt.data, evt)
+        }
+      }
+      ws.onerror = function (evt) {
+        if (typeof self.options.error === 'function') {
+          self.options.error(evt)
+        }
+      }
+      ws.onclose = function (evt) {
+        if (self.heartbeatInterval) {
+          clearInterval(self.heartbeatInterval)
+          self.heartbeatInterval = null
+        }
+        if (typeof self.options.disconnected === 'function') {
+          self.options.disconnected(evt)
+        }
+        if (!self.forcedClose) {
+          self.forcedClose = false
+          self.reconnect()
+        }
+      }
+      self.ws = ws
+      self.timer = null
+    } catch (e) {
+      self.reconnect(e)
+    }
+  }
 
-		// generate the interval to a random number between 0 and the maxInterval determined from above
-		return Math.random() * maxInterval;
-	}
+  reconnect (e) {
+    const self = this
+    if (self.options.mustReconnect && !self.timer && self.attempts < self.options.maxAttempts) {
+      const time = generateInteval(self.attempts)
+      if (typeof self.options.reconnecting === 'function') {
+        self.options.reconnecting(self.attempts, time, e)
+      }
+      self.timer = setTimeout(function () {
+        self.attempts++
+        self.connect()
+      }, time)
+    }
+  }
 
-	this.send_message = function(message) {
-		ws.send(message);
-	};
-	
-	this.get_state = function() {
-		return ws.readyState;	
-	};
-	
-	function is_connecting() {
-		return ws && ws.readyState === 0;	
-	}
-	
-	function is_connected() {
-		return ws && ws.readyState === 1;	
-	}
-	
-	function is_closing() {
-		return ws && ws.readyState === 2;	
-	}
+  close () {
+    const self = this
+    self.forcedClose = true
+    if (!self.isClosing() || !self.isClosed()) {
+      self.ws.close()
+    }
+  }
 
-	function is_closed() {
-		return ws && ws.readyState === 3;	
-	}
-	
-	
-	this.close = function () {
-		clearInterval(heartbeat_interval);
-		must_reconnect = false;
-		if (!is_closing() || !is_closed()) {
-			ws.close();
-		}
-	}
-	
-	this.is_connecting = is_connecting; 
-	this.is_connected = is_connected;
-	this.is_closing = is_closing;
-	this.is_closed = is_closed;
+  sendHeartbeat () {
+    const self = this
+    try {
+      self.missedHeartbeats++
+      if (self.missedHeartbeats >= self.options.maxMissedHeartbeats) { throw new Error('Too many missed heartbeats.') }
+      self.ws.send(self.options.heartbeatMsg)
+    } catch (e) {
+      if (typeof self.options.heartbeatTimeout === 'function') {
+        self.options.heartbeatTimeout(e)
+      }
+      if (!self.isClosing() && !self.isClosed()) {
+        self.ws.close()
+      }
+    }
+  }
+
+  sendMessage (message) {
+    this.ws.send(message)
+  }
+
+  getState () {
+    return this.ws.readyState
+  }
+
+  isConnecting () {
+    return this.ws && this.ws.readyState === 0
+  }
+
+  isConnected () {
+    return this.ws && this.ws.readyState === 1
+  }
+
+  isClosing () {
+    return this.ws && this.ws.readyState === 2
+  }
+
+  isClosed () {
+    return this.ws && this.ws.readyState === 3
+  }
 }
