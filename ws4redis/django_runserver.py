@@ -95,7 +95,7 @@ class WebsocketRunServer(WebsocketWSGIServer):
         logger.debug('WebSocket request accepted, switching protocols')
         start_response(force_str('101 Switching Protocols'), headers)
         six.get_method_self(start_response).finish_content()
-        if (django.VERSION[:3] > (2,1,4)):
+        if (django.VERSION[:3] >= (2,1,5)):
             wsgi_input = environ['wsgi.input'].stream
         else:
             wsgi_input = environ['wsgi.input']
