@@ -5,6 +5,7 @@ import select
 import logging
 from hashlib import sha1
 from wsgiref import util
+import django
 from django.core.wsgi import get_wsgi_application
 from django.core.servers.basehttp import WSGIServer, ServerHandler as _ServerHandler, WSGIRequestHandler as _WSGIRequestHandler
 from django.conf import settings
@@ -94,7 +95,11 @@ class WebsocketRunServer(WebsocketWSGIServer):
         logger.debug('WebSocket request accepted, switching protocols')
         start_response(force_str('101 Switching Protocols'), headers)
         six.get_method_self(start_response).finish_content()
-        return WebSocket(environ['wsgi.input'])
+        if (django.VERSION[:3] >= (2,1,5)):
+            wsgi_input = environ['wsgi.input'].stream
+        else:
+            wsgi_input = environ['wsgi.input']
+        return WebSocket(wsgi_input)
 
     def select(self, rlist, wlist, xlist, timeout=None):
         return select.select(rlist, wlist, xlist, timeout)

@@ -13,6 +13,7 @@ env:
   - DJANGO=1.10.8
   - DJANGO=1.11.13
   - DJANGO=2.0.5
+  - DJANGO=2.1.5
 
 branches:
   only:
@@ -40,6 +41,10 @@ matrix:
       python: 3.6
     - env: DJANGO=2.0.5
       python: 2.7
+    - env: DJANGO=2.1.5
+      python: 2.7
+    - env: DJANGO=2.1.5
+      python: 3.4
 
 install:
   - pip install -r examples/requirements.txt
