@@ -4,6 +4,13 @@
 Release History
 ===============
 
+0.6.0
+-----
+* Add support for Django 2.0, 2.1.
+* Drop support for Django<1.7.
+* Fix issue #286: Fix django runserver for django >= 2.1.5.
+* Examples updated.
+
 0.5.2
 -----
 * Fix issue #206: Safari websocket problem on runserver.
