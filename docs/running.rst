@@ -271,7 +271,7 @@ To the directory named ``vassals``, add a configuration file for the Django loop
 	threads = 1
 	processes = 2
 
-Adopt the virtualenv, pathes, ports and number of threads/processes to your operating system and
+Adopt the virtualenv, paths, ports and number of threads/processes to your operating system and
 hosts capabilities.
 
 Then start uWSGI:
