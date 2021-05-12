@@ -54,6 +54,18 @@ matrix:
       python: 3.8
     - env: DJANGO=1.9.13
       python: 3.9
+    - env: DJANGO=1.10.8
+      python: 3.6
+    - env: DJANGO=1.10.8
+      python: 3.7
+    - env: DJANGO=1.10.8
+      python: 3.8
+    - env: DJANGO=1.10.8
+      python: 3.9
+    - env: DJANGO=1.11.29
+      python: 3.8
+    - env: DJANGO=1.11.29
+      python: 3.9
     - env: DJANGO=2.0.13
       python: 2.7
     - env: DJANGO=2.0.13
