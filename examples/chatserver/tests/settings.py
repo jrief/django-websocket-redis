@@ -1,3 +1,5 @@
+import django
+from distutils.version import StrictVersion
 # Django settings for unit test project.
 
 DEBUG = True
@@ -37,9 +39,22 @@ SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS_PREFIX = 'session'
 
 # List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.app_directories.Loader',
-)
+if StrictVersion(django.get_version()) < StrictVersion('2.0'):
+    TEMPLATE_LOADERS = (
+        'django.template.loaders.app_directories.Loader',
+    )
+else:
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'loaders': (
+                    'django.template.loaders.app_directories.Loader',
+                ),
+            }
+        },
+    ]
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
@@ -65,15 +80,27 @@ INSTALLED_APPS = (
 
 # These two middleware classes must be present, if messages sent or received through a websocket
 # connection shall be delivered to an authenticated Django user.
-MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+if StrictVersion(django.get_version()) < StrictVersion('2.0'):
+    print("DEBUG " + django.get_version())
+    MIDDLEWARE_CLASSES = (
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    )
+else:
+    print("DEBUG " + django.get_version())
+    MIDDLEWARE = (
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    )
 
 # This setting is required to override the Django's main loop, when running in
 # development mode, such as ./manage runserver
