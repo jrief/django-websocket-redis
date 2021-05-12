@@ -20,7 +20,7 @@ env:
   - DJANGO=2.2.22
   - DJANGO=3.0.14
   - DJANGO=3.1.10
-  - DJANGO=3.2.3
+  - DJANGO=3.2.2
 
 branches:
   only:
@@ -84,11 +84,11 @@ matrix:
       python: 3.4
     - env: DJANGO=3.1.10
       python: 3.5
-    - env: DJANGO=3.2.3
+    - env: DJANGO=3.2.2
       python: 2.7
-    - env: DJANGO=3.2.3
+    - env: DJANGO=3.2.2
       python: 3.4
-    - env: DJANGO=3.2.3
+    - env: DJANGO=3.2.2
       python: 3.5
 
 install:
