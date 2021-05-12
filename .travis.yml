@@ -2,18 +2,24 @@ language: python
 
 python:
   - 2.7
-  - 3.4
   - 3.5
   - 3.6
+  - 3.7
+  - 3.8
+  - 3.9
 
 env:
   - DJANGO=1.7.11
   - DJANGO=1.8.19
   - DJANGO=1.9.13
   - DJANGO=1.10.8
-  - DJANGO=1.11.13
-  - DJANGO=2.0.5
-  - DJANGO=2.1.5
+  - DJANGO=1.11.29
+  - DJANGO=2.0.13
+  - DJANGO=2.1.15
+  - DJANGO=2.2.22
+  - DJANGO=3.0.14
+  - DJANGO=3.1.10
+  - DJANGO=3.2.2
 
 branches:
   only:
@@ -22,29 +28,69 @@ branches:
 matrix:
   exclude:
     - env: DJANGO=1.7.11
-      python: 3.4
-    - env: DJANGO=1.7.11
       python: 3.5
     - env: DJANGO=1.7.11
       python: 3.6
-    - env: DJANGO=1.8.19
-      python: 3.4
-    - env: DJANGO=1.8.19
-      python: 3.5
+    - env: DJANGO=1.7.11
+      python: 3.7
+    - env: DJANGO=1.7.11
+      python: 3.8
+    - env: DJANGO=1.7.11
+      python: 3.9
     - env: DJANGO=1.8.19
       python: 3.6
-    - env: DJANGO=1.9.13
-      python: 3.4
-    - env: DJANGO=1.9.13
-      python: 3.5
+    - env: DJANGO=1.8.19
+      python: 3.7
+    - env: DJANGO=1.8.19
+      python: 3.8
+    - env: DJANGO=1.8.19
+      python: 3.9
     - env: DJANGO=1.9.13
       python: 3.6
-    - env: DJANGO=2.0.5
+    - env: DJANGO=1.9.13
+      python: 3.7
+    - env: DJANGO=1.9.13
+      python: 3.8
+    - env: DJANGO=1.9.13
+      python: 3.9
+    - env: DJANGO=1.10.8
+      python: 3.6
+    - env: DJANGO=1.10.8
+      python: 3.7
+    - env: DJANGO=1.10.8
+      python: 3.8
+    - env: DJANGO=1.10.8
+      python: 3.9
+    - env: DJANGO=1.11.29
+      python: 3.8
+    - env: DJANGO=1.11.29
+      python: 3.9
+    - env: DJANGO=2.0.13
       python: 2.7
-    - env: DJANGO=2.1.5
+    - env: DJANGO=2.0.13
+      python: 3.8
+    - env: DJANGO=2.0.13
+      python: 3.9
+    - env: DJANGO=2.1.15
       python: 2.7
-    - env: DJANGO=2.1.5
-      python: 3.4
+    - env: DJANGO=2.1.15
+      python: 3.8
+    - env: DJANGO=2.1.15
+      python: 3.9
+    - env: DJANGO=2.2.22
+      python: 2.7
+    - env: DJANGO=3.0.14
+      python: 2.7
+    - env: DJANGO=3.0.14
+      python: 3.5
+    - env: DJANGO=3.1.10
+      python: 2.7
+    - env: DJANGO=3.1.10
+      python: 3.5
+    - env: DJANGO=3.2.2
+      python: 2.7
+    - env: DJANGO=3.2.2
+      python: 3.5
 
 install:
   - pip install -r examples/requirements.txt
@@ -58,4 +104,4 @@ before_script:
   - pip freeze
 
 script:
-  - cd examples && ./manage.py migrate && ./manage.py test chatserver --settings=chatserver.tests.settings
+  - cd examples && ./manage.py migrate --settings=chatserver.tests.settings && ./manage.py test chatserver --settings=chatserver.tests.settings

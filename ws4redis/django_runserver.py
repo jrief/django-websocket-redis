@@ -10,7 +10,10 @@ from django.core.wsgi import get_wsgi_application
 from django.core.servers.basehttp import WSGIServer, ServerHandler as _ServerHandler, WSGIRequestHandler as _WSGIRequestHandler
 from django.conf import settings
 from django.core.management.commands import runserver
-from django.utils.six.moves import socketserver
+try:
+    from django.utils.six.moves import socketserver
+except ModuleNotFoundError as e:
+    import socketserver
 from django.utils.encoding import force_str
 from ws4redis.websocket import WebSocket
 from ws4redis.wsgi_server import WebsocketWSGIServer, HandshakeError, UpgradeRequiredError

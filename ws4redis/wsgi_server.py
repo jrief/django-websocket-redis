@@ -171,8 +171,10 @@ class WebsocketWSGIServer(object):
                 logger.warning('Starting late response on websocket')
                 status_text = http_client.responses.get(response.status_code, 'UNKNOWN STATUS CODE')
                 status = '{0} {1}'.format(response.status_code, status_text)
-                headers = response._headers.values()
-                if six.PY3:
+                headers = response._headers.values() if hasattr(response, '_headers') else \
+                    [(item, response.headers[item]) for item in response.headers]
+
+                if six.PY3 and not isinstance(headers, list):
                     headers = list(headers)
                 start_response(force_str(status), headers)
                 logger.info('Finish non-websocket response with status code: {}'.format(response.status_code))

@@ -13,7 +13,7 @@ except ImportError:
         with io.open(filename, encoding='utf-8') as fd:
             return fd.read()
 
-DESCRIPTION = 'Websocket support for Django using Redis as datastore'
+DESCRIPTION = 'Websockets support for Django using Redis as datastore'
 
 CLASSIFIERS = [
     'Environment :: Web Environment',
@@ -22,6 +22,11 @@ CLASSIFIERS = [
     'Framework :: Django :: 1.6',
     'Framework :: Django :: 1.7',
     'Framework :: Django :: 1.8',
+    'Framework :: Django :: 1.9',
+    'Framework :: Django :: 2.0',
+    'Framework :: Django :: 3.0',
+    'Framework :: Django :: 3.1',
+    'Framework :: Django :: 3.2',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: MIT License',
     'Operating System :: OS Independent',
@@ -29,10 +34,11 @@ CLASSIFIERS = [
     'Topic :: Software Development :: Libraries :: Python Modules',
     'Development Status :: 4 - Beta',
     'Programming Language :: Python :: 2.7',
-    'Programming Language :: Python :: 3.3',
-    'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
 ]
 
 setup(
