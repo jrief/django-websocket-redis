@@ -103,4 +103,4 @@ before_script:
   - pip freeze
 
 script:
-  - cd examples && ./manage.py migrate && ./manage.py test chatserver --settings=chatserver.tests.settings
+  - cd examples && ./manage.py migrate --settings=chatserver.tests.settings && ./manage.py test chatserver --settings=chatserver.tests.settings

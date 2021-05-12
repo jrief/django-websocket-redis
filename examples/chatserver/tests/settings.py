@@ -43,28 +43,33 @@ if StrictVersion(django.get_version()) < StrictVersion('2.0'):
     TEMPLATE_LOADERS = (
         'django.template.loaders.app_directories.Loader',
     )
+
+    TEMPLATE_CONTEXT_PROCESSORS = (
+        'django.contrib.auth.context_processors.auth',
+        'django.core.context_processors.static',
+        'django.core.context_processors.request',
+        'ws4redis.context_processors.default',
+    )
 else:
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'APP_DIRS': True,
             'OPTIONS': {
                 'loaders': (
                     'django.template.loaders.app_directories.Loader',
                 ),
+                'context_processors': {
+                    'django.contrib.auth.context_processors.auth',
+                    'django.core.context_processors.static',
+                    'django.core.context_processors.request',
+                    'ws4redis.context_processors.default',
+                    'django.contrib.messages.context_processors.messages'
+                }
             }
         },
     ]
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.static',
-    'django.core.context_processors.request',
-    'ws4redis.context_processors.default',
-)
 
 INSTALLED_APPS = (
     'django.contrib.admin',
