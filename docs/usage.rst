@@ -219,6 +219,28 @@ not trigger any server side event. A practical use would be to store current the
 a moving client inside the Redis datastore. Then Django can fetch these coordinates from Redis,
 whenever it requires them.
 
+Pipeline Message Publication
+---------------------------------
+If publishing to many channels (users, groups, sessions) within one call to the publish_message
+method consider using the pipeline_publish_message method instead to save round trips to the Redis store.
+
+.. code-block:: python
+    redis_publisher = RedisPublisher(
+        facility='foobar',
+        users=[4'john', 'mary', 'joe', 'sue', 'sally','bobby', 'fred', 'james', 'chris', 'joseph']
+    )
+    message = RedisMessage('Hello World')
+    redis_publisher.pipeline_publish_message(message, transaction=False)
+A traditional publish_message call with 10 users above would make 20 network round trips to Redis.
+The pipeline_publish_message method, however, only makes 1 network round trip to Redis
+to push a single message to the 10 users.
+
+The transaction parameter at the end is default.
+If transaction is set to True, the default behavior for Redis pipelines, all messages
+must be successfully published or none of them will be.
+If you prefer that some messages instead of none are delivered in the case of a single failure,
+set transaction=False to override the default transactional behavior.
+
 .. code-block:: python
 
 	# if the publisher is required only for fetching messages, use an

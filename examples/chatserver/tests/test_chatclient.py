@@ -66,6 +66,20 @@ class WebsocketTests(LiveServerTestCase):
         ws.close()
         self.assertFalse(ws.connected)
 
+    def test_subscribe_pipeline_broadcast(self):
+        audience = {'broadcast': True}
+        publisher = RedisPublisher(facility=self.facility, **audience)
+        publisher.pipeline_publish_message(self.message, 10)
+        websocket_url = self.websocket_base_url + u'?subscribe-broadcast'
+        ws = create_connection(websocket_url)
+        self.assertTrue(ws.connected)
+        result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
+        self.assertEqual(result, self.message)
+        ws.close()
+        self.assertFalse(ws.connected)
+
     def test_pubsub_broadcast(self):
         websocket_url = self.websocket_base_url + u'?subscribe-broadcast&publish-broadcast'
         ws = create_connection(websocket_url)
@@ -100,6 +114,25 @@ class WebsocketTests(LiveServerTestCase):
         audience = {'users': ['john', 'mary']}
         publisher = RedisPublisher(request=request, facility=self.facility, **audience)
         publisher.publish_message(self.message, 10)
+        websocket_url = self.websocket_base_url + u'?subscribe-user'
+        header = ['Cookie: sessionid={0}'.format(self.client.cookies['sessionid'].coded_value)]
+        ws = create_connection(websocket_url, header=header)
+        self.assertTrue(ws.connected)
+        result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
+        self.assertEqual(result, self.message)
+        ws.close()
+        self.assertFalse(ws.connected)
+
+    def test_subscribe_pipeline_user(self):
+        logged_in = self.client.login(username='john', password='secret')
+        self.assertTrue(logged_in, 'John is not logged in')
+        request = self.factory.get('/chat/')
+        request.user = User.objects.get(username='mary')
+        audience = {'users': ['john', 'mary']}
+        publisher = RedisPublisher(request=request, facility=self.facility, **audience)
+        publisher.pipeline_publish_message(self.message, 10)
         websocket_url = self.websocket_base_url + u'?subscribe-user'
         header = ['Cookie: sessionid={0}'.format(self.client.cookies['sessionid'].coded_value)]
         ws = create_connection(websocket_url, header=header)
@@ -149,6 +182,25 @@ class WebsocketTests(LiveServerTestCase):
         ws.close()
         self.assertFalse(ws.connected)
 
+    def test_subscribe_pipeline_group(self):
+        logged_in = self.client.login(username='john', password='secret')
+        self.assertTrue(logged_in, 'John is not logged in')
+        request = self.factory.get('/chat/')
+        request.user = User.objects.get(username='mary')
+        audience = {'groups': ['chatters']}
+        publisher = RedisPublisher(request=request, facility=self.facility, **audience)
+        publisher.pipeline_publish_message(self.message, 10)
+        websocket_url = self.websocket_base_url + u'?subscribe-group'
+        header = ['Cookie: sessionid={0}'.format(self.client.cookies['sessionid'].coded_value)]
+        ws = create_connection(websocket_url, header=header)
+        self.assertTrue(ws.connected)
+        result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
+        self.assertEqual(result, self.message)
+        ws.close()
+        self.assertFalse(ws.connected)
+
     def test_publish_group(self):
         logged_in = self.client.login(username='john', password='secret')
         self.assertTrue(logged_in, 'John is not logged in')
@@ -179,6 +231,28 @@ class WebsocketTests(LiveServerTestCase):
         audience = {'sessions': [SELF]}
         publisher = RedisPublisher(request=request, facility=self.facility, **audience)
         publisher.publish_message(self.message, 10)
+        websocket_url = self.websocket_base_url + u'?subscribe-session'
+        header = ['Cookie: sessionid={0}'.format(session_key)]
+        ws = create_connection(websocket_url, header=header)
+        self.assertTrue(ws.connected)
+        result = ws.recv()
+        if six.PY3:
+            self.message = self.message.decode()
+        self.assertEqual(result, self.message)
+        ws.close()
+        self.assertFalse(ws.connected)
+
+    def test_subscribe_pipeline_session(self):
+        logged_in = self.client.login(username='john', password='secret')
+        self.assertTrue(logged_in, 'John is not logged in')
+        self.assertIsInstance(self.client.session, (dict, type(self.session)), 'Did not receive a s  ession key')
+        session_key = self.client.session.session_key
+        self.assertGreater(len(session_key), 30, 'Session key is too short')
+        request = self.factory.get('/chat/')
+        request.session = self.client.session
+        audience = {'sessions': [SELF]}
+        publisher = RedisPublisher(request=request, facility=self.facility, **audience)
+        publisher.pipeline_publish_message(self.message, 10)
         websocket_url = self.websocket_base_url + u'?subscribe-session'
         header = ['Cookie: sessionid={0}'.format(session_key)]
         ws = create_connection(websocket_url, header=header)
