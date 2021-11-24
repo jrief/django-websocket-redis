@@ -113,6 +113,27 @@ class RedisStore(object):
             if expire > 0:
                 self._connection.setex(channel, expire, message)
 
+    def pipeline_publish_message(
+        self, message, expire=None, transaction=True
+    ):
+        """
+        Like publish_message, but pipelines all publish and setex
+        Redis commands to save round trips to the Redis datastore.
+        """
+        if expire is None:
+            expire = self._expire
+        if not isinstance(message, RedisMessage):
+            raise ValueError('message object is not of type RedisMessage')
+
+        pipeline = self._connection.pipeline(transaction=transaction)
+
+        for channel in self._publishers:
+            pipeline.publish(channel, message)
+            if expire > 0:
+                pipeline.setex(channel, expire, message)
+
+        pipeline.execute()
+
     @staticmethod
     def get_prefix():
         return settings.WS4REDIS_PREFIX and '{0}:'.format(settings.WS4REDIS_PREFIX) or ''
