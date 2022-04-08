@@ -11,7 +11,7 @@ from django.core.servers.basehttp import WSGIServer, ServerHandler as _ServerHan
 from django.conf import settings
 from django.core.management.commands import runserver
 try:
-    from django.utils.six.moves import socketserver
+    from six.moves import socketserver
 except ModuleNotFoundError as e:
     import socketserver
 from django.utils.encoding import force_str

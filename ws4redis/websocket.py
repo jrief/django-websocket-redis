@@ -136,7 +136,7 @@ class WebSocket(object):
             payload = self.stream.read(header.length)
         except socket_error:
             payload = ''
-        except Exception:
+        except Exception as e:
             logger.debug("{}: {}".format(type(e), six.text_type(e)))
             payload = ''
         if len(payload) != header.length:
