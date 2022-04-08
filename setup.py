@@ -39,16 +39,17 @@ CLASSIFIERS = [
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
 ]
 
 setup(
-    name='django-websocket-redis',
+    name='django-websocket-redis-up',
     version=__version__,
-    author='Jacob Rief',
-    author_email='jacob.rief@gmail.com',
+    author='Eduard Vasanski',
+    author_email='eduard.vasanski@gmail.com',
     description=DESCRIPTION,
     long_description=convert('README.md', 'rst'),
-    url='https://github.com/jrief/django-websocket-redis',
+    url='https://github.com/vasanski/django-websocket-redis',
     license='MIT',
     keywords=['django', 'websocket', 'redis'],
     platforms=['OS Independent'],
