@@ -213,3 +213,5 @@ class WS4Redis {
     return this.ws && this.ws.readyState === 3
   }
 }
+
+export default WS4Redis
