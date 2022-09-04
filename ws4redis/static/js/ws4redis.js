@@ -76,7 +76,7 @@ function WS4Redis(options, $) {
 
 	function on_open() {
 		console.log('Connected!');
-		// new connection, reset attemps counter
+		// new connection, reset attempts counter
 		attempts = 1;
 		deferred.resolve();
 		if (opts.heartbeat_msg && heartbeat_interval === null) {
@@ -113,7 +113,7 @@ function WS4Redis(options, $) {
 	// this code is borrowed from http://blog.johnryding.com/post/78544969349/
 	//
 	// Generate an interval that is randomly between 0 and 2^k - 1, where k is
-	// the number of connection attmpts, with a maximum interval of 30 seconds,
+	// the number of connection attempts, with a maximum interval of 30 seconds,
 	// so it starts at 0 - 1 seconds and maxes out at 0 - 30 seconds
 	function generate_inteval(k) {
 		var maxInterval = (Math.pow(2, k) - 1) * 1000;
