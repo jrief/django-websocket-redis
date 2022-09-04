@@ -287,7 +287,7 @@ Serving static files
 --------------------
 The alert reader will have noticed, that static files are not handled by this configuration. While
 in theory it is possible to configure **uWSGI** to `deliver static files`_, please note that
-**uWSGI** is not intended to completly `replace a webserver`_. Therefore, before adding
+**uWSGI** is not intended to completely `replace a webserver`_. Therefore, before adding
 ``route = ^/static static:/path/to/static/root`` to the emperors ini-file, consider to place them
 onto a Content Delivery Network, such as Amazon S3.
 
