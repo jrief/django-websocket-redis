@@ -75,14 +75,14 @@ class RedisMessage(six.binary_type):
                     return super(RedisMessage, cls).__new__(cls, value)
             elif isinstance(value, list):
                 if len(value) >= 2 and value[0] == b'message':
-                    return super(RedisMessage, cls).__new__(cls, value[2])
+                    return super(RedisMessage, cls).__new__(cls, value[1])
         else:
             if isinstance(value, (six.string_types, bytearray)):
                 if value != settings.WS4REDIS_HEARTBEAT:
                     return six.binary_type.__new__(cls, value)
             elif isinstance(value, list):
                 if len(value) >= 2 and value[0] == 'message':
-                    return six.binary_type.__new__(cls, value[2])
+                    return six.binary_type.__new__(cls, value[1])
         return None
 
 
