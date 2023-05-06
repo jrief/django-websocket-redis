@@ -27,11 +27,12 @@ else:
 
 
 class RedisPublisher(RedisStore):
-    def __init__(self, **kwargs):
+    def __init__(self, connection = None, **kwargs):
         """
         Initialize the channels for publishing messages through the message queue.
         """
-        connection = StrictRedis(connection_pool=redis_connection_pool)
+        if connection == None:
+            connection = StrictRedis(connection_pool=redis_connection_pool)
         super(RedisPublisher, self).__init__(connection)
         for key in self._get_message_channels(**kwargs):
             self._publishers.add(key)
