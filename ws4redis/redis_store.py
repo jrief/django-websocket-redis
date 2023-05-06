@@ -76,6 +76,12 @@ class RedisMessage(six.binary_type):
             elif isinstance(value, list):
                 if len(value) >= 2 and value[0] == b'message':
                     return super(RedisMessage, cls).__new__(cls, value[2])
+                if len(value) >= 3 and value[0] == b'pmessage':
+                    if settings.WS4REDIS_PREFIX:
+                        channel = ":".join(value[2].split(":")[2:])
+                    else:
+                        channel = value[2][value[2].index(":")+1:]
+                    return super(RedisMessage, cls).__new__(cls, json.dumps({channel: value[3]}))
         else:
             if isinstance(value, (six.string_types, bytearray)):
                 if value != settings.WS4REDIS_HEARTBEAT:
@@ -83,6 +89,12 @@ class RedisMessage(six.binary_type):
             elif isinstance(value, list):
                 if len(value) >= 2 and value[0] == 'message':
                     return six.binary_type.__new__(cls, value[2])
+                elif len(value) >= 3 and value[0] == 'pmessage':
+                    if settings.WS4REDIS_PREFIX:
+                        channel = ":".join(value[2].split(":")[2:])
+                    else:
+                        channel = value[2][value[2].index(":")+1:]
+                    return six.binary_type.__new__(cls, json.dumps({channel: value[3]}))
         return None
 
 

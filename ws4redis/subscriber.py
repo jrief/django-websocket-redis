@@ -46,7 +46,10 @@ class RedisSubscriber(RedisStore):
         }
         self._subscription = self._connection.pubsub()
         for key in self._get_message_channels(request=request, facility=facility, **audience):
-            self._subscription.subscribe(key)
+            if '*' in key:
+                self._subscription.psubscribe(key)
+            else:
+                self._subscription.subscribe(key)
 
     def send_persisted_messages(self, websocket):
         """
